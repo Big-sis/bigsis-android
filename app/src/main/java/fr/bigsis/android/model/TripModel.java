@@ -1,4 +1,4 @@
-package com.example.bigsis_android.model;
+package fr.bigsis.android.model;
 
 public class TripModel {
 

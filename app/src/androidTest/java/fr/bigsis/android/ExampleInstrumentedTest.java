@@ -1,4 +1,4 @@
-package com.example.bigsis_android;
+package fr.bigsis.android;
 
 import android.content.Context;
 

@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:340984058790:android:b756ec66b0a1470f",
         "android_client_info": {
-          "package_name": "com.example.bigsis_android"
+          "package_name": "fr.bigsis.android"
         }
       },
       "oauth_client": [

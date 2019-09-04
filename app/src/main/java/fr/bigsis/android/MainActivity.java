@@ -1,8 +1,10 @@
-package com.example.bigsis_android;
+package fr.bigsis.android;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
+
+import fr.bigsis.android.R;
 
 public class MainActivity extends AppCompatActivity {
 
