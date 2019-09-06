@@ -22,8 +22,8 @@ public class TripListAdapter extends FirestoreRecyclerAdapter<TripModel, TripLis
 
     @Override
     protected void onBindViewHolder(@NonNull TripListHolder tripListHolder, int i, @NonNull TripModel tripModel) {
-        tripListHolder.tvFromLocation.setText(tripModel.getFromLocation());
-        tripListHolder.tvToLocation.setText(tripModel.getToLocation());
+        tripListHolder.tvFromLocation.setText(tripModel.getFrom());
+        tripListHolder.tvToLocation.setText(tripModel.getTo());
     }
 
     @NonNull
@@ -36,7 +36,7 @@ public class TripListAdapter extends FirestoreRecyclerAdapter<TripModel, TripLis
     class TripListHolder extends RecyclerView.ViewHolder {
         TextView tvFromLocation;
         TextView tvToLocation;
-        public TripListHolder(@NonNull View itemView) {
+        private TripListHolder(@NonNull View itemView) {
             super(itemView);
             tvFromLocation = itemView.findViewById(R.id.tvTripsFrom);
             tvToLocation = itemView.findViewById(R.id.tvTripsTo);

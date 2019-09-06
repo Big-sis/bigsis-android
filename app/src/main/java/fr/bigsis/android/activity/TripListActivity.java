@@ -25,16 +25,14 @@ public class TripListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_list);
-        tripsRecycleView();
+        tripsRecyclerView();
     }
 
-    private void tripsRecycleView() {
+    private void tripsRecyclerView() {
         Query query = tripRef.orderBy("from", Query.Direction.DESCENDING);
-
         FirestoreRecyclerOptions<TripModel> options = new FirestoreRecyclerOptions.Builder<TripModel>()
                 .setQuery(query, TripModel.class)
                 .build();
-
         adapter = new TripListAdapter(options);
         RecyclerView rvList = findViewById(R.id.rvListTrips);
         rvList.setHasFixedSize(true);

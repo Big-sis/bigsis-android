@@ -2,33 +2,36 @@ package fr.bigsis.android.model;
 
 public class TripModel {
 
-    private String fromLocation;
-    private String toLocation;
+    private String from;
+    private String to;
     // TODO dateTime or timestamp, author and chat
     private String thumbnail;
     private int maxParticipants;
 
-    public TripModel(String fromLocation, String toLocation, String thumbnail, int maxParticipants) {
-        this.fromLocation = fromLocation;
-        this.toLocation = toLocation;
+    public TripModel(String from, String to, String thumbnail, int maxParticipants) {
+        this.from = from;
+        this.to = to;
         this.thumbnail = thumbnail;
         this.maxParticipants = maxParticipants;
     }
 
-    public String getFromLocation() {
-        return fromLocation;
+    public TripModel() {
     }
 
-    public void setFromLocation(String fromLocation) {
-        this.fromLocation = fromLocation;
+    public String getFrom() {
+        return from;
     }
 
-    public String getToLocation() {
-        return toLocation;
+    public void setFrom(String from) {
+        this.from = from;
     }
 
-    public void setToLocation(String toLocation) {
-        this.toLocation = toLocation;
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
     }
 
     public String getThumbnail() {
