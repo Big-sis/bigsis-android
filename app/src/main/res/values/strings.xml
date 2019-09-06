@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">bigsis-android</string>
     <string name="participer">Participer</string>
+    <string name="rechercher_un_trajet">Rechercher un trajet</string>
 </resources>
