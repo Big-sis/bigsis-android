@@ -1,0 +1,47 @@
+package fr.bigsis.android.entity;
+
+import com.google.firebase.firestore.IgnoreExtraProperties;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@IgnoreExtraProperties
+public class TripEntity {
+    private String tripId;
+    private String from;
+    private String to;
+
+    public TripEntity() {
+    }
+
+    public Map<String, Object> toHashMap() {
+        Map<String, Object> tripMap = new HashMap<>();
+        tripMap.put("from", from);
+        tripMap.put("to", to);
+        return tripMap;
+    }
+
+    public String getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(String tripId) {
+        this.tripId = tripId;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
+    }
+}
