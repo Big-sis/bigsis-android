@@ -1,9 +1,14 @@
 package fr.bigsis.android.model;
 
+import java.util.Date;
+
 public class TripModel {
 
     private String from;
     private String to;
+    private Date date;
+
+
     // TODO dateTime or timestamp, author and chat
     private String thumbnail;
     private int maxParticipants;
@@ -13,6 +18,12 @@ public class TripModel {
         this.to = to;
         this.thumbnail = thumbnail;
         this.maxParticipants = maxParticipants;
+    }
+
+    public TripModel(String from, String to, Date date) {
+        this.from = from;
+        this.to = to;
+        this.date = date;
     }
 
     public TripModel() {
@@ -34,6 +45,13 @@ public class TripModel {
         this.to = to;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
     public String getThumbnail() {
         return thumbnail;
     }

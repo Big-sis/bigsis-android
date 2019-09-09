@@ -1,17 +1,27 @@
 package fr.bigsis.android.entity;
 
+import android.text.method.DateTimeKeyListener;
+
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 @IgnoreExtraProperties
 public class TripEntity {
+    private Date date;
     private String tripId;
     private String from;
     private String to;
 
     public TripEntity() {
+    }
+
+    public TripEntity(String from, String to, Date date) {
+        this.from = from;
+        this.to = to;
+        this.date = date;
     }
 
     public Map<String, Object> toHashMap() {
@@ -43,5 +53,12 @@ public class TripEntity {
 
     public void setTo(String to) {
         this.to = to;
+    }
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
