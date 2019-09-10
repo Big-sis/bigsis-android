@@ -1,7 +1,5 @@
 package fr.bigsis.android.entity;
 
-import android.text.method.DateTimeKeyListener;
-
 import com.google.firebase.firestore.IgnoreExtraProperties;
 
 import java.util.Date;
@@ -54,6 +52,7 @@ public class TripEntity {
     public void setTo(String to) {
         this.to = to;
     }
+
     public Date getDate() {
         return date;
     }

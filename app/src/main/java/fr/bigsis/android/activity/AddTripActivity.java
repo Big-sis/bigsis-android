@@ -1,19 +1,13 @@
 package fr.bigsis.android.activity;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
 
 import android.app.DatePickerDialog;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EdgeEffect;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,7 +15,6 @@ import android.widget.Toast;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -30,17 +23,20 @@ import java.util.GregorianCalendar;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.fragment.DatePickerFragment;
-import fr.bigsis.android.model.TripModel;
 
 public class AddTripActivity extends AppCompatActivity implements DatePickerDialog.OnDateSetListener {
-    private DatePickerDialog.OnDateSetListener mDateSetListener;
-    TextView textView ;
+    TextView textView;
     Date dateRepresentation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_trip);
+        dateAdd();
+        addOneTrip();
+    }
+
+    private void dateAdd() {
         textView = findViewById(R.id.tvAddDate);
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -49,7 +45,6 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 datePicker.show(getSupportFragmentManager(), "date picker");
             }
         });
-        addOneTrip();
     }
 
     @Override
@@ -63,13 +58,11 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
         textView.setText(format.format(dateRepresentation));
     }
 
-
     private void addOneTrip() {
         final EditText etAddFrom = findViewById(R.id.etAddFrom);
         final EditText etAddTo = findViewById(R.id.etAddTo);
         textView = findViewById(R.id.tvAddDate);
         Button saveAddTrip = findViewById(R.id.btAddTrip);
-
         saveAddTrip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -81,11 +74,9 @@ public class AddTripActivity extends AppCompatActivity implements DatePickerDial
                 }
                 CollectionReference tripReference = FirebaseFirestore.getInstance()
                         .collection("trips");
-                tripReference.add(new TripEntity(addFrom,toFrom, dateRepresentation));
+                tripReference.add(new TripEntity(addFrom, toFrom, dateRepresentation));
                 finish();
             }
         });
-
     }
-
 }
