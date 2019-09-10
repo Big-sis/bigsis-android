@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "340984058790",
+    "firebase_url": "https://bigsis-777.firebaseio.com",
+    "project_id": "bigsis-777",
+    "storage_bucket": "bigsis-777.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340984058790:android:b756ec66b0a1470f",
+        "android_client_info": {
+          "package_name": "fr.bigsis.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "340984058790-vilbbk0go9h39pafmjt4i29ueh1va9g0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTUZXy0gZOY0uKsKhCMXTXlIflt-F3DFM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "340984058790-vilbbk0go9h39pafmjt4i29ueh1va9g0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
