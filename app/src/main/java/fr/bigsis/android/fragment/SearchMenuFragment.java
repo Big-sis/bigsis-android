@@ -1,13 +1,18 @@
 package fr.bigsis.android.fragment;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+
+import android.text.Editable;
+import android.text.TextWatcher;
 
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -16,11 +21,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import fr.bigsis.android.R;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 public class SearchMenuFragment extends Fragment {
     private SearchMenuViewModel viewModel;
+
     private OnFragmentInteractionListener mListener;
     private EditText etSearchFrom;
     private EditText etSearchTo;
