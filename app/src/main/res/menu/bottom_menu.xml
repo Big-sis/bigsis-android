@@ -13,7 +13,7 @@
         android:id="@+id/action_message"
         android:enabled="true"
         android:title="@null"
-        android:icon="@drawable/dialogue"
+        android:icon="@drawable/icon_dialog"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_trips"
@@ -24,7 +24,7 @@
         android:id="@+id/action_events"
         android:enabled="true"
         android:title="@null"
-        android:icon="@drawable/calendar"
+        android:icon="@drawable/icon_event"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_route"
