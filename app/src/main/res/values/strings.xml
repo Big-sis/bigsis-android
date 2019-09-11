@@ -3,4 +3,7 @@
     <string name="participer">Participer</string>
     <string name="rechercher_un_trajet">Rechercher un trajet</string>
     <string name="ajouter">Ajouter</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
