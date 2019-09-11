@@ -19,6 +19,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -47,6 +48,7 @@ import fr.bigsis.android.helper.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
+import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 public class TripListActivity extends BigsisActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
 
