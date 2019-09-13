@@ -37,6 +37,10 @@ public class TripListAdapter extends FirestoreRecyclerAdapter<TripEntity, TripLi
         return new TripListHolder(v);
     }
 
+    public void deleteItem(int position) {
+        getSnapshots().getSnapshot(position).getReference().delete();
+    }
+
     class TripListHolder extends RecyclerView.ViewHolder {
         TextView tvFromLocation;
         TextView tvToLocation;
