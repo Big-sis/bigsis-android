@@ -53,28 +53,10 @@ public class SearchMenuFragment extends Fragment {
         etSearchFrom = view.findViewById(R.id.etSearchFrom);
         //final String newValue = etSearchFrom.getText().toString();
         viewModel = ViewModelProviders.of(getActivity()).get(SearchMenuViewModel.class);
-
-
-        etSearchFrom.addTextChangedListener(new TextWatcher() {
-                                                @Override
-                                                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                                                    viewModel.setText("");
-                                                }
-
-                                                @Override
-                                                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                                                    if (charSequence.length() > 0) {
-                                                       viewModel.setText(charSequence.toString());
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void afterTextChanged(Editable editable) {
-                                                    if (editable.length() > 0) {
-                                                        viewModel.setText(editable.toString());
-                                                    }
-                                                }
-                                            });
+        if(!etSearchFrom.getText().toString().isEmpty()) {
+            viewModel.setText(etSearchFrom.getText().toString());
+            sendDaats(etSearchFrom.toString());
+        }
 
                 fbtClose.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -87,7 +69,6 @@ public class SearchMenuFragment extends Fragment {
     // TODO: Rename method, update argument and hook method into UI event
     public void sendDaats(String fromLocation) {
         if (mListener != null) {
-            isOpen = true;
             mListener.onFragmentInteraction(fromLocation);
         }
     }

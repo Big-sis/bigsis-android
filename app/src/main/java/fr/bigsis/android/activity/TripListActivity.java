@@ -1,6 +1,7 @@
 package fr.bigsis.android.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
@@ -22,24 +23,24 @@ import com.google.firebase.firestore.Query;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.TripListAdapter;
 import fr.bigsis.android.entity.TripEntity;
+import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
-public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener{
+public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference tripRef = db.collection("trips");
     private TripListAdapter adapter;
     private FrameLayout frameLayout;
     private SearchMenuViewModel viewModel;
-   // Button btSearch;
+    private RecyclerView rvList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_list);
 
-            tripsRecyclerView();
-
+        tripsRecyclerView();
         openAddTrips();
         frameLayout = findViewById(R.id.fragment_container);
         final Button btSearch = findViewById(R.id.btSearchTrip);
@@ -61,13 +62,15 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         transaction.addToBackStack(null);
         transaction.add(R.id.fragment_container, fragment, "SEARCH_MENU_FRAGMENT")
                 .commit();
-        if(viewModel.getText().toString().length()>0) {
-            tripsFiltered();
-        }
     }
 
     @Override
     public void onFragmentInteraction(String fromLocation) {
+        onBackPressed();
+    }
+
+    @Override
+    public void onFragmentInteractionAdd() {
         onBackPressed();
     }
 
@@ -76,7 +79,14 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         btAddTrip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(TripListActivity.this, AddTripActivity.class));
+                getSupportActionBar().setTitle(R.string.create_trip);
+                AddTripFragment fragment = AddTripFragment.newInstance();
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+                transaction.addToBackStack(null);
+                transaction.add(R.id.fragment_container, fragment, "ADD_MENU_FRAGMENT")
+                        .commit();
             }
         });
     }
@@ -86,15 +96,15 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 .setQuery(query, TripEntity.class)
                 .build();
         adapter = new TripListAdapter(options);
-        RecyclerView rvList = findViewById(R.id.rvListTrips);
+        rvList = findViewById(R.id.rvListTrips);
         rvList.setHasFixedSize(true);
         rvList.setLayoutManager(new LinearLayoutManager(this));
         rvList.setAdapter(adapter);
     }
 
-    private void tripsFiltered() {
-
-        Query query = tripRef.whereEqualTo("from", viewModel.getText());
+   /* private void tripsFiltered(String s) {
+        adapter.stopListening();
+        Query query = tripRef.whereEqualTo("from",s.toLowerCase());
         FirestoreRecyclerOptions<TripEntity> options = new FirestoreRecyclerOptions.Builder<TripEntity>()
                 .setQuery(query, TripEntity.class)
                 .build();
@@ -102,8 +112,9 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         RecyclerView rvList = findViewById(R.id.rvListTrips);
         rvList.setHasFixedSize(true);
         rvList.setLayoutManager(new LinearLayoutManager(this));
-        rvList.setAdapter(adapter);
-    }
+        rvList.setAdapter();
+        adapter.startListening();
+    }*/
 
     @Override
     protected void onStart() {
