@@ -27,7 +27,7 @@ public class TripListAdapter extends FirestoreRecyclerAdapter<TripEntity, TripLi
         tripListHolder.tvFromLocation.setText(tripEntity.getFrom());
         tripListHolder.tvToLocation.setText(tripEntity.getTo());
         SimpleDateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-        tripListHolder.tvDateTrip.setText(format.format(tripEntity.getDate().getTime()));
+        tripListHolder.tvDateTrip.setText(format.format(tripEntity.getDate()));
     }
 
     @NonNull

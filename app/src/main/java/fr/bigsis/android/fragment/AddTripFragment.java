@@ -3,9 +3,6 @@ package fr.bigsis.android.fragment;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +11,8 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -103,8 +102,9 @@ public class AddTripFragment extends Fragment {
         CollectionReference tripReference = FirebaseFirestore.getInstance()
                 .collection("trips");
         tripReference.add(new TripEntity(addFrom, toFrom, date));
-        getActivity().finish();
+        getActivity().onBackPressed();
     }
+
     public void onButtonPressed() {
         if (mListener != null) {
             mListener.onFragmentInteractionAdd();

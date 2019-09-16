@@ -1,21 +1,20 @@
 package fr.bigsis.android.activity;
 
+import android.os.Bundle;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.TextView;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.DialogFragment;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.FrameLayout;
-
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -28,6 +27,9 @@ import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener {
+    SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
+    AddTripFragment fragmentAdd = AddTripFragment.newInstance();
+    Toolbar toolbar;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference tripRef = db.collection("trips");
     private TripListAdapter adapter;
@@ -39,28 +41,62 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_list);
+        toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        final TextView tvTitleToolBar = findViewById(R.id.tvTitleToolBar);
+        tvTitleToolBar.setText(R.string.trips);
 
         tripsRecyclerView();
-        openAddTrips();
         frameLayout = findViewById(R.id.fragment_container);
-        final Button btSearch = findViewById(R.id.btSearchTrip);
+        final ImageButton imbtSearch = findViewById(R.id.imBt_ic_search);
+        final ImageButton imBtCancel = findViewById(R.id.ic_cancel);
+        final ImageButton imBtAdd = findViewById(R.id.ic_add);
         viewModel = ViewModelProviders.of(this).get(SearchMenuViewModel.class);
+        imBtAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imBtCancel.setVisibility(View.VISIBLE);
+                imBtAdd.setVisibility(View.GONE);
+                imbtSearch.setVisibility(View.GONE);
+                tvTitleToolBar.setText(R.string.add_a_trip);
+                addTrip();
+            }
+        });
 
-        btSearch.setOnClickListener(new View.OnClickListener() {
+        imbtSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openFragment();
+                imBtCancel.setVisibility(View.VISIBLE);
+                imbtSearch.setVisibility(View.GONE);
+                imBtAdd.setVisibility(View.GONE);
+                tvTitleToolBar.setText(R.string.search_trip);
+            }
+        });
+
+        imBtCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (fragmentOpen.isAdded()) {
+                    onFragmentInteraction("hello");
+                }
+                if (fragmentAdd.isAdded()) {
+                    onFragmentInteractionAdd();
+                }
+                imBtCancel.setVisibility(View.GONE);
+                imbtSearch.setVisibility(View.VISIBLE);
+                imBtAdd.setVisibility(View.VISIBLE);
+                tvTitleToolBar.setText(R.string.trips);
             }
         });
     }
 
     public void openFragment() {
-        SearchMenuFragment fragment = SearchMenuFragment.newInstance();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
         transaction.addToBackStack(null);
-        transaction.add(R.id.fragment_container, fragment, "SEARCH_MENU_FRAGMENT")
+        transaction.add(R.id.fragment_container, fragmentOpen, "SEARCH_MENU_FRAGMENT")
                 .commit();
     }
 
@@ -74,22 +110,15 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         onBackPressed();
     }
 
-    private void openAddTrips() {
-        FloatingActionButton btAddTrip = findViewById(R.id.fbAddTrip);
-        btAddTrip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getSupportActionBar().setTitle(R.string.create_trip);
-                AddTripFragment fragment = AddTripFragment.newInstance();
-                FragmentManager fragmentManager = getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
-                transaction.addToBackStack(null);
-                transaction.add(R.id.fragment_container, fragment, "ADD_MENU_FRAGMENT")
-                        .commit();
-            }
-        });
+    private void addTrip() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+        transaction.addToBackStack(null);
+        transaction.add(R.id.fragment_container, fragmentAdd, "ADD_MENU_FRAGMENT")
+                .commit();
     }
+
     private void tripsRecyclerView() {
         Query query = tripRef.orderBy("from", Query.Direction.ASCENDING);
         FirestoreRecyclerOptions<TripEntity> options = new FirestoreRecyclerOptions.Builder<TripEntity>()

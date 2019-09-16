@@ -7,4 +7,11 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="create_trip">Créer un trajet</string>
+    <string name="date">Date</string>
+    <string name="add_destination">Ajouter une destination</string>
+    <string name="add_departure">Ajouter un départ</string>
+    <string name="create">Créer</string>
+    <string name="search_trip">Rechercher un trajet</string>
+    <string name="trips">Trajets</string>
+    <string name="add_a_trip">Créer un trajet</string>
 </resources>
