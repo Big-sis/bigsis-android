@@ -165,7 +165,6 @@ public class AddTripFragment extends Fragment {
                     }
                 });
     }
-
     public void onButtonPressed() {
         if (mListener != null) {
             mListener.onFragmentInteractionAdd();

@@ -1,7 +1,6 @@
 package fr.bigsis.android.fragment;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
