@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -45,13 +46,14 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         setSupportActionBar(toolbar);
         final TextView tvTitleToolBar = findViewById(R.id.tvTitleToolBar);
         tvTitleToolBar.setText(R.string.trips);
-
         tripsRecyclerView();
+
         frameLayout = findViewById(R.id.fragment_container);
         final ImageButton imbtSearch = findViewById(R.id.imBt_ic_search);
         final ImageButton imBtCancel = findViewById(R.id.ic_cancel);
         final ImageButton imBtAdd = findViewById(R.id.ic_add);
         viewModel = ViewModelProviders.of(this).get(SearchMenuViewModel.class);
+
         imBtAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,7 +80,7 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
             @Override
             public void onClick(View view) {
                 if (fragmentOpen.isAdded()) {
-                    onFragmentInteraction("hello");
+                    onFragmentInteraction();
                 }
                 if (fragmentAdd.isAdded()) {
                     onFragmentInteractionAdd();
@@ -89,6 +91,8 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 tvTitleToolBar.setText(R.string.trips);
             }
         });
+        String name = viewModel.getDepartureName();
+            Toast.makeText(this,  name, Toast.LENGTH_LONG).show();
     }
 
     public void openFragment() {
@@ -98,10 +102,11 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         transaction.addToBackStack(null);
         transaction.add(R.id.fragment_container, fragmentOpen, "SEARCH_MENU_FRAGMENT")
                 .commit();
+
     }
 
     @Override
-    public void onFragmentInteraction(String fromLocation) {
+    public void onFragmentInteraction() {
         onBackPressed();
     }
 
@@ -131,7 +136,8 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         rvList.setAdapter(adapter);
     }
 
-   /* private void tripsFiltered(String s) {
+  /* private void tripsFiltered(String s) {
+
         adapter.stopListening();
         Query query = tripRef.whereEqualTo("from",s.toLowerCase());
         FirestoreRecyclerOptions<TripEntity> options = new FirestoreRecyclerOptions.Builder<TripEntity>()

@@ -6,15 +6,21 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProviders;
 
 public class SearchMenuViewModel extends ViewModel {
-    private MutableLiveData<String> text = new MutableLiveData<>();
+    private MutableLiveData<String> departureName;
 
+    public SearchMenuViewModel() {
+        departureName = new MutableLiveData<>();
+    }
 
+    public String getDepartureName() {
+        return this.departureName != null ? this.departureName.getValue() : "";
+    }
 
-    public void setText(String input) {
-        text.setValue(input);
+    public void setDepartureName(String name) {
+        this.departureName.setValue(name);
     }
 
     public LiveData<String> getText() {
-        return text;
+        return departureName;
     }
 }
