@@ -1,12 +1,17 @@
 package fr.bigsis.android.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentManager;
@@ -20,11 +25,13 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import fr.bigsis.android.MainActivity;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.TripListAdapter;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
+import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener {
@@ -45,6 +52,8 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final TextView tvTitleToolBar = findViewById(R.id.tvTitleToolBar);
+        CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
+        curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         tvTitleToolBar.setText(R.string.trips);
         tripsRecyclerView();
 
@@ -161,5 +170,19 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     protected void onStop() {
         super.onStop();
         adapter.stopListening();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_route) {
+            Toast.makeText(this, "Android Menu is Clicked", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent(TripListActivity.this, MainActivity.class);
+                startActivity(intent);
+                return true;
+            //TODO other cases
+        }
+                return super.onOptionsItemSelected(item);
     }
 }
