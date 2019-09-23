@@ -297,7 +297,7 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 Toast.makeText(TripListActivity.this, "hh", Toast.LENGTH_SHORT).show();
                 return true;
         }
-        return false;
+                return super.onOptionsItemSelected(item);
     }
 
     private void showToast(@NonNull String message) {
