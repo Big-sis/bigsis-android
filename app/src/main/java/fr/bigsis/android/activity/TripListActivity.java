@@ -1,9 +1,6 @@
 package fr.bigsis.android.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -21,11 +18,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-import fr.bigsis.android.MainActivity;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.TripListAdapter;
 import fr.bigsis.android.entity.TripEntity;
@@ -33,6 +30,7 @@ import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
+
 
 public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener {
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
@@ -45,6 +43,7 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     private SearchMenuViewModel viewModel;
     private RecyclerView rvList;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +51,7 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         final TextView tvTitleToolBar = findViewById(R.id.tvTitleToolBar);
-        CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
+        final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         tvTitleToolBar.setText(R.string.trips);
         tripsRecyclerView();
@@ -102,7 +101,18 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         });
         String name = viewModel.getDepartureName();
             Toast.makeText(this,  name, Toast.LENGTH_LONG).show();
+
+        curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                return selectItem(item, curvedBottomNavigationView);
+            }
+        });
+        MenuItem selectedItem =
+                curvedBottomNavigationView.getMenu().getItem(2);
+        selectItem(selectedItem, curvedBottomNavigationView);
     }
+
 
     public void openFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -172,17 +182,21 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         adapter.stopListening();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_route) {
-            Toast.makeText(this, "Android Menu is Clicked", Toast.LENGTH_LONG).show();
-            Intent intent = new Intent(TripListActivity.this, MainActivity.class);
-                startActivity(intent);
+    private boolean selectItem(@NonNull MenuItem item, CurvedBottomNavigationView curvedBottomNavigationView) {
+        switch (item.getItemId()) {
+            case R.id.action_user_profile:
+                Toast.makeText(TripListActivity.this, "hello", Toast.LENGTH_SHORT).show();
                 return true;
-            //TODO other cases
+            case R.id.action_message:
+                Toast.makeText(TripListActivity.this, "ddd", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_events:
+                Toast.makeText(TripListActivity.this, "ii", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_route:
+                Toast.makeText(TripListActivity.this, "hh", Toast.LENGTH_SHORT).show();
+                return true;
         }
-                return super.onOptionsItemSelected(item);
+        return false;
     }
 }
