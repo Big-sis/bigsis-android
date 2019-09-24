@@ -220,6 +220,13 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                 })
                 .setLifecycleOwner(this)
                 .build();
+        adapter = new TripListAdapter(options);
+        RecyclerView rvList = findViewById(R.id.rvListTrips);
+        rvList.setHasFixedSize(true);
+        rvList.setLayoutManager(new LinearLayoutManager(this));
+        rvList.setAdapter();
+        adapter.startListening();
+    }*/
 
         adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {
             @NonNull
