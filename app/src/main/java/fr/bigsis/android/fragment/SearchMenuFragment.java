@@ -95,6 +95,11 @@ public class SearchMenuFragment extends Fragment {
         });
 
     }
+    public void sendDatas() {
+        if (mListener != null) {
+            mListener.onFragmentInteraction();
+        }
+    }
 
     @Override
     public void onAttach(Context context) {
