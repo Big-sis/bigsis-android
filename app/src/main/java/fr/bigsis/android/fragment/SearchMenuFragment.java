@@ -10,8 +10,6 @@ import androidx.fragment.app.Fragment;
 
 import androidx.lifecycle.ViewModelProviders;
 
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +18,6 @@ import android.widget.EditText;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.TripListActivity;
-import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 public class SearchMenuFragment extends Fragment {
@@ -51,8 +48,6 @@ public class SearchMenuFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search_menu, container, false);
         bt = view.findViewById(R.id.btAdd);
         etSearchFrom = view.findViewById(R.id.etSearchFrom);
-
-
         return view;
     }
 
@@ -76,6 +71,8 @@ public class SearchMenuFragment extends Fragment {
                 viewModel.setDepartureName(s.toString());
             }
         });*/
+
+        SearchMenuViewModel viewModel = ViewModelProviders.of(this).get(SearchMenuViewModel.class);
         viewModel.setDepartureName(etSearchFrom.getText().toString());
         bt.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,7 +83,6 @@ public class SearchMenuFragment extends Fragment {
         });
 
     }
-        // TODO: Rename method, update argument and hook method into UI event
     public void sendDatas() {
         if (mListener != null) {
             mListener.onFragmentInteraction();
@@ -111,7 +107,6 @@ public class SearchMenuFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         void onFragmentInteraction();
     }
 }

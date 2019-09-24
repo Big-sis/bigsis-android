@@ -43,7 +43,6 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     private SearchMenuViewModel viewModel;
     private RecyclerView rvList;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,7 +112,6 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         selectItem(selectedItem, curvedBottomNavigationView);
     }
 
-
     public void openFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -121,7 +119,6 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         transaction.addToBackStack(null);
         transaction.add(R.id.fragment_container, fragmentOpen, "SEARCH_MENU_FRAGMENT")
                 .commit();
-
     }
 
     @Override
