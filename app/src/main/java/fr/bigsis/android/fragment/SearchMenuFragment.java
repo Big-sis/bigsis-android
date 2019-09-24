@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment;
 
 import androidx.lifecycle.ViewModelProviders;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +26,7 @@ public class SearchMenuFragment extends Fragment {
     private SearchMenuViewModel viewModel;
     private OnFragmentInteractionListener mListener;
     private EditText etSearchFrom;
+    private EditText etSearchTo;
     private Button bt;
 
     public SearchMenuFragment() {
@@ -48,14 +51,15 @@ public class SearchMenuFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_search_menu, container, false);
         bt = view.findViewById(R.id.btAdd);
         etSearchFrom = view.findViewById(R.id.etSearchFrom);
+        etSearchTo = view.findViewById(R.id.etSearchTo);
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
 
-       // etSearchFrom.setText(viewModel.getDepartureName());
-       /* etSearchFrom.addTextChangedListener(new TextWatcher() {
+        // etSearchFrom.setText(viewModel.getDepartureName());
+        etSearchFrom.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -68,25 +72,27 @@ public class SearchMenuFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                viewModel.setDepartureName(s.toString());
-            }
-        });*/
-
-        SearchMenuViewModel viewModel = ViewModelProviders.of(this).get(SearchMenuViewModel.class);
-        viewModel.setDepartureName(etSearchFrom.getText().toString());
-        bt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), TripListActivity.class);
-                startActivity(intent);
+                viewModel.setDeparture(s.toString());
             }
         });
 
-    }
-    public void sendDatas() {
-        if (mListener != null) {
-            mListener.onFragmentInteraction();
-        }
+        etSearchTo.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                viewModel.setArrival(s.toString());
+            }
+        });
+
     }
 
     @Override
