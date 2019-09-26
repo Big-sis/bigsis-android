@@ -54,3 +54,4 @@ public class TripListViewHolder extends RecyclerView.ViewHolder {
                 .into(mImvTripImage);
     }
 }
+
