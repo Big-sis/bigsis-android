@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,6 +25,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
@@ -36,12 +39,12 @@ import com.google.firebase.firestore.Query;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
-import fr.bigsis.android.adapter.TripListAdapter;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
+import fr.bigsis.android.viewHolder.TripListViewHolder;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 
@@ -57,7 +60,7 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     private RecyclerView rvList;
     private CollectionReference mItemsCollection;
     private FirebaseFirestore mFirestore;
-    FirestorePagingAdapter<TripEntity, ItemViewHolder> adapter;
+    FirestorePagingAdapter<TripEntity, TripListViewHolder> adapter;
 
     @BindView(R.id.paging_recycler)
     RecyclerView mRecycler;
@@ -204,18 +207,18 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 .setQuery(baseQuery, config, TripEntity.class)
                 .build();
 
-        adapter = new FirestorePagingAdapter<TripEntity, ItemViewHolder>(options) {
+        adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {
                     @NonNull
                     @Override
-                    public ItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                    public TripListViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
                                                              int viewType) {
                         View view = LayoutInflater.from(parent.getContext())
                                 .inflate(R.layout.trip_list_item, parent, false);
-                        return new ItemViewHolder(view);
+                        return new TripListViewHolder(view);
                     }
 
                     @Override
-                    protected void onBindViewHolder(@NonNull ItemViewHolder holder,
+                    protected void onBindViewHolder(@NonNull TripListViewHolder holder,
                                                     int position,
                                                     @NonNull TripEntity model) {
                         holder.bind(model);
@@ -276,25 +279,6 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 return true;
         }
         return false;
-    }
-
-    public static class ItemViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.tvTripsFrom)
-        TextView mTextFrom;
-
-        @BindView(R.id.tvTripsTo)
-        TextView mTextTo;
-
-        ItemViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-
-        void bind(@NonNull TripEntity item) {
-            mTextFrom.setText(item.getFrom());
-            mTextTo.setText(item.getTo());
-        }
     }
 
     private void showToast(@NonNull String message) {

@@ -21,6 +21,9 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.TripEntity;
@@ -93,15 +96,19 @@ public class AddTripFragment extends Fragment {
     }
 
     private void createTrip() {
+
         String addFrom = etAddFromDestination.getText().toString();
         String toFrom = etAddToDestination.getText().toString();
+        String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
+        String url = "https://open.mapquestapi.com/staticmap/v5/map?start=" + addFrom + "|via-33AB62&end=" + toFrom + "&routeWidth=3&routeColor=33AB62&type=light&size=170,170&&defaultMarker=marker-sm-33AB62&key="+KEY;
+
         if (addFrom.trim().isEmpty() || toFrom.trim().isEmpty()) {
             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
             return;
         }
         CollectionReference tripReference = FirebaseFirestore.getInstance()
                 .collection("trips");
-        tripReference.add(new TripEntity(addFrom, toFrom, date));
+        tripReference.add(new TripEntity(addFrom, toFrom, date, url));
         getActivity().onBackPressed();
     }
 

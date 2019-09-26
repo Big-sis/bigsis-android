@@ -12,14 +12,24 @@ public class TripEntity {
     private String tripId;
     private String from;
     private String to;
+    private String image;
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
 
     public TripEntity() {
     }
 
-    public TripEntity(String from, String to, Date date) {
+    public TripEntity(String from, String to, Date date, String image) {
         this.from = from;
         this.to = to;
         this.date = date;
+        this.image = image;
     }
 
     public Map<String, Object> toHashMap() {
