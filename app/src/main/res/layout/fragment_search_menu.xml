@@ -29,26 +29,6 @@
         app:layout_constraintStart_toStartOf="@+id/constraint_layout"
         app:layout_constraintTop_toTopOf="parent">
 
-        <Button
-            android:id="@+id/btAdd"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="32dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            android:background="@drawable/rounded_button"
-            android:gravity="center"
-            android:minHeight="30dp"
-            android:paddingLeft="70dp"
-            android:paddingRight="70dp"
-            android:text="@string/create"
-            android:textColor="@color/colorAccent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etSearchTo" />
-
         <EditText
             android:id="@+id/etSearchTo"
             android:layout_width="match_parent"
@@ -56,7 +36,9 @@
             android:layout_marginStart="50dp"
             android:layout_marginTop="24dp"
             android:layout_marginEnd="50dp"
+            android:layout_marginBottom="24dp"
             android:hint="@string/add_destination"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etSearchFrom" />
@@ -70,9 +52,9 @@
             android:layout_marginEnd="50dp"
             android:hint="@string/add_departure"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

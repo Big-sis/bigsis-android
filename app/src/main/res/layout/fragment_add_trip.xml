@@ -55,43 +55,38 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etAddFromDestination" />
 
-    <Button
-        android:id="@+id/btCreateTrip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="32dp"
-        android:background="@drawable/rounded_button"
-        android:textColor="@color/colorAccent"
-        android:gravity="center"
-        android:paddingLeft="70dp"
-        android:paddingRight="70dp"
-        android:text="@string/create"
-        android:minHeight="30dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDateTripAdd" />
+        <Button
+            android:id="@+id/btCreateTrip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:layout_marginBottom="32dp"
+            android:background="@drawable/rounded_button"
+            android:gravity="center"
+            android:minHeight="30dp"
+            android:paddingLeft="70dp"
+            android:paddingRight="70dp"
+            android:text="@string/create"
+            android:textColor="@color/colorWhite"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDateTripAdd" />
 
-    <TextView
-        android:id="@+id/tvDateTripAdd"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="16dp"
-        android:text="@string/date"
-        android:textColor="@color/colorPrimaryDark"
-        android:clickable="true"
-        android:focusable="true"
-        android:gravity="center"
-        android:paddingLeft="70dp"
-        android:paddingRight="70dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etAddToDestination" />
+        <TextView
+            android:id="@+id/tvDateTripAdd"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="32dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="start"
+            android:text="@string/date"
+            android:textSize="15sp"
+            android:textColor="@color/colorPrimaryDark"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etAddToDestination" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 

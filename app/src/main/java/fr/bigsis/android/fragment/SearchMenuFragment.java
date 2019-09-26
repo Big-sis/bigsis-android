@@ -15,11 +15,9 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 
 import fr.bigsis.android.R;
-import fr.bigsis.android.activity.TripListActivity;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 public class SearchMenuFragment extends Fragment {
@@ -27,7 +25,6 @@ public class SearchMenuFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private EditText etSearchFrom;
     private EditText etSearchTo;
-    private Button bt;
 
     public SearchMenuFragment() {
         // Required empty public constructor
@@ -49,7 +46,6 @@ public class SearchMenuFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_search_menu, container, false);
-        bt = view.findViewById(R.id.btAdd);
         etSearchFrom = view.findViewById(R.id.etSearchFrom);
         etSearchTo = view.findViewById(R.id.etSearchTo);
         return view;
