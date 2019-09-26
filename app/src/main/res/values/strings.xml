@@ -14,4 +14,11 @@
     <string name="search_trip">Rechercher un trajet</string>
     <string name="trips">Trajets</string>
     <string name="add_a_trip">Créer un trajet</string>
+    <string name="sign_in">Se Connecter</string>
+    <string name="sign_up">S\'inscrire</string>
+    <string name="signin">Connexion</string>
+    <string name="password">Mot de passe</string>
+    <string name="mail_adress">Adresse mail</string>
+    <string name="forgot_password">Mot de passe oublié ?</string>
+    <string name="register">S\'inscrire</string>
 </resources>
