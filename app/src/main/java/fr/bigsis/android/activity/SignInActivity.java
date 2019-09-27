@@ -39,7 +39,7 @@ public class SignInActivity extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
 
-                    startActivity(new Intent(SignInActivity.this, TripListActivity.class)); //TODO ProfileUserActivity with button log out
+                    startActivity(new Intent(SignInActivity.this, UserProfileActivity.class));
                 }
             }
         };
