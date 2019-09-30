@@ -7,13 +7,22 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import android.content.Intent;
 import android.os.Bundle;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.fragment.ToolBarFragment;
@@ -23,6 +32,12 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     ImageButton imgBtProfile, imgBtBack, imBtSettings;
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
+     FirebaseAuth mAuth;
+     String userId;
+     FirebaseFirestore mFirestore;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +62,24 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 startActivity(new Intent(UserProfileActivity.this, TripListActivity.class));
             }
         });
+
+        //TODO get userid and information
+        mAuth = FirebaseAuth.getInstance();
+        userId = mAuth.getCurrentUser().getUid();
+
+        mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("users")
+                .document(userId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String user_name = documentSnapshot.getString("username");
+                        String password  = documentSnapshot.getString("description");
+
+                        Toast.makeText(UserProfileActivity.this, user_name, Toast.LENGTH_SHORT).show();
+
+                    }
+                });
     }
 
     private void setToolBar() {
@@ -73,6 +106,15 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 TransitionManager.beginDelayedTransition(transitionContainer);
                 imgBtProfile.setVisibility(View.VISIBLE);
                 imgBtBack.setVisibility(View.GONE);
+            }
+        });
+
+        imBtSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseAuth.getInstance().signOut();
+                finish();
+                startActivity(new Intent(UserProfileActivity.this, MainActivity.class));
             }
         });
     }

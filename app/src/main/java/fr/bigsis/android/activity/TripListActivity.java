@@ -46,9 +46,8 @@ import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 
 public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
-//TODO KEYBOARD
-    private static final String TAG = "TripListActivity";
 
+    private static final String TAG = "TripListActivity";
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
     AddTripFragment fragmentAdd = AddTripFragment.newInstance();
     private FrameLayout frameLayout;
@@ -60,7 +59,6 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     ImageButton imbtSearch, imBtCancel, imBtAdd;
     TextView tvTitleToolbar;
 
-
     @BindView(R.id.paging_recycler)
     RecyclerView mRecycler;
 
@@ -70,16 +68,17 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        viewModel = ViewModelProviders.of(this).get(SearchMenuViewModel.class);
         setContentView(R.layout.activity_trip_list);
+        viewModel = ViewModelProviders.of(this).get(SearchMenuViewModel.class);
 
-        setToolBar();
         ButterKnife.bind(this);
 
         mFirestore = FirebaseFirestore.getInstance();
         mItemsCollection = mFirestore.collection("trips");
 
         setUpAdapter();
+        setToolBar();
+
         frameLayout = findViewById(R.id.fragment_container);
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
@@ -176,8 +175,7 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     public void onFragmentInteractionTool() {
         onBackPressed();
     }
-
-
+    
     @Override
     public void onFragmentInteractionAdd() {
         onBackPressed();

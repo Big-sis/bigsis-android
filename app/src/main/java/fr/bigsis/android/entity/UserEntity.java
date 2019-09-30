@@ -1,20 +1,27 @@
 package fr.bigsis.android.entity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class UserEntity {
 
     private String username;
-    private String email;
-    private String password;
+    private String description;
 
     public UserEntity() {
     }
 
-    public UserEntity(String username, String email, String password) {
+    public UserEntity(String username, String description) {
         this.username = username;
-        this.email = email;
-        this.password = password;
+        this.description = description;
     }
 
+    public Map<String, Object> toHashMap() {
+        Map<String, Object> tripMap = new HashMap<>();
+        tripMap.put("username", username);
+        tripMap.put("description", description);
+        return tripMap;
+    }
     public String getUsername() {
         return username;
     }
@@ -23,19 +30,11 @@ public class UserEntity {
         this.username = username;
     }
 
-    public String getEmail() {
-        return email;
+    public String getDescription() {
+        return description;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    public void setDescription(String description) {
+        this.description = description;
     }
 }
