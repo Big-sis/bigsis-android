@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.auth.User;
 
 import fr.bigsis.android.R;
@@ -31,6 +33,7 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
         mFirebaseAuth = FirebaseAuth.getInstance();
         emailBox = findViewById(R.id.etEmailRegister);
         passwordBox = findViewById(R.id.etPasswordRegister);
@@ -38,7 +41,6 @@ public class RegisterActivity extends AppCompatActivity {
         descriptionBox = findViewById(R.id.etDescription);
 
         btRegister = findViewById(R.id.btRegister);
-
         btRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -57,17 +59,21 @@ public class RegisterActivity extends AppCompatActivity {
                                 String errorMessage = task.getException().getMessage();
                                 Toast.makeText(RegisterActivity.this, errorMessage, Toast.LENGTH_LONG).show();
                             } else {
-                                String user_id = mFirebaseAuth.getCurrentUser().getUid();
-                                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                                String uid = user.getUid();
+                                FirebaseFirestore db = FirebaseFirestore.getInstance();
                                 startActivity(new Intent(RegisterActivity.this, UserProfileActivity.class ));
+                                String user_id = mFirebaseAuth.getCurrentUser().getUid();
+                                UserEntity useri = new UserEntity(username, descripiton);
+                                db.collection("users")
+                                        .document(user_id).set(useri, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                Toast.makeText(RegisterActivity.this, "DocumentSnapshot successfully written!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
                             }
                         }
                     });
 
-                    CollectionReference tripReference = FirebaseFirestore.getInstance()
-                            .collection("users");
-                    tripReference.add(new UserEntity(username, descripiton));
                 }
             }
         });

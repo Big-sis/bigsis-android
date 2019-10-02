@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -23,8 +24,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.auth.User;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.ToolBarFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
@@ -33,16 +36,15 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
      FirebaseAuth mAuth;
-     String userId;
+     String userId, user_name;
      FirebaseFirestore mFirestore;
-
-
-
+     TextView tvUserName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
+
         setToolBar();
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
@@ -63,7 +65,6 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
             }
         });
 
-        //TODO get userid and information
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
 
@@ -73,13 +74,16 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String user_name = documentSnapshot.getString("username");
-                        String password  = documentSnapshot.getString("description");
-
+                        user_name = documentSnapshot.getString("username");
+                        String description  = documentSnapshot.getString("description");
                         Toast.makeText(UserProfileActivity.this, user_name, Toast.LENGTH_SHORT).show();
+                        transitionContainer = (ConstraintLayout) findViewById(R.id.toolbarLayout);
+                        tvUserName = (TextView) transitionContainer.findViewById(R.id.tvTitleToolbar);
+                        tvUserName.setText(user_name);
 
                     }
                 });
+
     }
 
     private void setToolBar() {

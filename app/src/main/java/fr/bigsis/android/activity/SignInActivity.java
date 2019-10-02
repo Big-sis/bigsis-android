@@ -25,7 +25,6 @@ public class SignInActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,7 +37,6 @@ public class SignInActivity extends AppCompatActivity {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if (firebaseAuth.getCurrentUser() != null) {
-
                     startActivity(new Intent(SignInActivity.this, UserProfileActivity.class));
                 }
             }
@@ -60,10 +58,9 @@ public class SignInActivity extends AppCompatActivity {
     private void startSignIn() {
         String email = emailBox.getText().toString();
         String password = passwordBox.getText().toString();
-        //mProgressBarSign.setVisibility(View.VISIBLE);
 
         if (TextUtils.isEmpty(email)) {
-            emailBox.setError("Veuillez entrer votre adresse mail");
+            emailBox.setError("Veuillez entrer votre adresse e-mail");
             emailBox.requestFocus();
         } if ( TextUtils.isEmpty(password)){
             passwordBox.setError("Veuillez entrer votre mot de passe");
