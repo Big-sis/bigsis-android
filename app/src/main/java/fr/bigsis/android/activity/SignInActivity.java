@@ -9,6 +9,7 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -24,11 +25,13 @@ public class SignInActivity extends AppCompatActivity {
     Button btSignIn;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    TextView tvForgotPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
+
         emailBox = findViewById(R.id.etEmail);
         passwordBox = findViewById(R.id.etPassword);
         mAuth = FirebaseAuth.getInstance();
@@ -48,7 +51,16 @@ public class SignInActivity extends AppCompatActivity {
                 startSignIn();
             }
         });
+
+        tvForgotPassword = findViewById(R.id.tvForgotPassword);
+        tvForgotPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetPassword();
+            }
+        });
     }
+
     @Override
     protected void onStart() {
         super.onStart();
@@ -75,5 +87,23 @@ public class SignInActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void resetPassword() {
+        String email = emailBox.getText().toString().trim();
+        if (TextUtils.isEmpty(email)) {
+            emailBox.setError("Veuillez indiquer votre adresse e-mail");
+            emailBox.requestFocus();
+            return;
+        }
+        mAuth.setLanguageCode("fr");
+        mAuth.sendPasswordResetEmail(email).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(SignInActivity.this, "e-mail envoyé", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 }
