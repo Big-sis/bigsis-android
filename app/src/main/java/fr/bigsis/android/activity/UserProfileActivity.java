@@ -83,7 +83,6 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
 
                     }
                 });
-
     }
 
     private void setToolBar() {

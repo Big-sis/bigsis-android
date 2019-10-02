@@ -5,7 +5,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,13 +15,10 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
-import com.google.firebase.firestore.auth.User;
 
 import fr.bigsis.android.R;
-import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -62,9 +58,9 @@ public class RegisterActivity extends AppCompatActivity {
                                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                                 startActivity(new Intent(RegisterActivity.this, UserProfileActivity.class ));
                                 String user_id = mFirebaseAuth.getCurrentUser().getUid();
-                                UserEntity useri = new UserEntity(username, descripiton);
+                                UserEntity user = new UserEntity(username, descripiton);
                                 db.collection("users")
-                                        .document(user_id).set(useri, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        .document(user_id).set(user, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
                                                 Toast.makeText(RegisterActivity.this, "DocumentSnapshot successfully written!", Toast.LENGTH_SHORT).show();
@@ -73,7 +69,6 @@ public class RegisterActivity extends AppCompatActivity {
                             }
                         }
                     });
-
                 }
             }
         });
