@@ -3,9 +3,12 @@ package fr.bigsis.android.activity;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.transition.TransitionManager;
 import android.util.Log;
 import android.view.MenuItem;
@@ -28,10 +31,11 @@ import com.google.firebase.firestore.auth.User;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.fragment.ProfileFragment;
 import fr.bigsis.android.fragment.ToolBarFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
-public class UserProfileActivity extends AppCompatActivity implements ToolBarFragment.OnFragmentInteractionListener {
+public class UserProfileActivity extends AppCompatActivity implements ToolBarFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListenerProfile {
     ImageButton imgBtProfile, imgBtBack, imBtSettings;
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
@@ -39,11 +43,13 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
      String userId, user_name;
      FirebaseFirestore mFirestore;
      TextView tvUserName;
+    ProfileFragment fragmentProfile = ProfileFragment.newInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
+
 
         setToolBar();
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
@@ -80,7 +86,6 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                         transitionContainer = (ConstraintLayout) findViewById(R.id.toolbarLayout);
                         tvUserName = (TextView) transitionContainer.findViewById(R.id.tvTitleToolbar);
                         tvUserName.setText(user_name);
-
                     }
                 });
     }
@@ -90,6 +95,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
         imgBtProfile = (ImageButton) transitionContainer.findViewById(R.id.imBt_ic_profile_frag);
         imgBtBack = (ImageButton) transitionContainer.findViewById(R.id.imBt_ic_back_frag);
         imBtSettings = (ImageButton) transitionContainer.findViewById(R.id.imBt_ic_setting);
+        tvUserName = (TextView) transitionContainer.findViewById(R.id.tvTitleToolbar);
         imgBtProfile.setVisibility(View.VISIBLE);
         imBtSettings.setVisibility(View.VISIBLE);
 
@@ -99,7 +105,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 TransitionManager.beginDelayedTransition(transitionContainer);
                 imgBtProfile.setVisibility(View.GONE);
                 imgBtBack.setVisibility(View.VISIBLE);
-                Toast.makeText(UserProfileActivity.this, "hello", Toast.LENGTH_SHORT).show();
+                openFragment();
             }
         });
 
@@ -107,8 +113,10 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
             @Override
             public void onClick(View view) {
                 TransitionManager.beginDelayedTransition(transitionContainer);
+                onFragmentInteractionProfile();
                 imgBtProfile.setVisibility(View.VISIBLE);
                 imgBtBack.setVisibility(View.GONE);
+                tvUserName.setText(user_name);
             }
         });
 
@@ -143,5 +151,19 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 return true;
         }
         return false;
+    }
+
+    public void openFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+        transaction.addToBackStack(null);
+        transaction.add(R.id.fragment_container_profile, fragmentProfile, "PROFILE_USER_FRAGMENT")
+                .commit();
+    }
+
+    @Override
+    public void onFragmentInteractionProfile() {
+        onBackPressed();
     }
 }
