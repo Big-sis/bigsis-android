@@ -115,7 +115,7 @@ public class AddTripFragment extends Fragment {
             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
             return;
         }
-        if(date == null) {
+        if (date == null) {
             Toast.makeText(getActivity(), "Veuillez indiquer la date et l'heure du trajet", Toast.LENGTH_LONG).show();
             return;
         }

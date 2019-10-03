@@ -1,23 +1,36 @@
 package fr.bigsis.android.fragment;
 
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.MimeTypeMap;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
+
+import static android.app.Activity.RESULT_OK;
 
 
 public class ProfileFragment extends Fragment {
@@ -25,10 +38,13 @@ public class ProfileFragment extends Fragment {
     private OnFragmentInteractionListenerProfile mListener;
     private TextView tvUserNameFragment;
     private TextView tvUserDescFragment;
-
-    private String userId, user_name, description_user;
+    private FloatingActionButton fbEdit;
+    private String userId, user_name, description_user, imageProfileUrl;
     private FirebaseFirestore mFirestore;
-    private FirebaseAuth mAuth;
+    private FirebaseAuth mFirebaseAuth;
+    private Uri imageProfileUri;
+    private CircleImageView circleImageView;
+    private StorageReference mStroageReference;
 
 
     public ProfileFragment() {
@@ -45,8 +61,8 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mAuth = FirebaseAuth.getInstance();
-        userId = mAuth.getCurrentUser().getUid();
+        mFirebaseAuth = FirebaseAuth.getInstance();
+        userId = mFirebaseAuth.getCurrentUser().getUid();
 
         mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection("users")
@@ -56,8 +72,20 @@ public class ProfileFragment extends Fragment {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         user_name = documentSnapshot.getString("username");
                         description_user = documentSnapshot.getString("description");
+                        imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         tvUserNameFragment.setText(user_name);
                         tvUserDescFragment.setText(description_user);
+                        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+                        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Uri downloadUrl = uri;
+                                String urlImage = downloadUrl.toString();
+                                Glide.with(getActivity())
+                                        .load(urlImage)
+                                        .into(circleImageView);
+                            }
+                        });
                     }
                 });
     }
@@ -68,9 +96,16 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         tvUserNameFragment = view.findViewById(R.id.tvUserNameFragment);
         tvUserDescFragment = view.findViewById(R.id.tvUserDescriptionFragment);
-
+        fbEdit = view.findViewById(R.id.fbEditPicture);
+        circleImageView = view.findViewById(R.id.profile_image);
+        fbEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setImageUser();
+            }
+        });
+        mStroageReference = FirebaseStorage.getInstance().getReference("images");
         return view;
-
     }
 
 
@@ -95,6 +130,53 @@ public class ProfileFragment extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    private String getFileExtension(Uri uri) {
+        ContentResolver cR = getContext().getContentResolver();
+        MimeTypeMap mime = MimeTypeMap.getSingleton();
+        return mime.getExtensionFromMimeType(cR.getType(uri));
+    }
+
+    private void setImageUser() {
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(intent, 1);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            imageProfileUri = data.getData();
+            Glide.with(this)
+                    .load(imageProfileUri)
+                    .into(circleImageView);
+
+            final StorageReference imgReference = mStroageReference.child(System.currentTimeMillis()
+                    + "." + getFileExtension(imageProfileUri));
+
+            String link = imgReference.toString();
+            if (imageProfileUri != null) {
+                imgReference.putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                        String user_id = mFirebaseAuth.getCurrentUser().getUid();
+                        FirebaseFirestore db = FirebaseFirestore.getInstance();
+                        db.collection("users")
+                                .document(user_id).update("imageProfileUrl", link).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+                                Toast.makeText(getActivity(), "Votre image a bien été modifiée",
+                                        Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                });
+            }
+        }
     }
 
     public interface OnFragmentInteractionListenerProfile {

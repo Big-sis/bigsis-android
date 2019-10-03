@@ -1,36 +1,28 @@
 package fr.bigsis.android.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.auth.User;
 
 import fr.bigsis.android.R;
-import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.ProfileFragment;
 import fr.bigsis.android.fragment.ToolBarFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
@@ -39,17 +31,16 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     ImageButton imgBtProfile, imgBtBack, imBtSettings;
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
-     FirebaseAuth mAuth;
-     String userId, user_name;
-     FirebaseFirestore mFirestore;
-     TextView tvUserName;
+    FirebaseAuth mAuth;
+    String userId, user_name;
+    FirebaseFirestore mFirestore;
+    TextView tvUserName;
     ProfileFragment fragmentProfile = ProfileFragment.newInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_profile);
-
 
         setToolBar();
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
@@ -81,21 +72,21 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         user_name = documentSnapshot.getString("username");
-                        String description  = documentSnapshot.getString("description");
+                        String description = documentSnapshot.getString("description");
                         Toast.makeText(UserProfileActivity.this, user_name, Toast.LENGTH_SHORT).show();
-                        transitionContainer = (ConstraintLayout) findViewById(R.id.toolbarLayout);
-                        tvUserName = (TextView) transitionContainer.findViewById(R.id.tvTitleToolbar);
+                        transitionContainer = findViewById(R.id.toolbarLayout);
+                        tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
                         tvUserName.setText(user_name);
                     }
                 });
     }
 
     private void setToolBar() {
-        transitionContainer = (ConstraintLayout) findViewById(R.id.toolbarLayout);
-        imgBtProfile = (ImageButton) transitionContainer.findViewById(R.id.imBt_ic_profile_frag);
-        imgBtBack = (ImageButton) transitionContainer.findViewById(R.id.imBt_ic_back_frag);
-        imBtSettings = (ImageButton) transitionContainer.findViewById(R.id.imBt_ic_setting);
-        tvUserName = (TextView) transitionContainer.findViewById(R.id.tvTitleToolbar);
+        transitionContainer = findViewById(R.id.toolbarLayout);
+        imgBtProfile = transitionContainer.findViewById(R.id.imBt_ic_profile_frag);
+        imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
+        imBtSettings = transitionContainer.findViewById(R.id.imBt_ic_setting);
+        tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
         imgBtProfile.setVisibility(View.VISIBLE);
         imBtSettings.setVisibility(View.VISIBLE);
 
