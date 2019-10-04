@@ -21,4 +21,10 @@
     <string name="mail_adress">Adresse mail</string>
     <string name="forgot_password">Mot de passe oublié ?</string>
     <string name="register">S\'inscrire</string>
+    <string name="email_adress">Veuillez indiquer votre adresse e-mail</string>
+    <string name="send">Envoyer</string>
+    <string name="cancel">Annuler</string>
+    <string name="email_was_sent">Un e-mail vous a été envoyé</string>
+    <string name="enter_password">Veuillez entrer votre mot de passe</string>
+    <string name="email_or_password_incorrect">mot de passe ou e-mail incorrect</string>
 </resources>
