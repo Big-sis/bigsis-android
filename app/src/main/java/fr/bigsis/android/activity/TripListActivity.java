@@ -1,5 +1,6 @@
 package fr.bigsis.android.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +15,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -26,7 +27,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
@@ -35,32 +35,34 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
+import fr.bigsis.android.fragment.ToolBarFragment;
 import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
-import fr.bigsis.android.viewHolder.TripListViewHolder;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
-public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener {
+
+public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "TripListActivity";
-
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
     AddTripFragment fragmentAdd = AddTripFragment.newInstance();
-    Toolbar toolbar;
-    private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference tripRef = db.collection("trips");
     private FrameLayout frameLayout;
     private SearchMenuViewModel viewModel;
-    private RecyclerView rvList;
     private CollectionReference mItemsCollection;
     private FirebaseFirestore mFirestore;
     FirestorePagingAdapter<TripEntity, TripListViewHolder> adapter;
+    ConstraintLayout transitionContainer;
+    ImageButton imbtSearch, imBtCancel, imBtAdd;
+    TextView tvTitleToolbar;
 
     @BindView(R.id.paging_recycler)
     RecyclerView mRecycler;
@@ -80,59 +82,12 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         mItemsCollection = mFirestore.collection("trips");
 
         setUpAdapter();
-
-        toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        final TextView tvTitleToolBar = findViewById(R.id.tvTitleToolBar);
-        final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
-        curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
-        tvTitleToolBar.setText(R.string.trips);
+        setToolBar();
 
         frameLayout = findViewById(R.id.fragment_container);
-        final ImageButton imbtSearch = findViewById(R.id.imBt_ic_search);
-        final ImageButton imBtCancel = findViewById(R.id.ic_cancel);
-        final ImageButton imBtAdd = findViewById(R.id.ic_add);
 
-        imBtAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                imBtCancel.setVisibility(View.VISIBLE);
-                imBtAdd.setVisibility(View.GONE);
-                imbtSearch.setVisibility(View.GONE);
-                tvTitleToolBar.setText(R.string.add_a_trip);
-                addTrip();
-            }
-        });
-
-        imbtSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                openFragment();
-                imBtCancel.setVisibility(View.VISIBLE);
-                imbtSearch.setVisibility(View.GONE);
-                imBtAdd.setVisibility(View.GONE);
-                tvTitleToolBar.setText(R.string.search_trip);
-            }
-        });
-
-        imBtCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (fragmentOpen.isAdded()) {
-                    onFragmentInteraction();
-                }
-                if (fragmentAdd.isAdded()) {
-                    onFragmentInteractionAdd();
-                }
-                imBtCancel.setVisibility(View.GONE);
-                imbtSearch.setVisibility(View.VISIBLE);
-                imBtAdd.setVisibility(View.VISIBLE);
-                tvTitleToolBar.setText(R.string.trips);
-
-                KeyboardHelper.CloseKeyboard(TripListActivity.this, view);
-            }
-        });
-
+        final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
+        curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -172,6 +127,62 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         onBackPressed();
     }
 
+    private void setToolBar() {
+        transitionContainer = (ConstraintLayout) findViewById(R.id.toolbarLayout);
+        transitionContainer.setBackground(getDrawable(R.drawable.gradient));
+        imbtSearch = (ImageButton) transitionContainer.findViewById(R.id.imBt_search_frag);
+        imBtAdd = (ImageButton) transitionContainer.findViewById(R.id.imBt_add_frag);
+        imBtCancel = (ImageButton) transitionContainer.findViewById(R.id.imBt_cancel_frag);
+        tvTitleToolbar = (TextView) transitionContainer.findViewById(R.id.tvTitleToolbar);
+        tvTitleToolbar.setText(R.string.trips);
+        imbtSearch.setVisibility(View.VISIBLE);
+        imBtAdd.setVisibility(View.VISIBLE);
+
+        imBtAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addTrip();
+                imBtAdd.setVisibility(View.GONE);
+                imBtCancel.setVisibility(View.VISIBLE);
+                tvTitleToolbar.setText(R.string.add_a_trip);
+            }
+        });
+
+        imbtSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openFragment();
+                imBtCancel.setVisibility(View.VISIBLE);
+                imbtSearch.setVisibility(View.GONE);
+                imBtAdd.setVisibility(View.GONE);
+                tvTitleToolbar.setText(R.string.search_trip);
+            }
+        });
+
+        imBtCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                imBtCancel.setVisibility(View.GONE);
+                imbtSearch.setVisibility(View.VISIBLE);
+                imBtAdd.setVisibility(View.VISIBLE);
+
+                if (fragmentOpen.isAdded()) {
+                    onFragmentInteraction();
+                }
+                if (fragmentAdd.isAdded()) {
+                    onFragmentInteractionAdd();
+                }
+                tvTitleToolbar.setText(R.string.trips);
+                KeyboardHelper.CloseKeyboard(TripListActivity.this, view);
+            }
+        });
+    }
+
+    @Override
+    public void onFragmentInteractionTool() {
+        onBackPressed();
+    }
+
     @Override
     public void onFragmentInteractionAdd() {
         onBackPressed();
@@ -186,6 +197,42 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 .commit();
     }
 
+    public class TripListViewHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.tvTripsFrom)
+        TextView mTextFrom;
+
+        @BindView(R.id.tvTripsTo)
+        TextView mTextTo;
+
+        @BindView(R.id.ivTripImage)
+        ImageView mImvTripImage;
+
+        @BindView(R.id.tvDateTrip)
+        TextView mTextDate;
+
+        public TripListViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
+
+        public void bind(@NonNull TripEntity item) {
+            mTextFrom.setText(item.getFrom());
+            mTextTo.setText(item.getTo());
+            SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+            mTextDate.setText(format.format(item.getDate().getTime()));
+
+            RequestOptions myOptions = new RequestOptions()
+                    .fitCenter()
+                    .override(250, 250);
+
+            Glide.with(mImvTripImage.getContext())
+                    .asBitmap()
+                    .apply(myOptions)
+                    .load(item.getImage())
+                    .into(mImvTripImage);
+        }
+    }
     private void setUpAdapter() {
         Query baseQuery;
 
@@ -207,59 +254,50 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 .build();
 
         adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {
-            @NonNull
-            @Override
-            public TripListViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                                                         int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.trip_list_item, parent, false);
-                return new TripListViewHolder(view);
-            }
+                    @NonNull
+                    @Override
+                    public TripListViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                                             int viewType) {
+                        View view = LayoutInflater.from(parent.getContext())
+                                .inflate(R.layout.trip_list_item, parent, false);
+                        return new TripListViewHolder(view);
+                    }
 
-            @Override
-            protected void onBindViewHolder(@NonNull TripListViewHolder holder,
-                                            int position,
-                                            @NonNull TripEntity model) {
-                holder.bind(model);
-            }
+                    @Override
+                    protected void onBindViewHolder(@NonNull TripListViewHolder holder,
+                                                    int position,
+                                                    @NonNull TripEntity model) {
+                        holder.bind(model);
+                    }
 
-            @Override
-            protected void onLoadingStateChanged(@NonNull LoadingState state) {
-                switch (state) {
-                    case LOADING_INITIAL:
-                    case LOADING_MORE:
-                        mSwipeRefreshLayout.setRefreshing(true);
-                        break;
-                    case LOADED:
+                    @Override
+                    protected void onLoadingStateChanged(@NonNull LoadingState state) {
+                        switch (state) {
+                            case LOADING_INITIAL:
+                            case LOADING_MORE:
+                                mSwipeRefreshLayout.setRefreshing(true);
+                                break;
+                            case LOADED:
+                                mSwipeRefreshLayout.setRefreshing(false);
+                                break;
+                            case FINISHED:
+                                mSwipeRefreshLayout.setRefreshing(false);
+                                showToast("Reached end of data set.");
+                                break;
+                            case ERROR:
+                                showToast("An error occurred.");
+                                retry();
+                                break;
+                        }
+                    }
+
+                    @Override
+                    protected void onError(@NonNull Exception e) {
                         mSwipeRefreshLayout.setRefreshing(false);
-                        break;
-                    case FINISHED:
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        showToast("Reached end of data set.");
-                        break;
-                    case ERROR:
-                        showToast("An error occurred.");
-                        retry();
-                        break;
-                }
-            }
+                        Log.e(TAG, e.getMessage(), e);
+                    }
+                };
 
-            @Override
-            protected void onError(@NonNull Exception e) {
-                mSwipeRefreshLayout.setRefreshing(false);
-                Log.e(TAG, e.getMessage(), e);
-            }
-        };
-
-        mRecycler.setLayoutManager(new LinearLayoutManager(this));
-        mRecycler.setAdapter(adapter);
-
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                adapter.refresh();
-            }
-        });
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setAdapter(adapter);
 
@@ -274,7 +312,7 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     private boolean selectItem(@NonNull MenuItem item, CurvedBottomNavigationView curvedBottomNavigationView) {
         switch (item.getItemId()) {
             case R.id.action_user_profile:
-                Toast.makeText(TripListActivity.this, "hello", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(TripListActivity.this, UserProfileActivity.class));
                 return true;
             case R.id.action_message:
                 Toast.makeText(TripListActivity.this, "ddd", Toast.LENGTH_SHORT).show();
