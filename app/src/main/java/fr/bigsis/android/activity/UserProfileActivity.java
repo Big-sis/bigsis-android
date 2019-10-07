@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.transition.TransitionManager;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     FirebaseFirestore mFirestore;
     TextView tvUserName;
     ProfileFragment fragmentProfile = ProfileFragment.newInstance();
+    Button btContact, btAdvice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,6 +65,15 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 startActivity(new Intent(UserProfileActivity.this, TripListActivity.class));
             }
         });
+        btContact = findViewById(R.id.btContact);
+        btContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /*Intent intent = new Intent (UserProfileActivity.this, ContactListActivity.class);
+                startActivity(intent);*/
+               startActivity(new Intent(UserProfileActivity.this, ContactListActivity.class));
+            }
+        });
 
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
@@ -74,7 +85,6 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         user_name = documentSnapshot.getString("username");
-                        String description = documentSnapshot.getString("description");
                         Toast.makeText(UserProfileActivity.this, user_name, Toast.LENGTH_SHORT).show();
                         transitionContainer = findViewById(R.id.toolbarLayout);
                         tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
@@ -86,9 +96,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     private void setToolBar() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         transitionContainer = findViewById(R.id.toolbarLayout);
-       //transitionContainer.setBackgroundDrawable(getResources().getDrawable(R.drawable.gradient));
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
-
         imgBtProfile = transitionContainer.findViewById(R.id.imBt_ic_profile_frag);
         imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
         imBtSettings = transitionContainer.findViewById(R.id.imBt_ic_setting);
