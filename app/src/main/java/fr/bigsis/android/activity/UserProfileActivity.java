@@ -1,7 +1,6 @@
 package fr.bigsis.android.activity;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.transition.TransitionManager;
 import android.view.MenuItem;
@@ -48,6 +47,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
         setContentView(R.layout.activity_user_profile);
 
         setToolBar();
+
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -70,7 +70,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
         btContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               startActivity(new Intent(UserProfileActivity.this, ContactListActivity.class));
+                startActivity(new Intent(UserProfileActivity.this, ContactListActivity.class));
             }
         });
 

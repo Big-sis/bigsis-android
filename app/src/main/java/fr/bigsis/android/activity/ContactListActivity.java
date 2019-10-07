@@ -1,5 +1,18 @@
 package fr.bigsis.android.activity;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.transition.TransitionManager;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
@@ -11,21 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.content.Intent;
-import android.graphics.Path;
-import android.os.Bundle;
-import android.transition.TransitionManager;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
@@ -33,14 +31,9 @@ import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,20 +52,12 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
     TextView tvTitle;
     SearchContactFragment fragmentProfile = SearchContactFragment.newInstance();
     FirestorePagingAdapter<UserEntity, ContactViewHolder> adapter;
-    private FirebaseFirestore mFirestore;
     CollectionReference mItemsCollection;
-    FirebaseAuth mAuth;
-    String userId;
-    private HashMap<String, Object> userMap;
-
     @BindView(R.id.rvContactList)
     RecyclerView mRecycler;
-
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
-
-
-
+    private FirebaseFirestore mFirestore;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,7 +113,7 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
         imgBtBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                startActivity(new Intent(ContactListActivity.this, UserProfileActivity.class));
             }
         });
     }
@@ -137,7 +122,6 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
         switch (item.getItemId()) {
             case R.id.action_user_profile:
                 startActivity(new Intent(ContactListActivity.this, UserProfileActivity.class));
-
                 return true;
             case R.id.action_message:
                 Toast.makeText(ContactListActivity.this, "ddd", Toast.LENGTH_SHORT).show();
@@ -161,48 +145,6 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
                 .commit();
     }
 
-    public class ContactViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.tvUsernameContact)
-        TextView mTextUsername;
-
-        @BindView(R.id.tvPseudoContact)
-        TextView mTextPseudo;
-
-        @BindView(R.id.image_profile_contact)
-        CircleImageView mImageProfile;
-
-        @BindView(R.id.btRequest)
-        Button btRequestFriend;
-
-        public ContactViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-
-        public void bind(@NonNull UserEntity item) {
-            mTextUsername.setText(item.getFirstname() + " " +item.getLastname());
-            mTextPseudo.setText(item.getUsername());
-
-            RequestOptions myOptions = new RequestOptions()
-                    .fitCenter()
-                    .override(250, 250);
-
-            Glide.with(mImageProfile.getContext())
-                    .asBitmap()
-                    .apply(myOptions)
-                    .load(item.getImageProfileUrl())
-                    .into(mImageProfile);
-
-            btRequestFriend.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    addFriend();
-                }
-            });
-        }
-    }
-
     private void setUpAdapter() {
         Query query = FirebaseFirestore.getInstance()
                 .collection("users")
@@ -222,7 +164,7 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
             @NonNull
             @Override
             public ContactViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                                                         int viewType) {
+                                                        int viewType) {
                 View view = LayoutInflater.from(parent.getContext())
                         .inflate(R.layout.contact_list_item, parent, false);
                 return new ContactViewHolder(view);
@@ -278,79 +220,50 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
     public void onFragmentInteractionContact() {
         onBackPressed();
     }
+
     private void showToast(@NonNull String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
-    private void addFriend() {
-        mAuth = FirebaseAuth.getInstance();
-        userId = mAuth.getCurrentUser().getUid();
+    public class ContactViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.tvUsernameContact)
+        TextView mTextUsername;
 
-        FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(userId)
-                .collection("friends")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
+        @BindView(R.id.tvPseudoContact)
+        TextView mTextPseudo;
 
-                    if (!documentSnapshot.exists()) {
+        @BindView(R.id.image_profile_contact)
+        CircleImageView mImageProfile;
 
-                        FirebaseFirestore.getInstance()
-                                .collection("Users")
-                                .document(userId)
-                                .collection("friend_request")
-                                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                .get()
-                                .addOnSuccessListener(documentSnapshot1 -> {
+        @BindView(R.id.btRequest)
+        Button btRequestFriend;
 
+        private ContactViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
 
-                                    if (!documentSnapshot1.exists()) {
-                                       // executeFriendReq(deletedItem, holderr);
-                                    } else {
-                                           /* Snackbar.make(view, "Friend request has been sent already", Snackbar.LENGTH_LONG).show();
-                                            notifyDataSetChanged();*/
-                                    }
+        private void bind(@NonNull UserEntity item) {
+            mTextUsername.setText(item.getFirstname() + " " + item.getLastname());
+            mTextPseudo.setText(item.getUsername());
 
+            RequestOptions myOptions = new RequestOptions()
+                    .fitCenter()
+                    .override(250, 250);
 
-                                });
+            Glide.with(mImageProfile.getContext())
+                    .asBitmap()
+                    .apply(myOptions)
+                    .load(item.getImageProfileUrl())
+                    .into(mImageProfile);
 
-                    } else {
-                    }
-
-                });
-    }
-
-    private void executeFriendReq() {
-
-        userMap = new HashMap<>();
-
-        FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-
-                    // final String email=documentSnapshot.getString("email");
-
-                    userMap.put("username", documentSnapshot.getString("username"));
-                    //  userMap.put("id",    documentSnapshot.getString("id"));
-                    // userMap.put("email", email);
-                    userMap.put("image", documentSnapshot.getString("image"));
-                    userMap.put("tokens", documentSnapshot.get("token_ids"));
-                    userMap.put("notification_id", String.valueOf(System.currentTimeMillis()));
-                    userMap.put("timestamp", String.valueOf(System.currentTimeMillis()));
-
-                    //Add to user
-                    FirebaseFirestore.getInstance()
-                            .collection("users")
-                            .document(userId)
-                            .collection("Friend_Requests")
-                            .document(documentSnapshot.getId())
-                            .set(userMap);
-
-
-                });
+            btRequestFriend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //addFriend();
+                }
+            });
+        }
     }
 }
