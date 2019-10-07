@@ -18,6 +18,8 @@ import android.view.ViewGroup;
 import android.widget.EditText;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.TripListActivity;
+import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.viewModel.SearchContactViewModel;
 
 
@@ -48,6 +50,7 @@ public class SearchContactFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view =inflater.inflate(R.layout.fragment_search_contact, container, false); ;
         etSearchContact = view.findViewById(R.id.etSearchContact);
+
         return view;
     }
 

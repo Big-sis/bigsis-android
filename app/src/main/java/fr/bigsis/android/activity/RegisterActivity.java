@@ -70,7 +70,7 @@ public class RegisterActivity extends AppCompatActivity {
                                     public void onSuccess(Uri uri) {
                                         Uri downloadUrl = uri;
                                         String imageProfileUrl = downloadUrl.toString();
-                                        UserEntity user = new UserEntity(username, descripiton, imageProfileUrl);
+                                        UserEntity user = new UserEntity(username, descripiton, imageProfileUrl, null);
                                         db.collection("users")
                                                 .document(user_id).set(user, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
