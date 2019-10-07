@@ -69,8 +69,6 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
         btContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*Intent intent = new Intent (UserProfileActivity.this, ContactListActivity.class);
-                startActivity(intent);*/
                startActivity(new Intent(UserProfileActivity.this, ContactListActivity.class));
             }
         });
