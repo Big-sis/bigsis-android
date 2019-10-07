@@ -35,11 +35,12 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
     FirebaseAuth mAuth;
-    String userId, user_name;
+    String userId;
     FirebaseFirestore mFirestore;
     TextView tvUserName;
     ProfileFragment fragmentProfile = ProfileFragment.newInstance();
     Button btContact, btAdvice;
+    String firstname, lastname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,11 +83,11 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        user_name = documentSnapshot.getString("username");
-                        Toast.makeText(UserProfileActivity.this, user_name, Toast.LENGTH_SHORT).show();
+                        firstname = documentSnapshot.getString("firstname");
+                        lastname = documentSnapshot.getString("lastname");
                         transitionContainer = findViewById(R.id.toolbarLayout);
                         tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
-                        tvUserName.setText(user_name);
+                        tvUserName.setText(firstname + " " + lastname);
                     }
                 });
     }
@@ -119,7 +120,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 onFragmentInteractionProfile();
                 imgBtProfile.setVisibility(View.VISIBLE);
                 imgBtBack.setVisibility(View.GONE);
-                tvUserName.setText(user_name);
+                tvUserName.setText(firstname + " " + lastname);
             }
         });
 
