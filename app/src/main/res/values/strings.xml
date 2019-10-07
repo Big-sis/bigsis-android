@@ -14,4 +14,20 @@
     <string name="search_trip">Rechercher un trajet</string>
     <string name="trips">Trajets</string>
     <string name="add_a_trip">Créer un trajet</string>
+    <string name="sign_in">Se Connecter</string>
+    <string name="sign_up">S\'inscrire</string>
+    <string name="signin">Connexion</string>
+    <string name="password">Mot de passe</string>
+    <string name="mail_adress">Adresse mail</string>
+    <string name="forgot_password">Mot de passe oublié ?</string>
+    <string name="register">S\'inscrire</string>
+    <string name="email_adress">Veuillez indiquer votre adresse e-mail</string>
+    <string name="send">Envoyer</string>
+    <string name="cancel">Annuler</string>
+    <string name="email_was_sent">Un e-mail vous a été envoyé</string>
+    <string name="enter_password">Veuillez entrer votre mot de passe</string>
+    <string name="email_or_password_incorrect">mot de passe ou e-mail incorrect</string>
+    <string name="contacts">Contacts</string>
+    <string name="our_advices">Nos conseils</string>
+    <string name="search">Rechercher</string>
 </resources>
