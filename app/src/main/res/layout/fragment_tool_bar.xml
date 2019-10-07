@@ -23,7 +23,7 @@
 
             <ImageButton
                 android:id="@+id/imBt_ic_profile_frag"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
