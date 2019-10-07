@@ -39,7 +39,7 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        constraintLayout= findViewById(R.id.constraint_layout);
+        constraintLayout = findViewById(R.id.constraint_layout);
         mFirebaseAuth = FirebaseAuth.getInstance();
         firstnameBox = findViewById(R.id.etFirstname);
         lastnameBox = findViewById(R.id.etLastname);
