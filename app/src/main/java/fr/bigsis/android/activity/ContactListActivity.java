@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -38,6 +39,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -59,13 +61,18 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
     FirestorePagingAdapter<UserEntity, ContactViewHolder> adapter;
     private FirebaseFirestore mFirestore;
     CollectionReference mItemsCollection;
-
+    FirebaseAuth mAuth;
+    String userId;
+    private HashMap<String, Object> userMap;
 
     @BindView(R.id.rvContactList)
     RecyclerView mRecycler;
 
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -165,14 +172,17 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
         @BindView(R.id.image_profile_contact)
         CircleImageView mImageProfile;
 
+        @BindView(R.id.btRequest)
+        Button btRequestFriend;
+
         public ContactViewHolder(@NonNull View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
 
         public void bind(@NonNull UserEntity item) {
-            mTextUsername.setText(item.getUsername());
-            mTextPseudo.setText(item.getPseudonyme());
+            mTextUsername.setText(item.getFirstname() + " " +item.getLastname());
+            mTextPseudo.setText(item.getUsername());
 
             RequestOptions myOptions = new RequestOptions()
                     .fitCenter()
@@ -183,6 +193,13 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
                     .apply(myOptions)
                     .load(item.getImageProfileUrl())
                     .into(mImageProfile);
+
+            btRequestFriend.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    addFriend();
+                }
+            });
         }
     }
 
@@ -263,5 +280,77 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
     }
     private void showToast(@NonNull String message) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void addFriend() {
+        mAuth = FirebaseAuth.getInstance();
+        userId = mAuth.getCurrentUser().getUid();
+
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(userId)
+                .collection("friends")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+
+                    if (!documentSnapshot.exists()) {
+
+                        FirebaseFirestore.getInstance()
+                                .collection("Users")
+                                .document(userId)
+                                .collection("friend_request")
+                                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                                .get()
+                                .addOnSuccessListener(documentSnapshot1 -> {
+
+
+                                    if (!documentSnapshot1.exists()) {
+                                       // executeFriendReq(deletedItem, holderr);
+                                    } else {
+                                           /* Snackbar.make(view, "Friend request has been sent already", Snackbar.LENGTH_LONG).show();
+                                            notifyDataSetChanged();*/
+                                    }
+
+
+                                });
+
+                    } else {
+                    }
+
+                });
+    }
+
+    private void executeFriendReq() {
+
+        userMap = new HashMap<>();
+
+        FirebaseFirestore.getInstance()
+                .collection("users")
+                .document(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+
+                    // final String email=documentSnapshot.getString("email");
+
+                    userMap.put("username", documentSnapshot.getString("username"));
+                    //  userMap.put("id",    documentSnapshot.getString("id"));
+                    // userMap.put("email", email);
+                    userMap.put("image", documentSnapshot.getString("image"));
+                    userMap.put("tokens", documentSnapshot.get("token_ids"));
+                    userMap.put("notification_id", String.valueOf(System.currentTimeMillis()));
+                    userMap.put("timestamp", String.valueOf(System.currentTimeMillis()));
+
+                    //Add to user
+                    FirebaseFirestore.getInstance()
+                            .collection("users")
+                            .document(userId)
+                            .collection("Friend_Requests")
+                            .document(documentSnapshot.getId())
+                            .set(userMap);
+
+
+                });
     }
 }
