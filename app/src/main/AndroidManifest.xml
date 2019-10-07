@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="fr.bigsis.android">
-    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -14,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name=".activity.RegisterContinuationActivity"></activity>
-        <activity android:name=".activity.ContactListActivity" />
+        <activity android:name=".activity.ContactListActivity"></activity>
         <activity android:name=".activity.UserProfileActivity" />
         <activity android:name=".activity.RegisterActivity" />
         <activity android:name=".activity.SignInActivity" />
