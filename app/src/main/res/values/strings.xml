@@ -27,4 +27,6 @@
     <string name="email_was_sent">Un e-mail vous a été envoyé</string>
     <string name="enter_password">Veuillez entrer votre mot de passe</string>
     <string name="email_or_password_incorrect">mot de passe ou e-mail incorrect</string>
+    <string name="contacts">Contacts</string>
+    <string name="our_advices">Nos conseils</string>
 </resources>

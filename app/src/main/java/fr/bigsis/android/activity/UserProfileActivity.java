@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -83,7 +84,11 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     }
 
     private void setToolBar() {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         transitionContainer = findViewById(R.id.toolbarLayout);
+       //transitionContainer.setBackgroundDrawable(getResources().getDrawable(R.drawable.gradient));
+        transitionContainer.setBackground(getDrawable(R.drawable.gradient));
+
         imgBtProfile = transitionContainer.findViewById(R.id.imBt_ic_profile_frag);
         imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
         imBtSettings = transitionContainer.findViewById(R.id.imBt_ic_setting);
