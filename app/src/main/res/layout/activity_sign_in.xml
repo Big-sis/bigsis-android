@@ -61,7 +61,6 @@
         android:clickable="true"
         android:text="@string/forgot_password"
         android:textColor="@color/colorAccent"
-        android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
