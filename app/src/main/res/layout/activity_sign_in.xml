@@ -2,10 +2,11 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/constraint_layout_sign_in"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.SignInActivity"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimaryDark"
+    tools:context=".activity.SignInActivity">
 
     <EditText
         android:id="@+id/etEmail"
@@ -14,9 +15,9 @@
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="8dp"
-        android:backgroundTint="@color/colorAccent"
         android:ems="10"
         android:hint="@string/mail_adress"
+        android:textColor="@color/colorAccent"
         android:textColorHint="@color/colorAccent"
         app:layout_constraintBottom_toTopOf="@+id/etPassword"
         app:layout_constraintEnd_toEndOf="parent"
@@ -29,11 +30,11 @@
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="24dp"
-        android:backgroundTint="@color/colorAccent"
         android:ems="10"
         android:hint="@string/password"
-        android:textColorHint="@color/colorAccent"
         android:inputType="textPassword"
+        android:textColor="@color/colorAccent"
+        android:textColorHint="@color/colorAccent"
         app:layout_constraintBottom_toTopOf="@+id/btSignIn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -57,9 +58,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="150dp"
+        android:clickable="true"
         android:text="@string/forgot_password"
         android:textColor="@color/colorAccent"
-        android:clickable="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

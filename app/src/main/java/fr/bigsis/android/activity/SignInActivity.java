@@ -14,11 +14,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import fr.bigsis.android.R;
 
@@ -27,6 +32,10 @@ public class SignInActivity extends AppCompatActivity {
     EditText emailBox, passwordBox;
     Button btSignIn;
     TextView tvForgotPassword;
+    ConstraintLayout constraint_layout_sign_in;
+    String firstname;
+    String userId;
+    FirebaseFirestore mFirestore;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
 
@@ -35,15 +44,22 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
+        constraint_layout_sign_in = findViewById(R.id.constraint_layout_sign_in);
         emailBox = findViewById(R.id.etEmail);
         passwordBox = findViewById(R.id.etPassword);
         mAuth = FirebaseAuth.getInstance();
         btSignIn = findViewById(R.id.btSignIn);
+
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+
                 if (firebaseAuth.getCurrentUser() != null) {
-                    startActivity(new Intent(SignInActivity.this, UserProfileActivity.class));
+                    if (!firebaseAuth.getCurrentUser().isEmailVerified()) {
+                        verifyEmailSignIn();
+                    } else {
+                        registerContinuation();
+                    }
                 }
             }
         };
@@ -91,6 +107,56 @@ public class SignInActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void verifyEmailSignIn() {
+        AlertDialog builder = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogStyle)
+                .setTitle("Un e-mail de vérification vous a déjà été envoyé")
+                .setMessage("Renvoyer un autre e-mail pour vérification ?")
+                .setPositiveButton(getString(R.string.yes), null)
+                .setNegativeButton(getString(R.string.no), null)
+                .show();
+        emailBox.setText("");
+        passwordBox.setText("");
+        Button positiveButton = builder.getButton(AlertDialog.BUTTON_POSITIVE);
+        positiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mAuth.getCurrentUser().sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            AlertDialog builder = new AlertDialog.Builder(SignInActivity.this, R.style.AlertDialogStyle)
+                                    .setMessage("Un e-mail de vérification vient de vous etre envoyé")
+                                    .setPositiveButton("OK", null)
+                                    .show();
+                        } else {
+                            Snackbar.make(constraint_layout_sign_in, task.getException().getMessage(), Snackbar.LENGTH_SHORT)
+                                    .show();
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private void registerContinuation() {
+        userId = mAuth.getCurrentUser().getUid();
+        Toast.makeText(this, userId, Toast.LENGTH_SHORT).show();
+        mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("users")
+                .document(userId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        firstname = documentSnapshot.getString("firstname");
+                        if (firstname != null) {
+                            startActivity(new Intent(SignInActivity.this, UserProfileActivity.class));
+                        } else {
+                            startActivity(new Intent(SignInActivity.this, RegisterContinuationActivity.class));
+                        }
+                    }
+                });
     }
 
     private void resetPassword() {
