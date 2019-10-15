@@ -1,6 +1,5 @@
 package fr.bigsis.android.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -14,7 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -50,7 +48,7 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 
-public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
+public class TripListActivity extends BigsisActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "TripListActivity";
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
@@ -63,6 +61,8 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     RecyclerView mRecycler;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
+    String id;
+    TripEntity trip;
     private FrameLayout frameLayout;
     private SearchMenuViewModel viewModel;
     private CollectionReference mItemsCollection;
@@ -210,9 +210,14 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 .setPageSize(20)
                 .build();
 
+        Query query = FirebaseFirestore.getInstance().collection("trips");
         FirestorePagingOptions<TripEntity> options = new FirestorePagingOptions.Builder<TripEntity>()
+                .setQuery(query, config, snapshot -> {
+                    TripEntity trip = snapshot.toObject(TripEntity.class);
+                    trip.setTripId(snapshot.getId());
+                    return trip;
+                })
                 .setLifecycleOwner(this)
-                .setQuery(baseQuery, config, TripEntity.class)
                 .build();
 
         adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {
@@ -229,7 +234,15 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
             protected void onBindViewHolder(@NonNull TripListViewHolder holder,
                                             int position,
                                             @NonNull TripEntity model) {
+
                 holder.bind(model);
+                String idtrip = model.getTripId();
+                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Toast.makeText(TripListActivity.this, idtrip, Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
@@ -269,24 +282,6 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 adapter.refresh();
             }
         });
-    }
-
-    private boolean selectItem(@NonNull MenuItem item, CurvedBottomNavigationView curvedBottomNavigationView) {
-        switch (item.getItemId()) {
-            case R.id.action_user_profile:
-                startActivity(new Intent(TripListActivity.this, UserProfileActivity.class));
-                return true;
-            case R.id.action_message:
-                Toast.makeText(TripListActivity.this, "ddd", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_events:
-                Toast.makeText(TripListActivity.this, "ii", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_route:
-                Toast.makeText(TripListActivity.this, "hh", Toast.LENGTH_SHORT).show();
-                return true;
-        }
-        return false;
     }
 
     private void showToast(@NonNull String message) {

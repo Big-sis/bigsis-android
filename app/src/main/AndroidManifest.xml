@@ -12,7 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".activity.RegisterContinuationActivity"></activity>
+        <activity android:name=".activity.SplashTripCreatedActivity"></activity>
+        <activity android:name=".activity.RegisterContinuationActivity" />
         <activity android:name=".activity.ContactListActivity" />
         <activity android:name=".activity.UserProfileActivity" />
         <activity android:name=".activity.RegisterActivity" />
