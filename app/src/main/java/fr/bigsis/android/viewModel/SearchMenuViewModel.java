@@ -18,7 +18,6 @@ public class SearchMenuViewModel extends ViewModel {
     private MutableLiveData<String> arrival;
     private MutableLiveData<Date> date;
 
-
     public SearchMenuViewModel() {
         departure = new MutableLiveData<>();
         departure.setValue("");

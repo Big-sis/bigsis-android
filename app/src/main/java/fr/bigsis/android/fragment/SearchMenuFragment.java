@@ -1,7 +1,6 @@
 package fr.bigsis.android.fragment;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -109,6 +108,7 @@ public class SearchMenuFragment extends Fragment {
     }
 
     public interface OnFragmentInteractionListener {
+        // TODO: Update argument type and name
         void onFragmentInteraction();
     }
 }

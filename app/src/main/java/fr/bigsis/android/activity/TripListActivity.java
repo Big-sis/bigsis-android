@@ -1,6 +1,5 @@
 package fr.bigsis.android.activity;
 
-import android.content.ClipData;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,7 +46,6 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewHolder.TripListViewHolder;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
-
 public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "TripListActivity";
@@ -55,6 +53,8 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
     AddTripFragment fragmentAdd = AddTripFragment.newInstance();
     Toolbar toolbar;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference tripRef = db.collection("trips");
     private FrameLayout frameLayout;
     private SearchMenuViewModel viewModel;
     private RecyclerView rvList;
@@ -68,13 +68,12 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_trip_list);
         viewModel = ViewModelProviders.of(this).get(SearchMenuViewModel.class);
 
-        setContentView(R.layout.activity_trip_list);
         ButterKnife.bind(this);
 
         mFirestore = FirebaseFirestore.getInstance();
@@ -208,50 +207,59 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 .build();
 
         adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {
-                    @NonNull
-                    @Override
-                    public TripListViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                                                             int viewType) {
-                        View view = LayoutInflater.from(parent.getContext())
-                                .inflate(R.layout.trip_list_item, parent, false);
-                        return new TripListViewHolder(view);
-                    }
+            @NonNull
+            @Override
+            public TripListViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
+                                                         int viewType) {
+                View view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.trip_list_item, parent, false);
+                return new TripListViewHolder(view);
+            }
 
-                    @Override
-                    protected void onBindViewHolder(@NonNull TripListViewHolder holder,
-                                                    int position,
-                                                    @NonNull TripEntity model) {
-                        holder.bind(model);
-                    }
+            @Override
+            protected void onBindViewHolder(@NonNull TripListViewHolder holder,
+                                            int position,
+                                            @NonNull TripEntity model) {
+                holder.bind(model);
+            }
 
-                    @Override
-                    protected void onLoadingStateChanged(@NonNull LoadingState state) {
-                        switch (state) {
-                            case LOADING_INITIAL:
-                            case LOADING_MORE:
-                                mSwipeRefreshLayout.setRefreshing(true);
-                                break;
-                            case LOADED:
-                                mSwipeRefreshLayout.setRefreshing(false);
-                                break;
-                            case FINISHED:
-                                mSwipeRefreshLayout.setRefreshing(false);
-                                showToast("Reached end of data set.");
-                                break;
-                            case ERROR:
-                                showToast("An error occurred.");
-                                retry();
-                                break;
-                        }
-                    }
-
-                    @Override
-                    protected void onError(@NonNull Exception e) {
+            @Override
+            protected void onLoadingStateChanged(@NonNull LoadingState state) {
+                switch (state) {
+                    case LOADING_INITIAL:
+                    case LOADING_MORE:
+                        mSwipeRefreshLayout.setRefreshing(true);
+                        break;
+                    case LOADED:
                         mSwipeRefreshLayout.setRefreshing(false);
-                        Log.e(TAG, e.getMessage(), e);
-                    }
-                };
+                        break;
+                    case FINISHED:
+                        mSwipeRefreshLayout.setRefreshing(false);
+                        showToast("Reached end of data set.");
+                        break;
+                    case ERROR:
+                        showToast("An error occurred.");
+                        retry();
+                        break;
+                }
+            }
 
+            @Override
+            protected void onError(@NonNull Exception e) {
+                mSwipeRefreshLayout.setRefreshing(false);
+                Log.e(TAG, e.getMessage(), e);
+            }
+        };
+
+        mRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mRecycler.setAdapter(adapter);
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.refresh();
+            }
+        });
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setAdapter(adapter);
 
