@@ -43,7 +43,7 @@ import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.fragment.ToolBarFragment;
-import fr.bigsis.android.helpers.KeyboardHelper;
+import fr.bigsis.android.helper.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
