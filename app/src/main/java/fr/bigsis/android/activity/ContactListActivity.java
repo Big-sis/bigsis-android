@@ -14,7 +14,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
@@ -43,7 +42,7 @@ import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.SearchContactFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
-public class ContactListActivity extends AppCompatActivity implements SearchContactFragment.OnFragmentInteractionContact {
+public class ContactListActivity extends BigsisActivity implements SearchContactFragment.OnFragmentInteractionContact {
 
     private static final String TAG = "ContactActivity";
     FloatingActionButton fbTrip;
@@ -57,7 +56,9 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
     RecyclerView mRecycler;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
-    private FirebaseFirestore mFirestore;
+    UserEntity user;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference notebookRef = db.collection("users");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +70,6 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
         openFragment();
         setUpAdapter();
 
-        mFirestore = FirebaseFirestore.getInstance();
-        mItemsCollection = mFirestore.collection("users");
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -83,11 +82,8 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
                 curvedBottomNavigationView.getMenu().getItem(2);
         selectItem(selectedItem, curvedBottomNavigationView);
         fbTrip = findViewById(R.id.fbTrip);
-        fbTrip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ContactListActivity.this, TripListActivity.class));
-            }
+        fbTrip.setOnClickListener(view -> {
+            startActivity(new Intent(ContactListActivity.this, TripListActivity.class));
         });
     }
 
@@ -116,24 +112,6 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
                 startActivity(new Intent(ContactListActivity.this, UserProfileActivity.class));
             }
         });
-    }
-
-    private boolean selectItem(@NonNull MenuItem item, CurvedBottomNavigationView curvedBottomNavigationView) {
-        switch (item.getItemId()) {
-            case R.id.action_user_profile:
-                startActivity(new Intent(ContactListActivity.this, UserProfileActivity.class));
-                return true;
-            case R.id.action_message:
-                Toast.makeText(ContactListActivity.this, "ddd", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_events:
-                Toast.makeText(ContactListActivity.this, "ii", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_route:
-                Toast.makeText(ContactListActivity.this, "hh", Toast.LENGTH_SHORT).show();
-                return true;
-        }
-        return false;
     }
 
     public void openFragment() {
@@ -227,11 +205,11 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
 
     public class ContactViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.tvUsernameContact)
-        TextView mTextUsername;
+        @BindView(R.id.tvNameContact)
+        TextView mTextName;
 
-        @BindView(R.id.tvPseudoContact)
-        TextView mTextPseudo;
+        @BindView(R.id.tvUserNameContact)
+        TextView mTextUserName;
 
         @BindView(R.id.image_profile_contact)
         CircleImageView mImageProfile;
@@ -242,11 +220,18 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
         private ContactViewHolder(@NonNull View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String firstname = user.getFirstname();
+                    Toast.makeText(ContactListActivity.this, firstname, Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         private void bind(@NonNull UserEntity item) {
-            mTextUsername.setText(item.getFirstname() + " " + item.getLastname());
-            mTextPseudo.setText(item.getUsername());
+            mTextName.setText(item.getFirstname() + " " + item.getLastname());
+            mTextUserName.setText(item.getUsername());
 
             RequestOptions myOptions = new RequestOptions()
                     .fitCenter()
@@ -261,7 +246,7 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
             btRequestFriend.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //addFriend();
+                    //TODO requestFriend
                 }
             });
         }

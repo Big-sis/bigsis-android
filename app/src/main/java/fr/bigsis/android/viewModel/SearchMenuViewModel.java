@@ -5,7 +5,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.Query;
 
 import java.util.Date;
 
@@ -17,6 +16,7 @@ public class SearchMenuViewModel extends ViewModel {
     private MutableLiveData<String> departure;
     private MutableLiveData<String> arrival;
     private MutableLiveData<Date> date;
+
 
     public SearchMenuViewModel() {
         departure = new MutableLiveData<>();

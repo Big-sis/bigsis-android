@@ -22,7 +22,6 @@ public class UserEntity {
         this.lastname = lastname;
     }
 
-
     public Map<String, Object> toHashMap() {
         Map<String, Object> tripMap = new HashMap<>();
         tripMap.put("username", username);
