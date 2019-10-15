@@ -66,7 +66,7 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 
-public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
+public class TripListActivity extends BigsisActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "TripListActivity";
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
@@ -79,6 +79,8 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     RecyclerView mRecycler;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
+    String id;
+    TripEntity trip;
     private FrameLayout frameLayout;
     private SearchMenuViewModel viewModel;
     private CollectionReference mItemsCollection;
@@ -236,6 +238,7 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                     return trip;
                 })
                 .setLifecycleOwner(this)
+                .setQuery(baseQuery, config, TripEntity.class)
                 .build();
 
         adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {

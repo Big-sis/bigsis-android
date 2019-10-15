@@ -14,14 +14,17 @@ public class TripEntity {
     private String to;
     private String image;
 
+    private String createdBy;
+
     public TripEntity() {
     }
 
-    public TripEntity(String from, String to, Date date, String image) {
+    public TripEntity(String from, String to, Date date, String image, String createdBy) {
         this.from = from;
         this.to = to;
         this.date = date;
         this.image = image;
+        this.createdBy = createdBy;
     }
 
     public Map<String, Object> toHashMap() {
@@ -70,5 +73,13 @@ public class TripEntity {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(String createdBy) {
+        this.createdBy = createdBy;
     }
 }

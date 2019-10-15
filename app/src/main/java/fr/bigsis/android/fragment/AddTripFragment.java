@@ -33,7 +33,6 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import fr.bigsis.android.R;
-import fr.bigsis.android.activity.SplashTripCreatedActivity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 
