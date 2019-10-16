@@ -11,15 +11,16 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -41,15 +42,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.TripEntity;
+import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.fragment.ToolBarFragment;
-import fr.bigsis.android.helper.KeyboardHelper;
+import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
-import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
-public class TripListActivity extends BigsisActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
+public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "TripListActivity";
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
@@ -62,8 +63,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     RecyclerView mRecycler;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
-    String id;
-    TripEntity trip;
     private FrameLayout frameLayout;
     private SearchMenuViewModel viewModel;
     private CollectionReference mItemsCollection;
@@ -220,13 +219,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                 })
                 .setLifecycleOwner(this)
                 .build();
-        adapter = new TripListAdapter(options);
-        RecyclerView rvList = findViewById(R.id.rvListTrips);
-        rvList.setHasFixedSize(true);
-        rvList.setLayoutManager(new LinearLayoutManager(this));
-        rvList.setAdapter();
-        adapter.startListening();
-    }*/
 
         adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {
             @NonNull
@@ -242,7 +234,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
             protected void onBindViewHolder(@NonNull TripListViewHolder holder,
                                             int position,
                                             @NonNull TripEntity model) {
-
                 holder.bind(model);
                 String idtrip = model.getTripId();
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -290,6 +281,24 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                 adapter.refresh();
             }
         });
+    }
+
+    private boolean selectItem(@NonNull MenuItem item, CurvedBottomNavigationView curvedBottomNavigationView) {
+        switch (item.getItemId()) {
+            case R.id.action_user_profile:
+                startActivity(new Intent(TripListActivity.this, UserProfileActivity.class));
+                return true;
+            case R.id.action_message:
+                Toast.makeText(TripListActivity.this, "ddd", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_events:
+                Toast.makeText(TripListActivity.this, "ii", Toast.LENGTH_SHORT).show();
+                return true;
+            case R.id.action_route:
+                Toast.makeText(TripListActivity.this, "hh", Toast.LENGTH_SHORT).show();
+                return true;
+        }
+        return false;
     }
 
     private void showToast(@NonNull String message) {
