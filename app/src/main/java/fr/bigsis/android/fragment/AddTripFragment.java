@@ -36,6 +36,7 @@ import java.util.TimeZone;
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.SplashTripCreatedActivity;
 import fr.bigsis.android.entity.TripEntity;
+import fr.bigsis.android.entity.UserEntity;
 
 public class AddTripFragment extends Fragment {
 
@@ -131,6 +132,9 @@ public class AddTripFragment extends Fragment {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String username = documentSnapshot.getString("username");
+                        String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                        String firstname = documentSnapshot.getString("firstname");
+                        String lastname = documentSnapshot.getString("lastname");
                         String addFrom = etAddFromDestination.getText().toString();
                         String toFrom = etAddToDestination.getText().toString();
                         String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
@@ -147,17 +151,22 @@ public class AddTripFragment extends Fragment {
 
                         CollectionReference tripReference = FirebaseFirestore.getInstance()
                                 .collection("trips");
-                        CollectionReference userShoppingListsRef = mFirestore.collection("users").document(userId).collection("tripList");
-
+                        CollectionReference userListsRef = mFirestore.collection("users").document(userId).collection("tripList");
                         TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, url, username);
                         tripReference.add(tripEntity).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentReference> task) {
                                 startActivity(new Intent(getActivity(), SplashTripCreatedActivity.class));
-                                String shoppingListId = tripReference.document().getId();
-                                userShoppingListsRef.document(shoppingListId).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                String idtrip = tripReference.document().getId();
+                                userListsRef.document(idtrip).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
+                                        //TODO
+                                        UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                                        mFirestore.collection("trips")
+                                                .document(idtrip)
+                                                .collection("participants")
+                                                .add(userEntity);
                                     }
                                 });
                             }

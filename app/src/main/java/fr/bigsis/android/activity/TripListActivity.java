@@ -1,12 +1,14 @@
 package fr.bigsis.android.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -16,6 +18,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -30,18 +33,31 @@ import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.TripEntity;
+import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.fragment.ToolBarFragment;
@@ -67,6 +83,8 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     private SearchMenuViewModel viewModel;
     private CollectionReference mItemsCollection;
     private FirebaseFirestore mFirestore;
+    private String userId;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -234,12 +252,140 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
             protected void onBindViewHolder(@NonNull TripListViewHolder holder,
                                             int position,
                                             @NonNull TripEntity model) {
+                //TODO
                 holder.bind(model);
                 String idtrip = model.getTripId();
-                holder.itemView.setOnClickListener(new View.OnClickListener() {
+                mAuth = FirebaseAuth.getInstance();
+                userId = mAuth.getCurrentUser().getUid();
+                mFirestore = FirebaseFirestore.getInstance();
+                DocumentReference documentReferencePartcipants = mFirestore.collection("trips")
+                        .document(idtrip)
+                        .collection("participants")
+                        .document(userId);
+
+                //Check if user is participating to a trip or not , and keep the button in the right color
+                documentReferencePartcipants.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                   @Override
+                   public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                       if (task.isSuccessful()) {
+                           DocumentSnapshot document = task.getResult();
+                           if (document.exists()) {
+                               holder.btParticipate.setSelected(true);
+                               holder.btParticipate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+                           }
+                       } else {
+                           Toast.makeText(TripListActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                       }
+                   }
+                       });
+
+                holder.btParticipate.setOnClickListener(new View.OnClickListener() {
+                    int i = 0;
                     @Override
                     public void onClick(View v) {
-                        Toast.makeText(TripListActivity.this, idtrip, Toast.LENGTH_SHORT).show();
+                        //partcipate to a trip
+                        if (i == 0) {
+                            holder.btParticipate.setSelected(true);
+                            holder.btParticipate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+
+                            mFirestore.collection("users").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    String username = documentSnapshot.getString("username");
+                                    String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                                    String firstname = documentSnapshot.getString("firstname");
+                                    String lastname = documentSnapshot.getString("lastname");
+                                    UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                                    mFirestore.collection("trips")
+                                            .document(idtrip)
+                                            .collection("participants")
+                                            .document(userId)
+                                            .set(userEntity, SetOptions.merge());
+                                }
+                            });
+
+                            mFirestore.collection("trips").document(idtrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    String from = documentSnapshot.getString("from");
+                                    String to = documentSnapshot.getString("to");
+                                    Date date = documentSnapshot.getDate("date");
+                                    String image = documentSnapshot.getString("image");
+                                    String createdBy = documentSnapshot.getString("createdBy");
+                                    TripEntity tripEntity = new TripEntity(from, to, date, image, createdBy);
+                                    mFirestore.collection("users")
+                                            .document(userId)
+                                            .collection("participateTo")
+                                            .document(idtrip)
+                                            .set(tripEntity, SetOptions.merge());
+                                }
+                            });
+                            i++;
+                            //unparticipate
+
+                        } else if (i == 1) {
+
+                            holder.btParticipate.setSelected(false);
+                            holder.btParticipate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
+                            mFirestore.collection("users")
+                                    .document(userId)
+                                    .collection("participateTo")
+                                    .document(idtrip)
+                                    .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "onSuccess: Removed list item");
+                                }
+                            });
+
+                            mFirestore.collection("trips")
+                                    .document(idtrip)
+                                    .collection("participants")
+                                    .document(userId)
+                                    .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "onSuccess: Removed list item");
+                                }
+                            });
+
+                        i = 0;
+                    }
+                    }
+                });
+
+                holder.mImvTripImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mFirestore.collection("trips").document(idtrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                String to = documentSnapshot.getString("to");
+                                Uri gmmIntentUri = Uri.parse("google.navigation:q="+ to +"France");
+                                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                                mapIntent.setPackage("com.google.android.apps.maps");
+                                startActivity(mapIntent);
+                            }
+                        });
+                    }
+                });
+
+                holder.profile_image_one.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        documentReferencePartcipants.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot document = task.getResult();
+                                    if (document.exists()) {
+                                        startActivity(new Intent(TripListActivity.this, ParticipantsListActivity.class));
+                                    }
+                                } else {
+                                    Toast.makeText(TripListActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -318,6 +464,12 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
 
         @BindView(R.id.tvDateTrip)
         TextView mTextDate;
+
+        @BindView(R.id.btParticipate)
+        Button btParticipate;
+
+        @BindView(R.id.profile_image_one)
+        ImageView profile_image_one;
 
         private TripListViewHolder(@NonNull View itemView) {
             super(itemView);

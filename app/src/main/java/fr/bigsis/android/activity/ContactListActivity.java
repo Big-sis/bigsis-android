@@ -16,6 +16,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.paging.PagedList;
@@ -28,11 +29,17 @@ import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.SetOptions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -59,6 +66,9 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
     UserEntity user;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private CollectionReference notebookRef = db.collection("users");
+    private FirebaseFirestore mFirestore;
+    private String mCurrentUser;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,17 +135,19 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
 
     private void setUpAdapter() {
         Query query = FirebaseFirestore.getInstance()
-                .collection("users")
-                .orderBy("username");
+                .collection("users");
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(10)
                 .setPageSize(20)
                 .build();
-
         FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
                 .setLifecycleOwner(this)
-                .setQuery(query, config, UserEntity.class)
+                .setQuery(query, config, snapshot -> {
+                    UserEntity user = snapshot.toObject(UserEntity.class);
+                    user.setUserId(snapshot.getId());
+                    return user;
+                })
                 .build();
 
         adapter = new FirestorePagingAdapter<UserEntity, ContactViewHolder>(options) {
@@ -153,6 +165,100 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
                                             int position,
                                             @NonNull UserEntity model) {
                 holder.bind(model);
+                String idUserContact = model.getUserId();
+                mAuth = FirebaseAuth.getInstance();
+                mCurrentUser = mAuth.getCurrentUser().getUid();
+                mFirestore = FirebaseFirestore.getInstance();
+
+                //Check if user sent request not , and keep the button in the right color
+                mFirestore.collection("users")
+                        .document(idUserContact)
+                        .collection("Request received")
+                        .document(mCurrentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                holder.btRequestFriend.setSelected(true);
+                                holder.btRequestFriend.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+                            }
+                        } else {
+                            Toast.makeText(ContactListActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+
+                holder.btRequestFriend.setOnClickListener(new View.OnClickListener() {
+                    int i = 0;
+                    @Override
+                    public void onClick(View v) {
+                        if (i == 0) {
+                            mFirestore.collection("users").document(idUserContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    // request friend
+                                    holder.btRequestFriend.setSelected(true);
+                                    holder.btRequestFriend.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+
+                                    String username = documentSnapshot.getString("username");
+                                    String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                                    String firstname = documentSnapshot.getString("firstname");
+                                    String lastname = documentSnapshot.getString("lastname");
+                                    UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                                    mFirestore.collection("users")
+                                            .document(mCurrentUser)
+                                            .collection("Request sent")
+                                            .document(idUserContact)
+                                            .set(userEntity, SetOptions.merge());
+                                }
+                            });
+                            mFirestore.collection("users").document(mCurrentUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    String username = documentSnapshot.getString("username");
+                                    String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                                    String firstname = documentSnapshot.getString("firstname");
+                                    String lastname = documentSnapshot.getString("lastname");
+                                    UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                                    mFirestore.collection("users")
+                                            .document(idUserContact)
+                                            .collection("Request received")
+                                            .document(mCurrentUser)
+                                            .set(userEntity, SetOptions.merge());
+                                }
+                            });
+                            i++;
+                        } else if (i == 1) {
+                            //UNREQUEST
+                            holder.btRequestFriend.setSelected(false);
+                            holder.btRequestFriend.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
+                            mFirestore.collection("users")
+                                    .document(mCurrentUser)
+                                    .collection("Request sent")
+                                    .document(idUserContact)
+                                    .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "onSuccess: Removed list item");
+                                }
+                            });
+
+                            mFirestore.collection("users")
+                                    .document(idUserContact)
+                                    .collection("Request received")
+                                    .document(mCurrentUser)
+                                    .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "onSuccess: Removed list item");
+                                }
+                            });
+                            i = 0;
+                        }
+                    }
+                });
             }
 
             @Override
@@ -220,13 +326,6 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         private ContactViewHolder(@NonNull View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String firstname = user.getFirstname();
-                    Toast.makeText(ContactListActivity.this, firstname, Toast.LENGTH_SHORT).show();
-                }
-            });
         }
 
         private void bind(@NonNull UserEntity item) {
@@ -243,12 +342,6 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
                     .load(item.getImageProfileUrl())
                     .into(mImageProfile);
 
-            btRequestFriend.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO requestFriend
-                }
-            });
         }
     }
 }
