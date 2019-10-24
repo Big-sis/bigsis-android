@@ -10,6 +10,9 @@ public class UserEntity {
     private String imageProfileUrl;
     private String firstname;
     private String lastname;
+    private String userId;
+
+
 
     public UserEntity() {
     }
@@ -21,8 +24,13 @@ public class UserEntity {
         this.firstname = firstname;
         this.lastname = lastname;
     }
-
-
+//TODO
+    public UserEntity(String username, String imageProfileUrl, String firstname, String lastname) {
+        this.username = username;
+        this.imageProfileUrl = imageProfileUrl;
+        this.firstname = firstname;
+        this.lastname = lastname;
+    }
     public Map<String, Object> toHashMap() {
         Map<String, Object> tripMap = new HashMap<>();
         tripMap.put("username", username);
@@ -71,5 +79,12 @@ public class UserEntity {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 }

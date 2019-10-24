@@ -14,9 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.paging.PagedList;
@@ -29,11 +29,17 @@ import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.SetOptions;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,7 +49,7 @@ import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.SearchContactFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
-public class ContactListActivity extends AppCompatActivity implements SearchContactFragment.OnFragmentInteractionContact {
+public class ContactListActivity extends BigsisActivity implements SearchContactFragment.OnFragmentInteractionContact {
 
     private static final String TAG = "ContactActivity";
     FloatingActionButton fbTrip;
@@ -57,7 +63,12 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
     RecyclerView mRecycler;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
+    UserEntity user;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private CollectionReference notebookRef = db.collection("users");
     private FirebaseFirestore mFirestore;
+    private String mCurrentUser;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +80,6 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
         openFragment();
         setUpAdapter();
 
-        mFirestore = FirebaseFirestore.getInstance();
-        mItemsCollection = mFirestore.collection("users");
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -83,11 +92,8 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
                 curvedBottomNavigationView.getMenu().getItem(2);
         selectItem(selectedItem, curvedBottomNavigationView);
         fbTrip = findViewById(R.id.fbTrip);
-        fbTrip.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(ContactListActivity.this, TripListActivity.class));
-            }
+        fbTrip.setOnClickListener(view -> {
+            startActivity(new Intent(ContactListActivity.this, TripListActivity.class));
         });
     }
 
@@ -118,24 +124,6 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
         });
     }
 
-    private boolean selectItem(@NonNull MenuItem item, CurvedBottomNavigationView curvedBottomNavigationView) {
-        switch (item.getItemId()) {
-            case R.id.action_user_profile:
-                startActivity(new Intent(ContactListActivity.this, UserProfileActivity.class));
-                return true;
-            case R.id.action_message:
-                Toast.makeText(ContactListActivity.this, "ddd", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_events:
-                Toast.makeText(ContactListActivity.this, "ii", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_route:
-                Toast.makeText(ContactListActivity.this, "hh", Toast.LENGTH_SHORT).show();
-                return true;
-        }
-        return false;
-    }
-
     public void openFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -147,17 +135,19 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
 
     private void setUpAdapter() {
         Query query = FirebaseFirestore.getInstance()
-                .collection("users")
-                .orderBy("username");
+                .collection("users");
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(10)
                 .setPageSize(20)
                 .build();
-
         FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
                 .setLifecycleOwner(this)
-                .setQuery(query, config, UserEntity.class)
+                .setQuery(query, config, snapshot -> {
+                    UserEntity user = snapshot.toObject(UserEntity.class);
+                    user.setUserId(snapshot.getId());
+                    return user;
+                })
                 .build();
 
         adapter = new FirestorePagingAdapter<UserEntity, ContactViewHolder>(options) {
@@ -175,6 +165,100 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
                                             int position,
                                             @NonNull UserEntity model) {
                 holder.bind(model);
+                String idUserContact = model.getUserId();
+                mAuth = FirebaseAuth.getInstance();
+                mCurrentUser = mAuth.getCurrentUser().getUid();
+                mFirestore = FirebaseFirestore.getInstance();
+
+                //Check if user sent request not , and keep the button in the right color
+                mFirestore.collection("users")
+                        .document(idUserContact)
+                        .collection("Request received")
+                        .document(mCurrentUser).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                holder.btRequestFriend.setSelected(true);
+                                holder.btRequestFriend.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+                            }
+                        } else {
+                            Toast.makeText(ContactListActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+
+
+                holder.btRequestFriend.setOnClickListener(new View.OnClickListener() {
+                    int i = 0;
+                    @Override
+                    public void onClick(View v) {
+                        if (i == 0) {
+                            mFirestore.collection("users").document(idUserContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    // request friend
+                                    holder.btRequestFriend.setSelected(true);
+                                    holder.btRequestFriend.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
+
+                                    String username = documentSnapshot.getString("username");
+                                    String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                                    String firstname = documentSnapshot.getString("firstname");
+                                    String lastname = documentSnapshot.getString("lastname");
+                                    UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                                    mFirestore.collection("users")
+                                            .document(mCurrentUser)
+                                            .collection("Request sent")
+                                            .document(idUserContact)
+                                            .set(userEntity, SetOptions.merge());
+                                }
+                            });
+                            mFirestore.collection("users").document(mCurrentUser).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    String username = documentSnapshot.getString("username");
+                                    String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                                    String firstname = documentSnapshot.getString("firstname");
+                                    String lastname = documentSnapshot.getString("lastname");
+                                    UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                                    mFirestore.collection("users")
+                                            .document(idUserContact)
+                                            .collection("Request received")
+                                            .document(mCurrentUser)
+                                            .set(userEntity, SetOptions.merge());
+                                }
+                            });
+                            i++;
+                        } else if (i == 1) {
+                            //UNREQUEST
+                            holder.btRequestFriend.setSelected(false);
+                            holder.btRequestFriend.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
+                            mFirestore.collection("users")
+                                    .document(mCurrentUser)
+                                    .collection("Request sent")
+                                    .document(idUserContact)
+                                    .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "onSuccess: Removed list item");
+                                }
+                            });
+
+                            mFirestore.collection("users")
+                                    .document(idUserContact)
+                                    .collection("Request received")
+                                    .document(mCurrentUser)
+                                    .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "onSuccess: Removed list item");
+                                }
+                            });
+                            i = 0;
+                        }
+                    }
+                });
             }
 
             @Override
@@ -227,11 +311,11 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
 
     public class ContactViewHolder extends RecyclerView.ViewHolder {
 
-        @BindView(R.id.tvUsernameContact)
-        TextView mTextUsername;
+        @BindView(R.id.tvNameContact)
+        TextView mTextName;
 
-        @BindView(R.id.tvPseudoContact)
-        TextView mTextPseudo;
+        @BindView(R.id.tvUserNameContact)
+        TextView mTextUserName;
 
         @BindView(R.id.image_profile_contact)
         CircleImageView mImageProfile;
@@ -245,8 +329,8 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
         }
 
         private void bind(@NonNull UserEntity item) {
-            mTextUsername.setText(item.getFirstname() + " " + item.getLastname());
-            mTextPseudo.setText(item.getUsername());
+            mTextName.setText(item.getFirstname() + " " + item.getLastname());
+            mTextUserName.setText(item.getUsername());
 
             RequestOptions myOptions = new RequestOptions()
                     .fitCenter()
@@ -258,12 +342,6 @@ public class ContactListActivity extends AppCompatActivity implements SearchCont
                     .load(item.getImageProfileUrl())
                     .into(mImageProfile);
 
-            btRequestFriend.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //addFriend();
-                }
-            });
         }
     }
 }

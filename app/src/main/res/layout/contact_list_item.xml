@@ -33,7 +33,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
-        android:id="@+id/tvUsernameContact"
+        android:id="@+id/tvNameContact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="40dp"
@@ -42,17 +42,17 @@
         android:textSize="18sp"
         app:layout_constraintStart_toEndOf="@+id/image_profile_contact"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Username contact" />
+        tools:text="Name contact" />
 
     <TextView
-        android:id="@+id/tvPseudoContact"
+        android:id="@+id/tvUserNameContact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
         android:layout_marginTop="16dp"
         app:layout_constraintStart_toEndOf="@+id/image_profile_contact"
-        app:layout_constraintTop_toBottomOf="@+id/tvUsernameContact"
-        tools:text="Pseudonyme" />
+        app:layout_constraintTop_toBottomOf="@+id/tvNameContact"
+        tools:text="Username" />
 
     <Button
         android:id="@+id/btRequest"
@@ -60,7 +60,11 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="42dp"
         android:layout_marginEnd="21dp"
+        android:minHeight="30dp"
+        android:background="@drawable/custom_button"
         android:text="@string/add"
+        android:textAllCaps="false"
+        android:textColor="@drawable/text_color_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
