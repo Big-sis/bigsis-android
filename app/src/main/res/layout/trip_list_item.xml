@@ -7,6 +7,7 @@
     android:layout_height="wrap_content">
     <ImageView
         android:id="@+id/ivTripImage"
+        android:clickable="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
@@ -67,9 +68,61 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
+        android:paddingLeft="35dp"
+        android:paddingRight="35dp"
+        android:minHeight="30dp"
+        android:layout_marginEnd="8dp"
         android:layout_marginBottom="16dp"
+        android:background="@drawable/custom_button"
         android:text="@string/participer"
+        android:textAllCaps="false"
+        android:textColor="@drawable/text_color_button"
         app:layout_constraintBottom_toTopOf="@+id/view"
         app:layout_constraintEnd_toEndOf="parent" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image_one"
+        android:clickable="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="7dp"
+        android:src="@drawable/ic_profile_avatar"
+        app:civ_border_color="@color/colorWhite"
+        app:civ_border_width="2dp"
+        app:civ_circle_background_color="@color/colorGreyLight"
+        app:layout_constraintBottom_toTopOf="@+id/btParticipate"
+        app:layout_constraintEnd_toStartOf="@+id/profile_image_two"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image_two"
+        android:clickable="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginBottom="7dp"
+        android:src="@drawable/ic_profile_avatar"
+        app:civ_border_color="@color/colorWhite"
+        app:civ_border_width="2dp"
+        app:civ_circle_background_color="@color/colorGreyLight"
+        app:layout_constraintBottom_toTopOf="@+id/btParticipate"
+        app:layout_constraintEnd_toStartOf="@+id/profile_image_three"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/profile_image_three"
+        android:clickable="true"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="7dp"
+        android:src="@drawable/more"
+        app:civ_border_color="@color/colorWhite"
+        app:civ_border_width="2dp"
+        app:civ_circle_background_color="@color/colorGreyLight"
+        app:layout_constraintBottom_toTopOf="@+id/btParticipate"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
