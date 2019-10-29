@@ -14,14 +14,6 @@ public class TripEntity {
     private String to;
     private String image;
 
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
     public TripEntity() {
     }
 
@@ -36,6 +28,7 @@ public class TripEntity {
         Map<String, Object> tripMap = new HashMap<>();
         tripMap.put("from", from);
         tripMap.put("to", to);
+        tripMap.put("image", image);
         return tripMap;
     }
 
@@ -69,5 +62,13 @@ public class TripEntity {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 }
