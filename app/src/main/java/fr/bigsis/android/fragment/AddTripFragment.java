@@ -109,7 +109,7 @@ public class AddTripFragment extends Fragment {
         String addFrom = etAddFromDestination.getText().toString();
         String toFrom = etAddToDestination.getText().toString();
         String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
-        String url = "https://open.mapquestapi.com/staticmap/v5/map?start=" + addFrom + "|via-33AB62&end=" + toFrom + "&routeWidth=3&routeColor=33AB62&type=light&size=170,170&&defaultMarker=marker-sm-33AB62&key="+KEY;
+        String url = "https://open.mapquestapi.com/staticmap/v5/map?start=" + addFrom + "|via-33AB62&end=" + toFrom + "&routeWidth=5&routeColor=33AB62&type=light&size=170,170&&defaultMarker=marker-sm-33AB62&key="+KEY;
 
         if (addFrom.trim().isEmpty() || toFrom.trim().isEmpty()) {
             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();

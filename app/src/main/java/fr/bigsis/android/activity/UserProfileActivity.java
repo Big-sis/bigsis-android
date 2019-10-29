@@ -1,11 +1,11 @@
 package fr.bigsis.android.activity;
 
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.transition.TransitionManager;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,10 +34,12 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
     FirebaseAuth mAuth;
-    String userId, user_name;
+    String userId;
     FirebaseFirestore mFirestore;
     TextView tvUserName;
     ProfileFragment fragmentProfile = ProfileFragment.newInstance();
+    Button btContact, btAdvice;
+    String firstname, lastname;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
         setContentView(R.layout.activity_user_profile);
 
         setToolBar();
+
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -63,6 +66,13 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 startActivity(new Intent(UserProfileActivity.this, TripListActivity.class));
             }
         });
+        btContact = findViewById(R.id.btContact);
+        btContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(UserProfileActivity.this, ContactListActivity.class));
+            }
+        });
 
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
@@ -73,12 +83,11 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        user_name = documentSnapshot.getString("username");
-                        String description = documentSnapshot.getString("description");
-                        Toast.makeText(UserProfileActivity.this, user_name, Toast.LENGTH_SHORT).show();
+                        firstname = documentSnapshot.getString("firstname");
+                        lastname = documentSnapshot.getString("lastname");
                         transitionContainer = findViewById(R.id.toolbarLayout);
                         tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
-                        tvUserName.setText(user_name);
+                        tvUserName.setText(firstname + " " + lastname);
                     }
                 });
     }
@@ -86,9 +95,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     private void setToolBar() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         transitionContainer = findViewById(R.id.toolbarLayout);
-       //transitionContainer.setBackgroundDrawable(getResources().getDrawable(R.drawable.gradient));
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
-
         imgBtProfile = transitionContainer.findViewById(R.id.imBt_ic_profile_frag);
         imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
         imBtSettings = transitionContainer.findViewById(R.id.imBt_ic_setting);
@@ -113,7 +120,7 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
                 onFragmentInteractionProfile();
                 imgBtProfile.setVisibility(View.VISIBLE);
                 imgBtBack.setVisibility(View.GONE);
-                tvUserName.setText(user_name);
+                tvUserName.setText(firstname + " " + lastname);
             }
         });
 
