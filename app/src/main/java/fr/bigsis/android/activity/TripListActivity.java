@@ -238,7 +238,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                     return trip;
                 })
                 .setLifecycleOwner(this)
-                .setQuery(baseQuery, config, TripEntity.class)
                 .build();
 
         adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {
@@ -429,24 +428,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                 adapter.refresh();
             }
         });
-    }
-
-    private boolean selectItem(@NonNull MenuItem item, CurvedBottomNavigationView curvedBottomNavigationView) {
-        switch (item.getItemId()) {
-            case R.id.action_user_profile:
-                startActivity(new Intent(TripListActivity.this, UserProfileActivity.class));
-                return true;
-            case R.id.action_message:
-                Toast.makeText(TripListActivity.this, "ddd", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_events:
-                Toast.makeText(TripListActivity.this, "ii", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_route:
-                Toast.makeText(TripListActivity.this, "hh", Toast.LENGTH_SHORT).show();
-                return true;
-        }
-                return super.onOptionsItemSelected(item);
     }
 
     private void showToast(@NonNull String message) {

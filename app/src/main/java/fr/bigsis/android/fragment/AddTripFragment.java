@@ -3,6 +3,7 @@ package fr.bigsis.android.fragment;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.SplashTripCreatedActivity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 
