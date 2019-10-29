@@ -1,73 +1,246 @@
 package fr.bigsis.android.adapter;
 
+import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.auth.User;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
-import fr.bigsis.android.activity.ContactListActivity;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.fragment.OtherUserProfileFragment;
 
-/*public class ContactListAdapter extends FirestoreRecyclerAdapter<UserEntity, ContactListAdapter.NoteHolder> {
-    private OnItemClickListener listener;
 
-    public ContactListAdapter(@NonNull FirestoreRecyclerOptions<UserEntity> options) {
+public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, ContactListAdapter.ContactViewHolder>  {
+    private SwipeRefreshLayout mSwipeRefreshLayout;
+    private Context mContext;
+    private CollectionReference mItemsCollection;
+    private FirebaseFirestore mFirestore;
+    private String mCurrentUserId;
+    private FirebaseAuth mAuth;
+
+    public ContactListAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
+        mContext = context;
+        mSwipeRefreshLayout = swipeRefreshLayout;
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull NoteHolder holder, int position, @NonNull UserEntity model) {
+    protected void onBindViewHolder(@NonNull ContactViewHolder holder, int position, @NonNull UserEntity item) {
+        holder.bind(item);
 
+        item.setUserId(this.getItem(position).getId());
+        String idContact = item.getUserId();
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = mAuth.getCurrentUser().getUid();
+        mFirestore = FirebaseFirestore.getInstance();
+       // OtherUserProfileFragment fragmentProfile = OtherUserProfileFragment.newInstance(idContact);
+        DocumentReference documentReferenceRequestSent = mFirestore.collection("users")
+                .document(mCurrentUserId)
+                .collection("Request sent")
+                .document(idContact);
+
+        //Check if request was sent or not , and keep the button in the right color
+        documentReferenceRequestSent.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        holder.btRequestFriend.setSelected(true);
+                        holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                    }
+                }
+            }
+        });
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //TODO go to profile
+
+              /*  FragmentManager fragmentManager = ((AppCompatActivity)mContext).getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+                transaction.addToBackStack(null);
+                transaction.add(R.id.fragment_container_contact, fragmentProfile, "PROFILE_OTHER_USER_FRAGMENT")
+                        .commit();*/
+            }
+        });
+
+//Send request
+        holder.btRequestFriend.setOnClickListener(new View.OnClickListener() {
+            int i = 0;
+            @Override
+            public void onClick(View v) {
+                if (i == 0) {
+                    holder.btRequestFriend.setSelected(true);
+                    holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
+
+                    mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            String username = documentSnapshot.getString("username");
+                            String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                            String firstname = documentSnapshot.getString("firstname");
+                            String lastname = documentSnapshot.getString("lastname");
+                            UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                            mFirestore.collection("users")
+                                    .document(idContact)
+                                    .collection("Request received")
+                                    .document(mCurrentUserId)
+                                    .set(userEntity, SetOptions.merge());
+                        }
+                    });
+
+                    mFirestore.collection("users").document(idContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                        @Override
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            String username = documentSnapshot.getString("username");
+                            String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                            String firstname = documentSnapshot.getString("firstname");
+                            String lastname = documentSnapshot.getString("lastname");
+                            UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                            mFirestore.collection("users")
+                                    .document(mCurrentUserId)
+                                    .collection("Request sent")
+                                    .document(idContact)
+                                    .set(userEntity, SetOptions.merge());
+                        }
+                    });
+                    i++;
+
+                    //unrequest
+                } else if (i == 1) {
+
+                   holder.btRequestFriend.setSelected(false);
+                    holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorAccent));
+                    mFirestore.collection("users")
+                            .document(idContact)
+                            .collection("Request received")
+                            .document(mCurrentUserId)
+                            .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            //TODO snackbar for invitation annulée
+                        }
+                    });
+
+                    mFirestore.collection("users")
+                            .document(mCurrentUserId)
+                            .collection("Request sent")
+                            .document(idContact)
+                            .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            //TODO snackbar for invitation annulée
+                        }
+                    });
+                    i = 0;
+                }
+            }
+        });
     }
 
     @NonNull
     @Override
-    public NoteHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_list_item,
-                parent, false);
-        return new NoteHolder(v);
+    public ContactViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.contact_list_item, parent, false);
+        return new ContactViewHolder(view);
     }
 
-    public void deleteItem(int position) {
-        getSnapshots().getSnapshot(position).getReference().delete();
-    }
-
-    class NoteHolder extends RecyclerView.ViewHolder {
-        TextView textViewTitle;
-        TextView textViewDescription;
-        TextView textViewPriority;
-
-        public NoteHolder(View itemView) {
-            super(itemView);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION && listener != null) {
-                        listener.onItemClick(getSnapshots().getSnapshot(position), position);
-                       String id =  getSnapshots().getSnapshot(position).getReference().getId();
-                    }
-                }
-            });
+    @Override
+    protected void onLoadingStateChanged(@NonNull LoadingState state) {
+        switch (state) {
+            case LOADING_INITIAL:
+            case LOADING_MORE:
+                mSwipeRefreshLayout.setRefreshing(true);
+                break;
+            case LOADED:
+                mSwipeRefreshLayout.setRefreshing(false);
+                break;
+            case FINISHED:
+                mSwipeRefreshLayout.setRefreshing(false);
+                showToast("reached_end_data");
+                break;
+            case ERROR:
+                showToast("error_ocurred");
+                retry();
+                break;
         }
     }
 
-    public interface OnItemClickListener {
-        void onItemClick(DocumentSnapshot documentSnapshot, int position);
+    private void showToast(@NonNull String message) {
+        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
+    @Override
+    public void onError(@NonNull Exception e) {
+        mSwipeRefreshLayout.setRefreshing(false);
     }
-}*/
+
+    class ContactViewHolder extends RecyclerView.ViewHolder {
+        @BindView(R.id.tvNameContact)
+        TextView mTextName;
+        @BindView(R.id.tvUserNameContact)
+        TextView mTextUserName;
+        @BindView(R.id.image_profile_contact)
+        CircleImageView mImageProfile;
+        @BindView(R.id.btRequest)
+        Button btRequestFriend;
+        private View mView;
+        private Context context;
+
+        public ContactViewHolder(@NonNull View itemView) {
+            super(itemView);
+            this.mView = itemView;
+            ButterKnife.bind(this, itemView);
+        }
+
+        public void bind(@NonNull UserEntity item) {
+            mTextName.setText(item.getFirstname() + " " + item.getLastname());
+            mTextUserName.setText(item.getUsername());
+
+            RequestOptions myOptions = new RequestOptions()
+                    .fitCenter()
+                    .override(250, 250);
+
+            Glide.with(mImageProfile.getContext())
+                    .asBitmap()
+                    .apply(myOptions)
+                    .load(item.getImageProfileUrl())
+                    .into(mImageProfile);
+        }
+}
+}
