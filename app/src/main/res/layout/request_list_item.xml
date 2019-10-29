@@ -7,7 +7,7 @@
     android:layout_height="wrap_content">
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:id="@+id/image_profile_contact"
+        android:id="@+id/image_profile_contact_request"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:layout_marginStart="24dp"
@@ -40,7 +40,7 @@
         android:layout_marginTop="16dp"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="18sp"
-        app:layout_constraintStart_toEndOf="@+id/image_profile_contact"
+        app:layout_constraintStart_toEndOf="@+id/image_profile_contact_request"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Name contact" />
 
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="8dp"
-        app:layout_constraintStart_toEndOf="@+id/image_profile_contact"
+        app:layout_constraintStart_toEndOf="@+id/image_profile_contact_request"
         app:layout_constraintTop_toBottomOf="@+id/tvNameContactRequest"
         tools:text="Username" />
 

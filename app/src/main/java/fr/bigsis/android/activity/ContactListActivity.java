@@ -36,6 +36,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.ContactListAdapter;
+import fr.bigsis.android.adapter.RequestListAdapter;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
 import fr.bigsis.android.fragment.SearchContactFragment;
@@ -52,7 +53,6 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
     CollectionReference mItemsCollection;
     @BindView(R.id.rvContactList)
     RecyclerView mRecyclerContact;
-
     @BindView(R.id.rvContactListRequest)
     RecyclerView mRecyclerRequest;
     @BindView(R.id.swipe_refresh_layout)
@@ -183,7 +183,7 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
                 .setQuery(query, config, UserEntity.class)
                 .build();
 
-        ContactListAdapter adapterRequest = new ContactListAdapter(options, this, mSwipeRefreshLayout);
+        RequestListAdapter adapterRequest = new RequestListAdapter(options, this, mSwipeRefreshLayout);
 
         mRecyclerRequest.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerRequest.setAdapter(adapterRequest);
