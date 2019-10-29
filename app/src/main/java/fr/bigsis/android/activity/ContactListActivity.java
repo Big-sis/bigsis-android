@@ -50,16 +50,15 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
     ImageButton imgBtBack, imBtSearch;
     TextView tvTitle;
     SearchContactFragment fragmentProfile = SearchContactFragment.newInstance();
-    CollectionReference mItemsCollection;
     @BindView(R.id.rvContactList)
     RecyclerView mRecyclerContact;
     @BindView(R.id.rvContactListRequest)
     RecyclerView mRecyclerRequest;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
-    UserEntity user;
+    @BindView(R.id.swipe_refresh_layout_resquest)
+    SwipeRefreshLayout mSwipeRefreshLayoutRequest;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private CollectionReference notebookRef = db.collection("users");
     private FirebaseFirestore mFirestore;
     private String mCurrentUser;
     private FirebaseAuth mAuth;
@@ -131,6 +130,9 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
     }
 
     private void setUpAdapterForContacts() {
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = mAuth.getCurrentUser().getUid();
+        mFirestore = FirebaseFirestore.getInstance();
         Query query = FirebaseFirestore.getInstance()
                 .collection("users");
 
@@ -159,14 +161,9 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
     }
 
     private void setUpAdapterForRequests() {
-
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-        CollectionReference collectionReference = mFirestore.collection("users")
-                .document(mCurrentUserId)
-                .collection("Request received");
-
         Query query = FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(mCurrentUserId)
@@ -183,12 +180,12 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
                 .setQuery(query, config, UserEntity.class)
                 .build();
 
-        RequestListAdapter adapterRequest = new RequestListAdapter(options, this, mSwipeRefreshLayout);
+        RequestListAdapter adapterRequest = new RequestListAdapter(options, this, mSwipeRefreshLayoutRequest);
 
         mRecyclerRequest.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerRequest.setAdapter(adapterRequest);
 
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        mSwipeRefreshLayoutRequest.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 adapterRequest.refresh();
