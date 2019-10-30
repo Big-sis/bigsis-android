@@ -43,4 +43,5 @@
     <string name="requests">Demandes d\'ajout</string>
     <string name="no_request">Pas de demandes d\'ajout</string>
     <string name="accept">Accepter</string>
+    <string name="delete">Supprimer</string>
 </resources>

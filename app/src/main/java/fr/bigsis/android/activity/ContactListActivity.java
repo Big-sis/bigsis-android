@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.paging.PagedList;
@@ -27,6 +28,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -39,12 +41,12 @@ import fr.bigsis.android.adapter.ContactListAdapter;
 import fr.bigsis.android.adapter.RequestListAdapter;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
+import fr.bigsis.android.fragment.RequestFragment;
 import fr.bigsis.android.fragment.SearchContactFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
-public class ContactListActivity extends BigsisActivity implements SearchContactFragment.OnFragmentInteractionContact {
+public class ContactListActivity extends BigsisActivity implements SearchContactFragment.OnFragmentInteractionContact, RequestFragment.OnFragmentInteractionListener {
 
-    private static final String TAG = "ContactActivity";
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
     ImageButton imgBtBack, imBtSearch;
@@ -52,15 +54,11 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
     SearchContactFragment fragmentProfile = SearchContactFragment.newInstance();
     @BindView(R.id.rvContactList)
     RecyclerView mRecyclerContact;
-    @BindView(R.id.rvContactListRequest)
-    RecyclerView mRecyclerRequest;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
-    @BindView(R.id.swipe_refresh_layout_resquest)
-    SwipeRefreshLayout mSwipeRefreshLayoutRequest;
+    RequestFragment requestFragment = RequestFragment.newInstance();
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FirebaseFirestore mFirestore;
-    private String mCurrentUser;
     private FirebaseAuth mAuth;
     private String mCurrentUserId;
 
@@ -74,7 +72,27 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         setToolBar();
         openFragment();
         setUpAdapterForContacts();
-        setUpAdapterForRequests();
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = mAuth.getCurrentUser().getUid();
+
+
+        DocumentReference query = db
+                .collection("users")
+                .document(mCurrentUserId)
+                .collection("Request received")
+                .document();
+
+        query.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        openListRequest();
+                    }
+                }
+            }
+        });
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
@@ -134,7 +152,9 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
         Query query = FirebaseFirestore.getInstance()
-                .collection("users");
+                .collection("users")
+                .document(mCurrentUserId)
+                .collection("Friends");
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
@@ -160,7 +180,7 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         });
     }
 
-    private void setUpAdapterForRequests() {
+    /*private void setUpAdapterForRequests() {
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
@@ -191,10 +211,23 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
                 adapterRequest.refresh();
             }
         });
+    }*/
+
+    private void openListRequest() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.addToBackStack(null);
+        transaction.add(R.id.fragment_container_request, requestFragment, "REQUEST_LIST_FRAGMENT")
+                .commit();
     }
 
     @Override
     public void onFragmentInteractionContact() {
+        onBackPressed();
+    }
+
+    @Override
+    public void onFragmentInteractionRequest() {
         onBackPressed();
     }
 }

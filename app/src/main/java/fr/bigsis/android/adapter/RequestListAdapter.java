@@ -1,6 +1,9 @@
 package fr.bigsis.android.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -127,18 +130,18 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                         .document(mCurrentUserId)
                         .collection("Request sent")
                         .document(idContact)
-                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        //TODO snackbar for invitation refusée
-                    }
-                });
+                        .delete();
 
                 mFirestore.collection("users")
                         .document(idContact)
                         .collection("Request received")
                         .document(mCurrentUserId)
-                        .delete();
+                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mSwipeRefreshLayout.setRefreshing(true);
+                    }
+                });
             }
         });
     }
@@ -150,6 +153,7 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                 .inflate(R.layout.request_list_item, parent, false);
         return new RequestViewHolder(view);
     }
+
 
     @Override
     protected void onLoadingStateChanged(@NonNull LoadingState state) {

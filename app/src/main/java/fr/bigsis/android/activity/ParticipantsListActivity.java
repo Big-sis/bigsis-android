@@ -296,7 +296,8 @@ public class ParticipantsListActivity extends BigsisActivity {
         @BindView(R.id.image_profile_contact)
         CircleImageView mImageProfile;
 
-        @BindView(R.id.btRequest)
+        //TODO replace button delete
+        @BindView(R.id.btDelete)
         Button btRequestFriend;
 
         private ParticipantViewHolder(@NonNull View itemView) {

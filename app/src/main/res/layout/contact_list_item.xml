@@ -28,41 +28,50 @@
         android:layout_marginBottom="8dp"
         android:background="@color/colorAccent"
         android:alpha="0.5"
+
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tvNameContact"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="40dp"
+        android:layout_marginEnd="57dp"
+        android:ellipsize="end"
+        android:maxLines="1"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="18sp"
+        app:layout_constraintEnd_toStartOf="@+id/btDelete"
         app:layout_constraintStart_toEndOf="@+id/image_profile_contact"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Name contact" />
 
     <TextView
         android:id="@+id/tvUserNameContact"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
+        android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
+        android:layout_marginEnd="57dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        app:layout_constraintEnd_toStartOf="@+id/btDelete"
         app:layout_constraintStart_toEndOf="@+id/image_profile_contact"
         app:layout_constraintTop_toBottomOf="@+id/tvNameContact"
         tools:text="Username" />
 
     <Button
-        android:id="@+id/btRequest"
+        android:id="@+id/btDelete"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="42dp"
         android:layout_marginEnd="21dp"
         android:minHeight="30dp"
         android:background="@drawable/custom_button"
-        android:text="@string/add"
+        android:text="@string/delete"
         android:textAllCaps="false"
         android:textColor="@drawable/text_color_button"
         app:layout_constraintEnd_toEndOf="parent"

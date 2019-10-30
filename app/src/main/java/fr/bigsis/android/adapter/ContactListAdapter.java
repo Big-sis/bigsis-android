@@ -44,7 +44,6 @@ import fr.bigsis.android.fragment.OtherUserProfileFragment;
 public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, ContactListAdapter.ContactViewHolder>  {
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Context mContext;
-    private CollectionReference mItemsCollection;
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
@@ -71,7 +70,7 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                 .document(idContact);
 
         //Check if request was sent or not , and keep the button in the right color
-        documentReferenceRequestSent.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        /*documentReferenceRequestSent.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -82,7 +81,7 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                     }
                 }
             }
-        });
+        });*/
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -98,8 +97,32 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
             }
         });
 
-//Send request
-        holder.btRequestFriend.setOnClickListener(new View.OnClickListener() {
+        //Delete friend 
+        
+        holder.btDeleteFriend.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mFirestore.collection("users")
+                        .document(mCurrentUserId)
+                        .collection("Friends")
+                        .document(idContact)
+                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Snackbar.make(v, "Contact supprimé avec succès", Snackbar.LENGTH_LONG)
+                                .show();
+                    }
+                });
+
+                mFirestore.collection("users")
+                        .document(idContact)
+                        .collection("Friends")
+                        .document(mCurrentUserId)
+                        .delete();
+            }
+        });
+//TODO Send request
+       /* holder.btRequestFriend.setOnClickListener(new View.OnClickListener() {
             int i = 0;
             @Override
             public void onClick(View v) {
@@ -169,7 +192,7 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                     i = 0;
                 }
             }
-        });
+        });*/
     }
 
     @NonNull
@@ -217,8 +240,8 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
         TextView mTextUserName;
         @BindView(R.id.image_profile_contact)
         CircleImageView mImageProfile;
-        @BindView(R.id.btRequest)
-        Button btRequestFriend;
+        @BindView(R.id.btDelete)
+        Button btDeleteFriend;
         private View mView;
         private Context context;
 
