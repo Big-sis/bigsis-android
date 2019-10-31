@@ -41,11 +41,12 @@ import fr.bigsis.android.adapter.ContactListAdapter;
 import fr.bigsis.android.adapter.RequestListAdapter;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
+import fr.bigsis.android.fragment.ProfileFragment;
 import fr.bigsis.android.fragment.RequestFragment;
 import fr.bigsis.android.fragment.SearchContactFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
-public class ContactListActivity extends BigsisActivity implements SearchContactFragment.OnFragmentInteractionContact, RequestFragment.OnFragmentInteractionListener {
+public class ContactListActivity extends BigsisActivity implements SearchContactFragment.OnFragmentInteractionContact, RequestFragment.OnFragmentInteractionListener, OtherUserProfileFragment.OnFragmentInteractionListenerProfile {
 
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
@@ -62,7 +63,6 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
     private FirebaseAuth mAuth;
     private String mCurrentUserId;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,7 +74,6 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         setUpAdapterForContacts();
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
-
 
         DocumentReference query = db
                 .collection("users")
@@ -171,7 +170,6 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
 
         mRecyclerContact.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerContact.setAdapter(adapter);
-
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -180,7 +178,8 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         });
     }
 
-    /*private void setUpAdapterForRequests() {
+    /* TODO LIST OF REQUESTS
+        private void setUpAdapterForRequests() {
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
@@ -228,6 +227,11 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
 
     @Override
     public void onFragmentInteractionRequest() {
+        onBackPressed();
+    }
+
+    @Override
+    public void onFragmentInteractionOtherProfile() {
         onBackPressed();
     }
 }

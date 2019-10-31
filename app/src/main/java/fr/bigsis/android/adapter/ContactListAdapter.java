@@ -1,6 +1,9 @@
 package fr.bigsis.android.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +12,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
@@ -37,8 +42,12 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.SignInActivity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
+import fr.bigsis.android.fragment.ProfileFragment;
+
+import static fr.bigsis.android.R.color.colorPrimary;
 
 
 public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, ContactListAdapter.ContactViewHolder>  {
@@ -63,13 +72,12 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-       // OtherUserProfileFragment fragmentProfile = OtherUserProfileFragment.newInstance(idContact);
         DocumentReference documentReferenceRequestSent = mFirestore.collection("users")
                 .document(mCurrentUserId)
                 .collection("Request sent")
                 .document(idContact);
 
-        //Check if request was sent or not , and keep the button in the right color
+        // TODO Check if request was sent or not , and keep the button in the right color
         /*documentReferenceRequestSent.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -82,43 +90,67 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                 }
             }
         });*/
-
+//GO TO PROFILE
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO go to profile
-
-              /*  FragmentManager fragmentManager = ((AppCompatActivity)mContext).getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
-                transaction.addToBackStack(null);
-                transaction.add(R.id.fragment_container_contact, fragmentProfile, "PROFILE_OTHER_USER_FRAGMENT")
-                        .commit();*/
+                AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                Bundle bundle=new Bundle();
+                bundle.putString("idString", idContact);
+                OtherUserProfileFragment myFragment = new OtherUserProfileFragment();
+                myFragment.setArguments(bundle);
+                activity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top)
+                        .addToBackStack(null)
+                        .add(R.id.fragment_container_contact, myFragment, "PROFILE_OTHER_USER_FRAGMENT")
+                        .commit();
             }
         });
 
-        //Delete friend 
-        
+        //Delete friend
         holder.btDeleteFriend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFirestore.collection("users")
-                        .document(mCurrentUserId)
-                        .collection("Friends")
-                        .document(idContact)
-                        .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                AlertDialog dialogBuilder = new AlertDialog.Builder(mContext).create();
+                LayoutInflater inflater = LayoutInflater.from(mContext);
+                View dialogView = inflater.inflate(R.layout.style_alert_dialog, null);
+                Button btNo = (Button) dialogView.findViewById(R.id.btNo);
+                Button btDelete = (Button) dialogView.findViewById(R.id.btDeleteFriend);
+
+                btDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                        Snackbar.make(v, "Contact supprimé avec succès", Snackbar.LENGTH_LONG)
-                                .show();
+                    public void onClick(View view) {
+                        mFirestore.collection("users")
+                                .document(mCurrentUserId)
+                                .collection("Friends")
+                                .document(idContact)
+                                .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Snackbar.make(v, "Contact supprimé avec succès", Snackbar.LENGTH_LONG)
+                                        .show();
+                            }
+                        });
+
+                        mFirestore.collection("users")
+                                .document(idContact)
+                                .collection("Friends")
+                                .document(mCurrentUserId)
+                                .delete();
+                        dialogBuilder.dismiss();
+
+                    }
+                });
+                btNo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // DO SOMETHINGS
+                        dialogBuilder.dismiss();
                     }
                 });
 
-                mFirestore.collection("users")
-                        .document(idContact)
-                        .collection("Friends")
-                        .document(mCurrentUserId)
-                        .delete();
+                dialogBuilder.setView(dialogView);
+                dialogBuilder.show();
             }
         });
 //TODO Send request
@@ -243,7 +275,6 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
         @BindView(R.id.btDelete)
         Button btDeleteFriend;
         private View mView;
-        private Context context;
 
         public ContactViewHolder(@NonNull View itemView) {
             super(itemView);
