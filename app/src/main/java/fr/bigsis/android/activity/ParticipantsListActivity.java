@@ -117,9 +117,12 @@ public class ParticipantsListActivity extends BigsisActivity {
 
     private void setUpAdapter() {
         TripEntity trip = new TripEntity();
-
+        String idTrip;
+        Intent iin= getIntent();
+        Bundle extras =iin.getExtras();
+        idTrip = extras.getString("ID_TRIP");
         Query query = FirebaseFirestore.getInstance()
-                .collection("trips").document(trip.getTripId()).collection("participants");
+                .collection("trips").document(idTrip).collection("participants");
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(10)

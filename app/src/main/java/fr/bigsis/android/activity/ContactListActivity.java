@@ -178,40 +178,6 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         });
     }
 
-    /* TODO LIST OF REQUESTS
-        private void setUpAdapterForRequests() {
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserId = mAuth.getCurrentUser().getUid();
-        mFirestore = FirebaseFirestore.getInstance();
-        Query query = FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(mCurrentUserId)
-                .collection("Request received");
-
-        PagedList.Config config = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .setPageSize(20)
-                .build();
-
-        FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
-                .setLifecycleOwner(this)
-                .setQuery(query, config, UserEntity.class)
-                .build();
-
-        RequestListAdapter adapterRequest = new RequestListAdapter(options, this, mSwipeRefreshLayoutRequest);
-
-        mRecyclerRequest.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerRequest.setAdapter(adapterRequest);
-
-        mSwipeRefreshLayoutRequest.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                adapterRequest.refresh();
-            }
-        });
-    }*/
-
     private void openListRequest() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();

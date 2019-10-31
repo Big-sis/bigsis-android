@@ -56,6 +56,7 @@ import java.util.Random;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
+import fr.bigsis.android.adapter.TripListAdapter;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
@@ -71,7 +72,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     private static final String TAG = "TripListActivity";
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
     AddTripFragment fragmentAdd = AddTripFragment.newInstance();
-    FirestorePagingAdapter<TripEntity, TripListViewHolder> adapter;
     ConstraintLayout transitionContainer;
     ImageButton imbtSearch, imBtCancel, imBtAdd;
     TextView tvTitleToolbar;
@@ -80,7 +80,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
     String id;
-    TripEntity trip;
     private FrameLayout frameLayout;
     private SearchMenuViewModel viewModel;
     private CollectionReference mItemsCollection;
@@ -232,248 +231,19 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
 
         Query query = FirebaseFirestore.getInstance().collection("trips");
         FirestorePagingOptions<TripEntity> options = new FirestorePagingOptions.Builder<TripEntity>()
-                .setQuery(query, config, snapshot -> {
-                    TripEntity trip = snapshot.toObject(TripEntity.class);
-                    trip.setTripId(snapshot.getId());
-                    return trip;
-                })
                 .setLifecycleOwner(this)
+                .setQuery(query, config, TripEntity.class)
                 .build();
 
-        adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {
-            @NonNull
-            @Override
-            public TripListViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                                                         int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.trip_list_item, parent, false);
-                return new TripListViewHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull TripListViewHolder holder,
-                                            int position,
-                                            @NonNull TripEntity model) {
-                holder.bind(model);
-                String idtrip = model.getTripId();
-                mAuth = FirebaseAuth.getInstance();
-                userId = mAuth.getCurrentUser().getUid();
-                mFirestore = FirebaseFirestore.getInstance();
-                DocumentReference documentReferencePartcipants = mFirestore.collection("trips")
-                        .document(idtrip)
-                        .collection("participants")
-                        .document(userId);
-
-                //Check if user is participating to a trip or not , and keep the button in the right color
-                documentReferencePartcipants.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                   @Override
-                   public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                       if (task.isSuccessful()) {
-                           DocumentSnapshot document = task.getResult();
-                           if (document.exists()) {
-                               holder.btParticipate.setSelected(true);
-                               holder.btParticipate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
-                           }
-                       } else {
-                           Toast.makeText(TripListActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
-                       }
-                   }
-                       });
-
-                holder.btParticipate.setOnClickListener(new View.OnClickListener() {
-                    int i = 0;
-                    @Override
-                    public void onClick(View v) {
-                        //partcipate to a trip
-                        if (i == 0) {
-                            holder.btParticipate.setSelected(true);
-                            holder.btParticipate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorPrimary));
-
-                            mFirestore.collection("users").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                @Override
-                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    String username = documentSnapshot.getString("username");
-                                    String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
-                                    String firstname = documentSnapshot.getString("firstname");
-                                    String lastname = documentSnapshot.getString("lastname");
-                                    UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
-                                    mFirestore.collection("trips")
-                                            .document(idtrip)
-                                            .collection("participants")
-                                            .document(userId)
-                                            .set(userEntity, SetOptions.merge());
-                                }
-                            });
-
-                            mFirestore.collection("trips").document(idtrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                                @Override
-                                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                    String from = documentSnapshot.getString("from");
-                                    String to = documentSnapshot.getString("to");
-                                    Date date = documentSnapshot.getDate("date");
-                                    String image = documentSnapshot.getString("image");
-                                    String createdBy = documentSnapshot.getString("createdBy");
-                                    TripEntity tripEntity = new TripEntity(from, to, date, image, createdBy);
-                                    mFirestore.collection("users")
-                                            .document(userId)
-                                            .collection("participateTo")
-                                            .document(idtrip)
-                                            .set(tripEntity, SetOptions.merge());
-                                }
-                            });
-                            i++;
-                            //unparticipate
-
-                        } else if (i == 1) {
-
-                            holder.btParticipate.setSelected(false);
-                            holder.btParticipate.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorAccent));
-                            mFirestore.collection("users")
-                                    .document(userId)
-                                    .collection("participateTo")
-                                    .document(idtrip)
-                                    .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "onSuccess: Removed list item");
-                                }
-                            });
-
-                            mFirestore.collection("trips")
-                                    .document(idtrip)
-                                    .collection("participants")
-                                    .document(userId)
-                                    .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    Log.d(TAG, "onSuccess: Removed list item");
-                                }
-                            });
-
-                        i = 0;
-                    }
-                    }
-                });
-
-                holder.mImvTripImage.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mFirestore.collection("trips").document(idtrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                String to = documentSnapshot.getString("to");
-                                Uri gmmIntentUri = Uri.parse("google.navigation:q="+ to +"France");
-                                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                                mapIntent.setPackage("com.google.android.apps.maps");
-                                startActivity(mapIntent);
-                            }
-                        });
-                    }
-                });
-
-                holder.profile_image_one.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        documentReferencePartcipants.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    DocumentSnapshot document = task.getResult();
-                                    if (document.exists()) {
-                                        startActivity(new Intent(TripListActivity.this, ParticipantsListActivity.class));
-                                    }
-                                } else {
-                                    Toast.makeText(TripListActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-
-            @Override
-            protected void onLoadingStateChanged(@NonNull LoadingState state) {
-                switch (state) {
-                    case LOADING_INITIAL:
-                    case LOADING_MORE:
-                        mSwipeRefreshLayout.setRefreshing(true);
-                        break;
-                    case LOADED:
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        break;
-                    case FINISHED:
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        showToast("Reached end of data set.");
-                        break;
-                    case ERROR:
-                        showToast("An error occurred.");
-                        retry();
-                        break;
-                }
-            }
-
-            @Override
-            protected void onError(@NonNull Exception e) {
-                mSwipeRefreshLayout.setRefreshing(false);
-                Log.e(TAG, e.getMessage(), e);
-            }
-        };
+        TripListAdapter adapter = new TripListAdapter(options, this, mSwipeRefreshLayout);
 
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setAdapter(adapter);
-
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 adapter.refresh();
             }
         });
-    }
-
-    private void showToast(@NonNull String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    public class TripListViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.tvTripsFrom)
-        TextView mTextFrom;
-
-        @BindView(R.id.tvTripsTo)
-        TextView mTextTo;
-
-        @BindView(R.id.ivTripImage)
-        ImageView mImvTripImage;
-
-        @BindView(R.id.tvDateTrip)
-        TextView mTextDate;
-
-        @BindView(R.id.btParticipate)
-        Button btParticipate;
-
-        @BindView(R.id.profile_image_one)
-        ImageView profile_image_one;
-
-        private TripListViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-
-        private void bind(@NonNull TripEntity item) {
-            mTextFrom.setText(item.getFrom());
-            mTextTo.setText(item.getTo());
-            SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-            mTextDate.setText(format.format(item.getDate().getTime()));
-
-            RequestOptions myOptions = new RequestOptions()
-                    .fitCenter()
-                    .override(250, 250);
-
-            Glide.with(mImvTripImage.getContext())
-                    .asBitmap()
-                    .apply(myOptions)
-                    .load(item.getImage())
-                    .into(mImvTripImage);
-        }
     }
 }
