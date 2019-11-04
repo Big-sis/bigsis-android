@@ -1,6 +1,7 @@
 package fr.bigsis.android.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,6 +25,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -38,6 +41,8 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
+    FirebaseStorage storage;
+
 
     public ContactListAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -54,6 +59,8 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
+
+
         //GO TO PROFILE
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,6 +75,7 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                         .addToBackStack(null)
                         .add(R.id.fragment_container_contact, myFragment, "PROFILE_OTHER_USER_FRAGMENT")
                         .commit();
+
             }
         });
 
@@ -174,16 +182,23 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
         public void bind(@NonNull UserEntity item) {
             mTextName.setText(item.getFirstname() + " " + item.getLastname());
             mTextUserName.setText(item.getUsername());
-
             RequestOptions myOptions = new RequestOptions()
                     .fitCenter()
                     .override(250, 250);
-
-            Glide.with(mImageProfile.getContext())
-                    .asBitmap()
-                    .apply(myOptions)
-                    .load(item.getImageProfileUrl())
-                    .into(mImageProfile);
+            storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReferenceFromUrl(item.getImageProfileUrl());
+            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Uri downloadUrl = uri;
+                    String urlImage = downloadUrl.toString();
+                    Glide.with(mImageProfile.getContext())
+                            .asBitmap()
+                            .apply(myOptions)
+                            .load(urlImage)
+                            .into(mImageProfile);
+                }
+            });
         }
     }
 }

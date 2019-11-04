@@ -1,6 +1,7 @@
 package fr.bigsis.android.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +34,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,7 +52,7 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
     ConstraintLayout transitionContainer;
-    ImageButton imgBtBack;
+    FirebaseStorage storage;
 
     public ParticipantListAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -97,6 +100,9 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                     if (!document.exists()) {
                         holder.btDeleteFriend.setVisibility(View.GONE);
                         holder.btRequestFriend.setVisibility(View.VISIBLE);
+                    } else if (document.exists()) {
+                        holder.btDeleteFriend.setVisibility(View.VISIBLE);
+                        holder.btRequestFriend.setVisibility(View.GONE);
                     }
                 } else {
                     Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
@@ -315,11 +321,20 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                     .fitCenter()
                     .override(250, 250);
 
-            Glide.with(mImageProfile.getContext())
-                    .asBitmap()
-                    .apply(myOptions)
-                    .load(item.getImageProfileUrl())
-                    .into(mImageProfile);
+            storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReferenceFromUrl(item.getImageProfileUrl());
+            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Uri downloadUrl = uri;
+                    String urlImage = downloadUrl.toString();
+                    Glide.with(mImageProfile.getContext())
+                            .asBitmap()
+                            .apply(myOptions)
+                            .load(urlImage)
+                            .into(mImageProfile);
+                }
+            });
         }
     }
 }

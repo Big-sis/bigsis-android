@@ -87,7 +87,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
 
         holder.btParticipate.setOnClickListener(new View.OnClickListener() {
             int i = 0;
-
             @Override
             public void onClick(View v) {
                 //partcipate to a trip
@@ -129,9 +128,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                     });
                     i++;
                     //unparticipate
-
                 } else if (i == 1) {
-
                     holder.btParticipate.setSelected(false);
                     holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorAccent));
                     mFirestore.collection("users")

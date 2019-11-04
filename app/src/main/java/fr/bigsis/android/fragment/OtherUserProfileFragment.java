@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -66,11 +67,10 @@ public class OtherUserProfileFragment extends Fragment {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         firstname = documentSnapshot.getString("firstname");
                         lastname = documentSnapshot.getString("lastname");
-                        tvUserName.setText(firstname + " " + lastname);
                         descriptionUser = documentSnapshot.getString("description");
                         imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
-                        /*TODO set all user's infos
-                        tvUserDescFragment.setText(description_user);
+                        tvUserName.setText(firstname + " " + lastname);
+                        tvUserDescription.setText(descriptionUser);
                         StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
                         storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
@@ -81,10 +81,9 @@ public class OtherUserProfileFragment extends Fragment {
                                         .load(urlImage)
                                         .into(circleImageView);
                             }
-                        });*/
+                        });
                     }
                 });
-
         return view;
     }
 
