@@ -1,15 +1,20 @@
 package fr.bigsis.android.adapter;
 
 import android.content.Context;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -34,6 +39,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.fragment.OtherUserProfileFragment;
 
 public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, ParticipantListAdapter.ParticipantViewHolder> {
 
@@ -42,6 +48,8 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
+    ConstraintLayout transitionContainer;
+    ImageButton imgBtBack;
 
     public ParticipantListAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -222,6 +230,22 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                 });
                 dialogBuilder.setView(dialogView);
                 dialogBuilder.show();
+            }
+        });
+        //GO TO PROFILE
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                Bundle bundle = new Bundle();
+                bundle.putString("idString", idContact);
+                OtherUserProfileFragment myFragment = new OtherUserProfileFragment();
+                myFragment.setArguments(bundle);
+                activity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top)
+                        .addToBackStack(null)
+                        .add(R.id.fragment_container_profile_participant, myFragment, "OTHER_USER_PROFILE")
+                        .commit();
             }
         });
     }

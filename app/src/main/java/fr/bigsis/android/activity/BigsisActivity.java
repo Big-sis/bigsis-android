@@ -40,8 +40,8 @@ public abstract class BigsisActivity extends AppCompatActivity {
             case R.id.action_events:
                 Toast.makeText(this, "ii", Toast.LENGTH_SHORT).show();
                 return true;
-            case R.id.action_route:
-                Toast.makeText(this, "hh", Toast.LENGTH_SHORT).show();
+            case R.id.action_trip:
+                startActivity(new Intent(this, TripListActivity.class));
                 return true;
         }
         return false;

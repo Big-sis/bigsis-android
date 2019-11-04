@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatDelegate;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,9 +27,10 @@ import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.ParticipantListAdapter;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.fragment.OtherUserProfileFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
-public class ParticipantsListActivity extends BigsisActivity {
+public class ParticipantsListActivity extends BigsisActivity implements OtherUserProfileFragment.OnFragmentInteractionListenerProfile {
 
     FloatingActionButton fbTrip;
     @BindView(R.id.rvPartcipantList)
@@ -37,6 +39,7 @@ public class ParticipantsListActivity extends BigsisActivity {
     SwipeRefreshLayout mSwipeRefreshLayout;
     ImageButton imgBtBack;
     TextView tvTitle;
+    ConstraintLayout transitionContainer;
     private String mCurrentUser;
     private FirebaseAuth mAuth;
 
@@ -53,6 +56,7 @@ public class ParticipantsListActivity extends BigsisActivity {
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
+        curvedBottomNavigationView.setSelectedItemId(R.id.action_trip);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -77,7 +81,6 @@ public class ParticipantsListActivity extends BigsisActivity {
         tvTitle = transitionContainer.findViewById(R.id.tvTitleToolbar);
         imgBtBack.setVisibility(View.VISIBLE);
         tvTitle.setText(getString(R.string.participants));
-
         imgBtBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,5 +114,10 @@ public class ParticipantsListActivity extends BigsisActivity {
                 adapter.refresh();
             }
         });
+    }
+
+    @Override
+    public void onFragmentInteractionOtherProfile() {
+        onBackPressed();
     }
 }

@@ -59,8 +59,6 @@ public class OtherUserProfileFragment extends Fragment {
 
         mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection("users")
-                .document(mCurrentUserId)
-                .collection("Friends")
                 .document(idContact)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -86,6 +84,7 @@ public class OtherUserProfileFragment extends Fragment {
                         });*/
                     }
                 });
+
         return view;
     }
 

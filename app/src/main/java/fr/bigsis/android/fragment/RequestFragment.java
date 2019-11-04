@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -31,10 +32,7 @@ public class RequestFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
-    private FirebaseAuth.AuthStateListener mAuthListener;
     SwipeRefreshLayout mSwipeRefreshLayout;
-//    RecyclerView mRecyclerRequest;
-
 
     public RequestFragment() {
     }
@@ -46,7 +44,6 @@ public class RequestFragment extends Fragment {
         return fragment;
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -56,6 +53,7 @@ public class RequestFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
+
         Query query = FirebaseFirestore.getInstance()
                 .collection("users")
                 .document(mCurrentUserId)
@@ -82,16 +80,8 @@ public class RequestFragment extends Fragment {
                 adapterRequest.refresh();
             }
         });
-
         return view;
     }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
-
 
     public void onButtonPressed() {
         if (mListener != null) {

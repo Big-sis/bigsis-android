@@ -16,7 +16,7 @@
         android:icon="@drawable/dialogue"
         app:showAsAction="ifRoom"/>
     <item
-        android:id="@+id/action_trips"
+        android:id="@+id/action_map"
         android:enabled="true"
         android:title="@null"
         app:showAsAction="ifRoom"/>
@@ -27,7 +27,7 @@
         android:icon="@drawable/calendar"
         app:showAsAction="ifRoom"/>
     <item
-        android:id="@+id/action_route"
+        android:id="@+id/action_trip"
         android:enabled="true"
         android:title="@null"
         android:icon="@drawable/ic_trip"

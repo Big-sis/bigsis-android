@@ -75,24 +75,20 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
 
-        DocumentReference query = db
-                .collection("users")
+        db.collection("users")
                 .document(mCurrentUserId)
-                .collection("Request received")
-                .document();
-
-        query.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                .collection("Request received").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        openListRequest();
+                    for (DocumentSnapshot document : task.getResult()) {
+                        if (document.exists()) {
+                            openListRequest();
+                        }
                     }
                 }
             }
         });
-
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {

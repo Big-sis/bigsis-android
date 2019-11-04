@@ -105,6 +105,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
+        curvedBottomNavigationView.setSelectedItemId(R.id.action_trip);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {

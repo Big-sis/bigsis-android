@@ -1,9 +1,7 @@
 package fr.bigsis.android.adapter;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +11,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -22,8 +21,8 @@ import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -33,6 +32,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.fragment.OtherUserProfileFragment;
 
 public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, RequestListAdapter.RequestViewHolder> {
     private SwipeRefreshLayout mSwipeRefreshLayout;
@@ -56,19 +56,20 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-        // OtherUserProfileFragment fragmentProfile = OtherUserProfileFragment.newInstance(idContact);
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO go to profile
-
-              /*  FragmentManager fragmentManager = ((AppCompatActivity)mContext).getSupportFragmentManager();
-                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
-                transaction.addToBackStack(null);
-                transaction.add(R.id.fragment_container_contact, fragmentProfile, "PROFILE_OTHER_USER_FRAGMENT")
-                        .commit();*/
+                AppCompatActivity activity = (AppCompatActivity) view.getContext();
+                Bundle bundle = new Bundle();
+                bundle.putString("idString", idContact);
+                OtherUserProfileFragment myFragment = new OtherUserProfileFragment();
+                myFragment.setArguments(bundle);
+                activity.getSupportFragmentManager().beginTransaction()
+                        .setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top)
+                        .addToBackStack(null)
+                        .add(R.id.fragment_container_contact, myFragment, "PROFILE_OTHER_USER_FRAGMENT")
+                        .commit();
             }
         });
 
@@ -139,7 +140,9 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                         .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        mSwipeRefreshLayout.setRefreshing(true);
+                        //TODO EXTRACT STRING
+                        Snackbar.make(v, "Invitation refusée", Snackbar.LENGTH_LONG)
+                                .show();
                     }
                 });
             }
