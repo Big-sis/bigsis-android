@@ -50,7 +50,6 @@ public class AddTripFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
     private String userId;
-    private FirebaseAuth.AuthStateListener mAuthListener;
 
     public AddTripFragment() {
     }

@@ -25,7 +25,6 @@ import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.RequestListAdapter;
 import fr.bigsis.android.entity.UserEntity;
 
-
 public class RequestFragment extends Fragment {
 
     private OnFragmentInteractionListener mListener;
