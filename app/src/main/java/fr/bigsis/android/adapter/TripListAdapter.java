@@ -28,7 +28,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -43,6 +47,7 @@ import fr.bigsis.android.entity.UserEntity;
 
 public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripListAdapter.TripViewHolder> {
 
+    FirebaseStorage storage;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Context mContext;
     private FirebaseFirestore mFirestore;
@@ -87,6 +92,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
 
         holder.btParticipate.setOnClickListener(new View.OnClickListener() {
             int i = 0;
+
             @Override
             public void onClick(View v) {
                 //partcipate to a trip
@@ -101,7 +107,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                             String firstname = documentSnapshot.getString("firstname");
                             String lastname = documentSnapshot.getString("lastname");
-                            UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                            String descripition = documentSnapshot.getString("description");
+                            UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname, descripition, false);
                             mFirestore.collection("trips")
                                     .document(idTrip)
                                     .collection("participants")
@@ -155,7 +162,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 }
             }
         });
-
         holder.mImvTripImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,8 +177,83 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 });
             }
         });
+        mFirestore.collection("trips").document(idTrip).collection("participants")
+                .whereEqualTo("creator", true).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
+                                RequestOptions myOptions = new RequestOptions()
+                                        .fitCenter()
+                                        .override(250, 250);
+                                storage = FirebaseStorage.getInstance();
+                                StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
+                                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Uri downloadUrl = uri;
+                                        String urlImage = downloadUrl.toString();
+                                        Glide.with(holder.profile_image_one.getContext())
+                                                .asBitmap()
+                                                .apply(myOptions)
+                                                .load(urlImage)
+                                                .into(holder.profile_image_one);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+
+        mFirestore.collection("trips").document(idTrip).collection("participants")
+                .whereEqualTo("creator", false).limit(1).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
+                                RequestOptions myOptions = new RequestOptions()
+                                        .fitCenter()
+                                        .override(250, 250);
+                                storage = FirebaseStorage.getInstance();
+                                StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
+                                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Uri downloadUrl = uri;
+                                        String urlImage = downloadUrl.toString();
+                                        Glide.with(holder.profile_image_two.getContext())
+                                                .asBitmap()
+                                                .apply(myOptions)
+                                                .load(urlImage)
+                                                .into(holder.profile_image_two);
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
 
         holder.profile_image_one.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
+                intent.putExtra("ID_TRIP", idTrip);
+                mContext.startActivity(intent);
+            }
+        });
+        holder.profile_image_two.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
+                intent.putExtra("ID_TRIP", idTrip);
+                mContext.startActivity(intent);
+            }
+        });
+        holder.profile_image_three.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(mContext, ParticipantsListActivity.class);
@@ -233,6 +314,10 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         Button btParticipate;
         @BindView(R.id.profile_image_one)
         ImageView profile_image_one;
+        @BindView(R.id.profile_image_two)
+        ImageView profile_image_two;
+        @BindView(R.id.profile_image_three)
+        ImageView profile_image_three;
         private View mView;
 
         public TripViewHolder(@NonNull View itemView) {

@@ -121,7 +121,6 @@ public class AddTripFragment extends Fragment {
     }
 
     private void createTrip() {
-
         userId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection("users")
@@ -133,6 +132,7 @@ public class AddTripFragment extends Fragment {
                         String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         String firstname = documentSnapshot.getString("firstname");
                         String lastname = documentSnapshot.getString("lastname");
+                        String description = documentSnapshot.getString("description");
                         String addFrom = etAddFromDestination.getText().toString();
                         String toFrom = etAddToDestination.getText().toString();
                         String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
@@ -159,8 +159,7 @@ public class AddTripFragment extends Fragment {
                                 userListsRef.document(idtrip).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        //TODO
-                                        UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                                        UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, true);
                                         mFirestore.collection("trips")
                                                 .document(idtrip)
                                                 .collection("participants")
@@ -172,6 +171,7 @@ public class AddTripFragment extends Fragment {
                     }
                 });
     }
+
     public void onButtonPressed() {
         if (mListener != null) {
             mListener.onFragmentInteractionAdd();

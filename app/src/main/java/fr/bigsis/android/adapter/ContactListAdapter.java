@@ -36,13 +36,12 @@ import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
 
 public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, ContactListAdapter.ContactViewHolder> {
+    FirebaseStorage storage;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Context mContext;
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
-    FirebaseStorage storage;
-
 
     public ContactListAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -59,7 +58,6 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-
 
         //GO TO PROFILE
         holder.itemView.setOnClickListener(new View.OnClickListener() {

@@ -1,6 +1,7 @@
 package fr.bigsis.android.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -26,6 +28,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,6 +39,7 @@ import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
 
 public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, RequestListAdapter.RequestViewHolder> {
+    FirebaseStorage storage;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Context mContext;
     private FirebaseFirestore mFirestore;
@@ -77,6 +82,8 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
         holder.btAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                holder.btAccept.setSelected(true);
+                holder.btAccept.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
                 mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -90,6 +97,9 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                                 .collection("Friends")
                                 .document(mCurrentUserId)
                                 .set(userEntity, SetOptions.merge());
+                        //TODO extract STRING
+                        Snackbar.make(v, "Invitation acceptée", Snackbar.LENGTH_LONG)
+                                .show();
                     }
                 });
 
@@ -110,13 +120,13 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                 });
 
                 mFirestore.collection("users")
-                        .document(mCurrentUserId)
+                        .document(idContact)
                         .collection("Request sent")
                         .document(idContact)
                         .delete();
 
                 mFirestore.collection("users")
-                        .document(idContact)
+                        .document(mCurrentUserId)
                         .collection("Request received")
                         .document(mCurrentUserId)
                         .delete();
@@ -215,12 +225,20 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
             RequestOptions myOptions = new RequestOptions()
                     .fitCenter()
                     .override(250, 250);
-
-            Glide.with(mImageProfile.getContext())
-                    .asBitmap()
-                    .apply(myOptions)
-                    .load(item.getImageProfileUrl())
-                    .into(mImageProfile);
+            storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReferenceFromUrl(item.getImageProfileUrl());
+            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Uri downloadUrl = uri;
+                    String urlImage = downloadUrl.toString();
+                    Glide.with(mImageProfile.getContext())
+                            .asBitmap()
+                            .apply(myOptions)
+                            .load(urlImage)
+                            .into(mImageProfile);
+                }
+            });
         }
     }
 }
