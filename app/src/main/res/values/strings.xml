@@ -44,4 +44,7 @@
     <string name="no_request">Pas de demandes d\'ajout</string>
     <string name="accept">Accepter</string>
     <string name="delete">Supprimer</string>
+    <string name="see_staff">... voir staff</string>
+    <string name="create_event">Créer un évènement</string>
+    <string name="events">Événements</string>
 </resources>

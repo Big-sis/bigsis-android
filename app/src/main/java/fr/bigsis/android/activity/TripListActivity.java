@@ -84,8 +84,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     private SearchMenuViewModel viewModel;
     private CollectionReference mItemsCollection;
     private FirebaseFirestore mFirestore;
-    private String userId;
-    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
