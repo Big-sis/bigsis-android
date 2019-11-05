@@ -195,11 +195,11 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                     public void onSuccess(Uri uri) {
                                         Uri downloadUrl = uri;
                                         String urlImage = downloadUrl.toString();
-                                        Glide.with(holder.profile_image_one.getContext())
+                                        Glide.with(holder.profile_image_two.getContext())
                                                 .asBitmap()
                                                 .apply(myOptions)
                                                 .load(urlImage)
-                                                .into(holder.profile_image_one);
+                                                .into(holder.profile_image_two);
                                     }
                                 });
                             }
@@ -225,13 +225,32 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                     public void onSuccess(Uri uri) {
                                         Uri downloadUrl = uri;
                                         String urlImage = downloadUrl.toString();
-                                        Glide.with(holder.profile_image_two.getContext())
+                                        Glide.with(holder.profile_image_one.getContext())
                                                 .asBitmap()
                                                 .apply(myOptions)
                                                 .load(urlImage)
-                                                .into(holder.profile_image_two);
+                                                .into(holder.profile_image_one);
                                     }
                                 });
+                            }
+                        }
+                    }
+                });
+
+        mFirestore.collection("trips").document(idTrip).collection("participants")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int count = 0;
+                            for (DocumentSnapshot document : task.getResult()) {
+                                count++;
+                            }
+                            holder.mtvMore.setText(String.valueOf("+" + (count - 2)));
+                            if (count < 2) {
+                                holder.profile_image_one.setVisibility(View.GONE);
+                                holder.mtvMore.setText(String.valueOf("..."));
                             }
                         }
                     }
@@ -306,6 +325,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         TextView mTextFrom;
         @BindView(R.id.tvTripsTo)
         TextView mTextTo;
+        @BindView(R.id.tvMore)
+        TextView mtvMore;
         @BindView(R.id.ivTripImage)
         ImageView mImvTripImage;
         @BindView(R.id.tvDateTrip)
