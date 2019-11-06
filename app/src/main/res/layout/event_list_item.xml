@@ -11,9 +11,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        app:layout_constraintBottom_toTopOf="@+id/btParticipate"
+        app:layout_constraintBottom_toTopOf="@+id/btParticipateEvent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivTitleEvent"
+        app:layout_constraintTop_toBottomOf="@+id/ivPhotoTitleEvent"
         app:srcCompat="@mipmap/ic_launcher_round" />
 
     <View
@@ -33,11 +33,9 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="32dp"
         android:textSize="15sp"
-        app:layout_constraintBottom_toTopOf="@+id/btParticipate"
         app:layout_constraintStart_toEndOf="@+id/ivRouteEvent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDateEvent"
+        app:layout_constraintTop_toBottomOf="@+id/ivPhotoTitleEvent"
         tools:text="Title" />
 
     <TextView
@@ -48,14 +46,15 @@
         android:layout_marginTop="16dp"
         android:textSize="15sp"
         app:layout_constraintStart_toEndOf="@+id/ivRouteEvent"
-        app:layout_constraintTop_toBottomOf="@+id/ivTitleEvent"
+        app:layout_constraintTop_toBottomOf="@+id/tvTitleEvent"
         tools:text="Date event" />
 
     <Button
-        android:id="@+id/btParticipate"
+        android:id="@+id/btParticipateEvent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="50dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="24dp"
         android:background="@drawable/custom_button"
@@ -66,7 +65,8 @@
         android:textColor="@drawable/text_color_button"
         app:layout_constraintBottom_toTopOf="@+id/view"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ivRouteEvent" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_image_one_event"
@@ -79,7 +79,7 @@
         app:civ_circle_background_color="@color/colorGreyLight"
         app:layout_constraintBottom_toTopOf="@+id/tvStaff"
         app:layout_constraintEnd_toStartOf="@+id/profile_image_two_event"
-        app:layout_constraintTop_toBottomOf="@+id/ivTitleEvent" />
+        app:layout_constraintTop_toBottomOf="@+id/ivPhotoTitleEvent" />
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/profile_image_two_event"
@@ -92,7 +92,7 @@
         app:civ_circle_background_color="@color/colorGreyLight"
         app:layout_constraintBottom_toTopOf="@+id/tvStaff"
         app:layout_constraintEnd_toStartOf="@+id/profile_image_three_event"
-        app:layout_constraintTop_toBottomOf="@+id/ivTitleEvent" />
+        app:layout_constraintTop_toBottomOf="@+id/ivPhotoTitleEvent" />
 
     <TextView
         android:id="@+id/tvMoreEvent"
@@ -104,7 +104,7 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/tvStaff"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivTitleEvent"
+        app:layout_constraintTop_toBottomOf="@+id/ivPhotoTitleEvent"
         tools:text="+2" />
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -118,10 +118,10 @@
         app:civ_circle_background_color="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/tvStaff"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/ivTitleEvent" />
+        app:layout_constraintTop_toBottomOf="@+id/ivPhotoTitleEvent" />
 
     <ImageView
-        android:id="@+id/ivTitleEvent"
+        android:id="@+id/ivPhotoTitleEvent"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -142,7 +142,7 @@
         android:layout_marginBottom="16dp"
         android:text="@string/see_staff"
         android:textColor="@color/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@+id/btParticipate"
+        app:layout_constraintBottom_toTopOf="@+id/btParticipateEvent"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageButton
@@ -151,8 +151,8 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        app:layout_constraintEnd_toEndOf="@+id/ivTitleEvent"
-        app:layout_constraintTop_toTopOf="@+id/ivTitleEvent"
+        app:layout_constraintEnd_toEndOf="@+id/ivPhotoTitleEvent"
+        app:layout_constraintTop_toTopOf="@+id/ivPhotoTitleEvent"
         app:srcCompat="@drawable/information" />
 
     <ImageButton
@@ -161,8 +161,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toBottomOf="@+id/ivTitleEvent"
-        app:layout_constraintStart_toStartOf="@+id/ivTitleEvent"
+        app:layout_constraintBottom_toBottomOf="@+id/ivPhotoTitleEvent"
+        app:layout_constraintStart_toStartOf="@+id/ivPhotoTitleEvent"
         app:srcCompat="@drawable/icon_edit" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
