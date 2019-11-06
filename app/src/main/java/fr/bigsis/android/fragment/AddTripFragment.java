@@ -15,12 +15,9 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -134,6 +131,7 @@ public class AddTripFragment extends Fragment {
                         String description = documentSnapshot.getString("description");
                         String addFrom = etAddFromDestination.getText().toString();
                         String toFrom = etAddToDestination.getText().toString();
+                        //TODO change MAP
                         String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
                         String url = "https://open.mapquestapi.com/staticmap/v5/map?start=" + addFrom + "|via-33AB62&end=" + toFrom + "&routeWidth=5&routeColor=33AB62&type=light&size=170,170&&defaultMarker=marker-sm-33AB62&key=" + KEY;
 
@@ -145,31 +143,30 @@ public class AddTripFragment extends Fragment {
                             Toast.makeText(getActivity(), "Veuillez indiquer la date et l'heure du trajet", Toast.LENGTH_LONG).show();
                             return;
                         }
-
-                        CollectionReference tripReference = FirebaseFirestore.getInstance()
+                        CollectionReference tripReference = mFirestore
                                 .collection("trips");
-                        CollectionReference userListsRef = mFirestore.collection("users").document(userId).collection("tripList");
+                        CollectionReference userListsRef = mFirestore
+                                .collection("users")
+                                .document(userId)
+                                .collection("tripList");
                         TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, url, username);
-                        tripReference.add(tripEntity).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                        UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname);
+                        tripReference.add(tripEntity).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
-                            public void onComplete(@NonNull Task<DocumentReference> task) {
+                            public void onSuccess(DocumentReference documentReference) {
                                 startActivity(new Intent(getActivity(), SplashTripCreatedActivity.class));
-                                String idtrip = tripReference.document().getId();
-                                userListsRef.document(idtrip).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, true);
-                                        mFirestore.collection("trips")
-                                                .document(idtrip)
-                                                .collection("participants")
-                                                .add(userEntity);
-                                    }
-                                });
+                                String idTrip = documentReference.getId();
+                                tripReference.document(idTrip)
+                                        .collection("createdBy")
+                                        .document(userId)
+                                        .set(userEntity);
+                                userListsRef.document(idTrip).set(tripEntity);
                             }
                         });
                     }
                 });
     }
+
 
     public void onButtonPressed() {
         if (mListener != null) {
