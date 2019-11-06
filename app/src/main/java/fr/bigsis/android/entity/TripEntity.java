@@ -13,7 +13,6 @@ public class TripEntity {
     private String from;
     private String to;
     private String image;
-
     private String createdBy;
 
     public TripEntity() {

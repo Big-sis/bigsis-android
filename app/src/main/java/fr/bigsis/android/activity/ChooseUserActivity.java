@@ -1,9 +1,10 @@
 package fr.bigsis.android.activity;
 
-import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 
-public class ChooseUserActivity extends AppCompatActivity {
+import fr.bigsis.android.R;
+
+public class ChooseUserActivity extends BigsisActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

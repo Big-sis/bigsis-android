@@ -47,4 +47,8 @@
     <string name="see_staff">... voir staff</string>
     <string name="create_event">Créer un évènement</string>
     <string name="events">Événements</string>
+    <string name="add_address">Ajouter une adresse</string>
+    <string name="select_participants">Séléctionner participants</string>
+    <string name="staff_members">Membres du staff</string>
+    <string name="add_title">Ajouter un titre</string>
 </resources>

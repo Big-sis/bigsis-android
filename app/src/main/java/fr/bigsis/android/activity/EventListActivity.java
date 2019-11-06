@@ -1,18 +1,22 @@
 package fr.bigsis.android.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.fragment.AddEventFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
-public class EventListActivity extends BigsisActivity {
+public class EventListActivity extends BigsisActivity implements AddEventFragment.OnFragmentInteractionListener {
+
+    AddEventFragment fragmentOpen = AddEventFragment.newInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,11 +53,26 @@ public class EventListActivity extends BigsisActivity {
         imBtAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //addTrip();
+                openFragment();
                 imBtAdd.setVisibility(View.GONE);
                 imBtCancel.setVisibility(View.VISIBLE);
                 tvTitleToolbar.setText(R.string.create_event);
             }
         });
     }
+
+    public void openFragment() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+        transaction.addToBackStack(null);
+        transaction.add(R.id.fragment_container_event, fragmentOpen, "SEARCH_MENU_FRAGMENT")
+                .commit();
+    }
+
+    @Override
+    public void onFragmentInteractionEvent() {
+        onBackPressed();
+    }
+
 }

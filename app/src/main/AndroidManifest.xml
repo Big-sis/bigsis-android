@@ -12,7 +12,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".activity.EventListActivity"></activity>
+        <activity android:name=".activity.ChooseUserActivity"></activity>
+        <activity android:name=".activity.EventListActivity" />
         <activity android:name=".activity.ParticipantsListActivity" />
         <activity android:name=".activity.RegisterContinuationActivity" />
         <activity android:name=".activity.ContactListActivity" />
