@@ -53,10 +53,18 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         ButterKnife.bind(this);
         setToolBar();
         setUpAdapter();
-
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
+        String idTrip = extras.getString("ID_TRIP");
+        String idEvent = extras.getString("ID_EVENT");
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
-        curvedBottomNavigationView.setSelectedItemId(R.id.action_trip);
+        if (idTrip != null) {
+            curvedBottomNavigationView.setSelectedItemId(R.id.action_trip);
+        }
+        if (idEvent != null) {
+            curvedBottomNavigationView.setSelectedItemId(R.id.action_events);
+        }
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -91,29 +99,56 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
 
     private void setUpAdapter() {
         String idTrip;
-        Intent iin = getIntent();
-        Bundle extras = iin.getExtras();
+        String idEvent;
+        Intent intent = getIntent();
+        Bundle extras = intent.getExtras();
         idTrip = extras.getString("ID_TRIP");
-        Query query = FirebaseFirestore.getInstance()
-                .collection("trips").document(idTrip).collection("participants");
-        PagedList.Config config = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .setPageSize(20)
-                .build();
-        FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
-                .setLifecycleOwner(this)
-                .setQuery(query, config, UserEntity.class)
-                .build();
-        ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
-        mRecycler.setLayoutManager(new LinearLayoutManager(this));
-        mRecycler.setAdapter(adapter);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                adapter.refresh();
-            }
-        });
+        idEvent = extras.getString("ID_EVENT");
+        if (idTrip != null) {
+            Query query = FirebaseFirestore.getInstance()
+                    .collection("trips").document(idTrip).collection("participants");
+            PagedList.Config config = new PagedList.Config.Builder()
+                    .setEnablePlaceholders(false)
+                    .setPrefetchDistance(10)
+                    .setPageSize(20)
+                    .build();
+            FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
+                    .setLifecycleOwner(this)
+                    .setQuery(query, config, UserEntity.class)
+                    .build();
+            ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
+            mRecycler.setLayoutManager(new LinearLayoutManager(this));
+            mRecycler.setAdapter(adapter);
+            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    adapter.refresh();
+                }
+            });
+        }
+
+        if (idEvent != null) {
+            Query query = FirebaseFirestore.getInstance()
+                    .collection("events").document(idEvent).collection("participants");
+            PagedList.Config config = new PagedList.Config.Builder()
+                    .setEnablePlaceholders(false)
+                    .setPrefetchDistance(10)
+                    .setPageSize(20)
+                    .build();
+            FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
+                    .setLifecycleOwner(this)
+                    .setQuery(query, config, UserEntity.class)
+                    .build();
+            ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
+            mRecycler.setLayoutManager(new LinearLayoutManager(this));
+            mRecycler.setAdapter(adapter);
+            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    adapter.refresh();
+                }
+            });
+        }
     }
 
     @Override

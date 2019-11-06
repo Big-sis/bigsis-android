@@ -7,23 +7,46 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import fr.bigsis.android.R;
+import fr.bigsis.android.adapter.EventListAdapter;
+import fr.bigsis.android.entity.EventEntity;
+import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.AddEventFragment;
+import fr.bigsis.android.fragment.RequestFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
 public class EventListActivity extends BigsisActivity implements AddEventFragment.OnFragmentInteractionListener {
 
     AddEventFragment fragmentOpen = AddEventFragment.newInstance();
+    @BindView(R.id.paging_recycler_event)
+    RecyclerView mRecyclerView;
+    @BindView(R.id.swipe_refresh_layout_event)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+    protected FirebaseFirestore mFirestore;
+    protected FirebaseAuth mAuth;
+    protected String mCurrentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_list);
+        ButterKnife.bind(this);
 
         setToolBar();
+        setUpAdapter();
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
@@ -61,6 +84,35 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
         });
     }
 
+    private void setUpAdapter() {
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = mAuth.getCurrentUser().getUid();
+        mFirestore = FirebaseFirestore.getInstance();
+        Query query = mFirestore.collection("events");
+
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(10)
+                .setPageSize(20)
+                .build();
+
+        FirestorePagingOptions<EventEntity> options = new FirestorePagingOptions.Builder<EventEntity>()
+                .setLifecycleOwner(this)
+                .setQuery(query, config, EventEntity.class)
+                .build();
+
+        EventListAdapter adapter = new EventListAdapter(options, this, mSwipeRefreshLayout);
+
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setAdapter(adapter);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.refresh();
+            }
+        });
+    }
+
     public void openFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -74,5 +126,4 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
     public void onFragmentInteractionEvent() {
         onBackPressed();
     }
-
 }
