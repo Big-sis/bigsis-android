@@ -177,8 +177,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 });
             }
         });
-        mFirestore.collection("trips").document(idTrip).collection("participants")
-                .whereEqualTo("creator", true).get()
+        mFirestore.collection("trips").document(idTrip).collection("createdBy")
+                .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -208,7 +208,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 });
 
         mFirestore.collection("trips").document(idTrip).collection("participants")
-                .whereEqualTo("creator", false).limit(1).get()
+                .limit(1).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {

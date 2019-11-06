@@ -160,6 +160,10 @@ public class AddTripFragment extends Fragment {
                                         .collection("createdBy")
                                         .document(userId)
                                         .set(userEntity);
+                                tripReference.document(idTrip)
+                                        .collection("participants")
+                                        .document(userId)
+                                        .set(userEntity);
                                 userListsRef.document(idTrip).set(tripEntity);
                             }
                         });

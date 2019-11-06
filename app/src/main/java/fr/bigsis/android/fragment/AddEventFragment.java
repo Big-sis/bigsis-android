@@ -190,6 +190,10 @@ public class AddEventFragment extends Fragment {
                                                 .collection("createdBy")
                                                 .document(mCurrentUserId)
                                                 .set(userEntity);
+                                        eventReference.document(idEvent)
+                                                .collection("participants")
+                                                .document(mCurrentUserId)
+                                                .set(userEntity);
                                         userListsRef.document(idEvent).set(eventEntity);
                                     }
                                 });
