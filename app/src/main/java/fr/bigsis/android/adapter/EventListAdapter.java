@@ -285,6 +285,27 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                 mContext.startActivity(intent);
             }
         });
+
+        holder.imageButtonInformation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.imageButtonInformation.setVisibility(View.GONE);
+                holder.imageButtonCancelInformation.setVisibility(View.VISIBLE);
+                holder.tvDescriptionInfoEvent.setVisibility(View.VISIBLE);
+                holder.mImvPhotoEvent.setVisibility(View.GONE);
+                holder.tvTitileInformation.setVisibility(View.VISIBLE);
+            }
+        });
+        holder.imageButtonCancelInformation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.imageButtonInformation.setVisibility(View.VISIBLE);
+                holder.imageButtonCancelInformation.setVisibility(View.GONE);
+                holder.tvDescriptionInfoEvent.setVisibility(View.GONE);
+                holder.mImvPhotoEvent.setVisibility(View.VISIBLE);
+                holder.tvTitileInformation.setVisibility(View.GONE);
+            }
+        });
     }
 
     @NonNull
@@ -330,6 +351,10 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
         TextView mTextTitle;
         @BindView(R.id.tvDateEvent)
         TextView mTextDate;
+        @BindView(R.id.tvDescriptionEvent)
+        TextView tvDescriptionInfoEvent;
+        @BindView(R.id.tvTitileInformation)
+        TextView tvTitileInformation;
         @BindView(R.id.tvMoreEvent)
         TextView mtvMore;
         @BindView(R.id.tvStaff)
@@ -342,6 +367,8 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
         Button btParticipate;
         @BindView(R.id.imageButtonInformation)
         ImageButton imageButtonInformation;
+        @BindView(R.id.imageButtonCancelInformation)
+        ImageButton imageButtonCancelInformation;
         @BindView(R.id.imgBtEditEvent)
         ImageButton imgBtEditEventPhoto;
         @BindView(R.id.profile_image_one_event)
@@ -362,7 +389,7 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
             mTextTitle.setText(item.getTitleEvent());
             SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
             mTextDate.setText(format.format(item.getDateEvent().getTime()));
-
+            tvDescriptionInfoEvent.setText(item.getDescriptionEvent());
             RequestOptions myOptions = new RequestOptions()
                     .fitCenter()
                     .override(250, 250);
