@@ -42,6 +42,8 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
     ConstraintLayout transitionContainer;
     private String mCurrentUser;
     private FirebaseAuth mAuth;
+    String idTrip;
+    String idEvent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,8 +57,8 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         setUpAdapter();
         Intent intent = getIntent();
         Bundle extras = intent.getExtras();
-        String idTrip = extras.getString("ID_TRIP");
-        String idEvent = extras.getString("ID_EVENT");
+         idTrip = extras.getString("ID_TRIP");
+         idEvent = extras.getString("ID_EVENT");
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         if (idTrip != null) {
@@ -92,7 +94,11 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         imgBtBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(ParticipantsListActivity.this, TripListActivity.class));
+                if (idTrip != null) {
+                    startActivity(new Intent(ParticipantsListActivity.this, TripListActivity.class));                }
+                if (idEvent != null) {
+                    startActivity(new Intent(ParticipantsListActivity.this, EventListActivity.class));
+                }
             }
         });
     }

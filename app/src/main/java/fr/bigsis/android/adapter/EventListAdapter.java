@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.Image;
 import android.net.Uri;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,7 @@ import fr.bigsis.android.R;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.view.SeeMoreText;
 
 public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventListAdapter.EventViewHolder> {
 
@@ -285,7 +287,6 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                 mContext.startActivity(intent);
             }
         });
-
         holder.imageButtonInformation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -293,7 +294,8 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                 holder.imageButtonCancelInformation.setVisibility(View.VISIBLE);
                 holder.tvDescriptionInfoEvent.setVisibility(View.VISIBLE);
                 holder.mImvPhotoEvent.setVisibility(View.GONE);
-                holder.tvTitileInformation.setVisibility(View.VISIBLE);
+                holder.tvTitleInformation.setVisibility(View.VISIBLE);
+                SeeMoreText.makeTextViewResizable(holder.tvDescriptionInfoEvent,4,"...voir plus",true);
             }
         });
         holder.imageButtonCancelInformation.setOnClickListener(new View.OnClickListener() {
@@ -303,7 +305,7 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                 holder.imageButtonCancelInformation.setVisibility(View.GONE);
                 holder.tvDescriptionInfoEvent.setVisibility(View.GONE);
                 holder.mImvPhotoEvent.setVisibility(View.VISIBLE);
-                holder.tvTitileInformation.setVisibility(View.GONE);
+                holder.tvTitleInformation.setVisibility(View.GONE);
             }
         });
     }
@@ -354,7 +356,7 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
         @BindView(R.id.tvDescriptionEvent)
         TextView tvDescriptionInfoEvent;
         @BindView(R.id.tvTitileInformation)
-        TextView tvTitileInformation;
+        TextView tvTitleInformation;
         @BindView(R.id.tvMoreEvent)
         TextView mtvMore;
         @BindView(R.id.tvStaff)
