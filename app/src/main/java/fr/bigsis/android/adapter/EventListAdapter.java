@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -41,11 +42,12 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
-import fr.bigsis.android.activity.ChooseUserActivity;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.helpers.UploadImageHelper;
 import fr.bigsis.android.view.SeeMoreText;
 
 public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventListAdapter.EventViewHolder> {
@@ -56,6 +58,10 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
+    private StorageReference mStroageReference;
+    private CircleImageView circleImageView;
+    private Uri imageProfileUri;
+
 
     public EventListAdapter(@NonNull FirestorePagingOptions<EventEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -308,7 +314,17 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                 holder.tvTitleInformation.setVisibility(View.GONE);
             }
         });
-
+        //Edit event's photo
+        holder.imgBtEditEventPhoto.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AppCompatActivity activity = (AppCompatActivity) v.getContext();
+                Intent intent = new Intent(mContext, UploadImageHelper.class);
+                intent.putExtra("ID_EVENT_PHOTO", idEvent);
+                activity.startActivity(intent);
+            }
+        });
+        mStroageReference = FirebaseStorage.getInstance().getReference("images");
         /*holder.mStaffMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -405,12 +421,21 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                     .apply(myOptions)
                     .load(item.getRouteEventImage())
                     .into(mImvRouteImage);
+            storage = FirebaseStorage.getInstance();
+            StorageReference storageRef = storage.getReferenceFromUrl(item.getImageEvent());
+            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Uri downloadUrl = uri;
+                    String urlImage = downloadUrl.toString();
+                    Glide.with(mImvPhotoEvent.getContext())
+                            .asBitmap()
+                            .apply(myOptions)
+                            .load(urlImage)
+                            .into(mImvPhotoEvent);
 
-            Glide.with(mImvPhotoEvent.getContext())
-                    .asBitmap()
-                    .apply(myOptions)
-                    .load(item.getImageEvent())
-                    .into(mImvPhotoEvent);
+                }
+            });
         }
     }
 }

@@ -191,23 +191,23 @@
 
     <ImageButton
         android:id="@+id/imageButtonInformation"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
+        android:layout_width="56dp"
+        android:layout_height="57dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:background="@null"
         app:layout_constraintEnd_toEndOf="@+id/constraint_layoutTVIMG"
         app:layout_constraintTop_toTopOf="@+id/constraint_layoutTVIMG"
-        app:srcCompat="@drawable/information" />
+        app:srcCompat="@drawable/ic_information" />
 
     <ImageButton
         android:id="@+id/imageButtonCancelInformation"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
         android:background="@null"
         android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="@+id/constraint_layoutTVIMG"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/constraint_layoutTVIMG"
         app:srcCompat="@drawable/ic_refuse" />
 
@@ -215,10 +215,11 @@
         android:id="@+id/imgBtEditEvent"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="@null"
         app:layout_constraintBottom_toBottomOf="@+id/constraint_layoutTVIMG"
-        app:layout_constraintStart_toStartOf="@+id/constraint_layoutTVIMG"
-        app:srcCompat="@drawable/icon_edit" />
+        app:layout_constraintEnd_toEndOf="@+id/constraint_layoutTVIMG"
+        app:srcCompat="@drawable/ic_add_photo" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
