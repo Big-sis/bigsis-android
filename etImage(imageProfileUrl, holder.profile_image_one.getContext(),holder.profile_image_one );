@@ -1,0 +1,36 @@
+* [31mc7500c0[m -[33m (HEAD -> events/feature)[m upload image for event done [32m(il y a 2 heures) [1;34m<liliajerbi>[m
+* [31m3f573e0[m -[33m[m add date end and date start for the event [32m(il y a 6 heures) [1;34m<liliajerbi>[m
+* [31m01e914b[m -[33m[m spannable text done [32m(il y a 28 heures) [1;34m<liliajerbi>[m
+* [31m55276d0[m -[33m[m design reviewed [32m(il y a 29 heures) [1;34m<liliajerbi>[m
+* [31mcbd3431[m -[33m[m participant list of event done [32m(il y a 2 jours) [1;34m<liliajerbi>[m
+* [31m174f81d[m -[33m[m create adapter for events list [32m(il y a 2 jours) [1;34m<liliajerbi>[m
+* [31maf8f5ff[m -[33m[m add the creator to participant list in the trip [32m(il y a 2 jours) [1;34m<liliajerbi>[m
+* [31mdcd2715[m -[33m[m  correct the id trip and create fragment for adding events [32m(il y a 2 jours) [1;34m<liliajerbi>[m
+* [31m2458c74[m -[33m[m id trip corrected [32m(il y a 2 jours) [1;34m<liliajerbi>[m
+* [31mfbcd251[m -[33m[m create event activity [32m(il y a 3 jours) [1;34m<liliajerbi>[m
+* [31mfccfa71[m -[33m[m create event item [32m(il y a 3 jours) [1;34m<liliajerbi>[m
+* [31me2531bc[m -[33m (origin/rebased/contactFeature, rebased/contactFeature)[m add the count of participants [32m(il y a 3 jours) [1;34m<liliajerbi>[m
+* [31mea91654[m -[33m[m add a field 'creator' and add images of participants in the trip [32m(il y a 3 jours) [1;34m<liliajerbi>[m
+* [31m35dc973[m -[33m[m set images in adapter [32m(il y a 4 jours) [1;34m<liliajerbi>[m
+* [31m439f948[m -[33m[m set the right item selected in bottom nav [32m(il y a 4 jours) [1;34m<liliajerbi>[m
+* [31mf1fca78[m -[33m[m get participants from trip done [32m(il y a 4 jours) [1;34m<liliajerbi>[m
+* [31mcb46edd[m -[33m[m partcipants activity created [32m(il y a 8 jours) [1;34m<liliajerbi>[m
+* [31m296e53c[m -[33m[m set contact's profile and the alert dialog when user want to delete [32m(il y a 8 jours) [1;34m<liliajerbi>[m
+* [31mbbd5621[m -[33m[m change recyvlerView in fragment [32m(il y a 9 jours) [1;34m<liliajerbi>[m
+* [31md77a76b[m -[33m[m fix bug [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31mc256aa4[m -[33m (Contacts/Feature)[m create bigsis Activity [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31m2e6c809[m -[33m[m adapter for request [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31m681dadd[m -[33m[m create adapter for list of requests [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31mdc95c94[m -[33m[m delete unusable activities [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31mf9b5463[m -[33m[m rearrange adapter's code in other activity [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31m5f4d5c0[m -[33m[m create participants activity [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31mf5e8288[m -[33m[m design the button for request and participate [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31m72e3250[m -[33m[m  add a subcollection to trip and users for requests and partcipate to a trip [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31mc894cb7[m -[33m[m delete activity [32m(il y a 10 jours) [1;34m<liliajerbi>[m
+* [31md1eea57[m -[33m (origin/dev, dev)[m Rebased/user profile (#13) [32m(il y a 10 jours) [1;34m<Romain Coeur>[m
+* [31mb732312[m -[33m[m Rebased/sign up (#12) [32m(il y a 10 jours) [1;34m<Romain Coeur>[m
+* [31m96716a1[m -[33m[m Rebased/search trip feature (#11) [32m(il y a 10 jours) [1;34m<Romain Coeur>[m
+* [31ma3edb7a[m -[33m[m Rebased/rv trips firestore (#7) [32m(il y a 3 semaines) [1;34m<Romain Coeur>[m
+* [31m446ed92[m -[33m[m Create trip (#4) [32m(il y a 8 semaines) [1;34m<Romain Coeur>[m
+* [31mb96b030[m -[33m[m Firestore init (#1) [32m(il y a 8 semaines) [1;34m<liliajerbi>[m
+* [31mb3abca2[m -[33m (origin/master, origin/HEAD, master)[m project creation [32m(il y a 9 semaines) [1;34m<liliajerbi>[m

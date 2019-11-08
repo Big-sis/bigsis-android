@@ -42,7 +42,6 @@ import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.EventEntity;
@@ -59,9 +58,6 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
     private StorageReference mStroageReference;
-    private CircleImageView circleImageView;
-    private Uri imageProfileUri;
-
 
     public EventListAdapter(@NonNull FirestorePagingOptions<EventEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -110,7 +106,6 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                     holder.btParticipate.setSelected(true);
                     holder.btParticipate.setText("Ne Plus participer");
                     holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
-
                     mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -161,7 +156,6 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
 
                         }
                     });
-
                     mFirestore.collection("events")
                             .document(idEvent)
                             .collection("participants")
@@ -198,23 +192,7 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
-                                RequestOptions myOptions = new RequestOptions()
-                                        .fitCenter()
-                                        .override(250, 250);
-                                storage = FirebaseStorage.getInstance();
-                                StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
-                                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Uri downloadUrl = uri;
-                                        String urlImage = downloadUrl.toString();
-                                        Glide.with(holder.profile_image_two.getContext())
-                                                .asBitmap()
-                                                .apply(myOptions)
-                                                .load(urlImage)
-                                                .into(holder.profile_image_two);
-                                    }
-                                });
+                                setImage(imageProfileUrl, holder.profile_image_two.getContext(), holder.profile_image_two);
                             }
                         }
                     }
@@ -228,23 +206,7 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
-                                RequestOptions myOptions = new RequestOptions()
-                                        .fitCenter()
-                                        .override(250, 250);
-                                storage = FirebaseStorage.getInstance();
-                                StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
-                                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Uri downloadUrl = uri;
-                                        String urlImage = downloadUrl.toString();
-                                        Glide.with(holder.profile_image_one.getContext())
-                                                .asBitmap()
-                                                .apply(myOptions)
-                                                .load(urlImage)
-                                                .into(holder.profile_image_one);
-                                    }
-                                });
+                                setImage(imageProfileUrl, holder.profile_image_one.getContext(), holder.profile_image_one);
                             }
                         }
                     }
@@ -336,6 +298,26 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
         });*/
     }
 
+    private void setImage(String imageProfileUrl, Context context, ImageView image) {
+        RequestOptions myOptions = new RequestOptions()
+                .fitCenter()
+                .override(250, 250);
+        storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
+        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Uri downloadUrl = uri;
+                String urlImage = downloadUrl.toString();
+                Glide.with(context)
+                        .asBitmap()
+                        .apply(myOptions)
+                        .load(urlImage)
+                        .into(image);
+            }
+        });
+    }
+
     @NonNull
     @Override
     public EventViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -361,6 +343,7 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                 retry();
                 break;
         }
+
     }
 
     @Override
