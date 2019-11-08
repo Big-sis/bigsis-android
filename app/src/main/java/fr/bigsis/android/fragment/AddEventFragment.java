@@ -16,17 +16,21 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -41,19 +45,24 @@ import fr.bigsis.android.entity.UserEntity;
 
 
 public class AddEventFragment extends Fragment {
+
     private OnFragmentInteractionListener mListener;
     private EditText etAddAdress;
     private EditText etTitleEvent;
     private EditText etDescriptionEvent;
     private Button btCreateEvent;
-    private TextView tvDateTrip;
+    private TextView tvStartDate;
+    private TextView tvEndDate;
     private TextView tvParticipantEvent;
     private TextView tvStaffMember;
+    private Date dateStart;
+    private Date dateEnd;
     private Date date;
     private Calendar dateCal;
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
+    private String eventIdTitle;
 
     public AddEventFragment() {
     }
@@ -63,13 +72,6 @@ public class AddEventFragment extends Fragment {
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
-    }
-
-    private static String getDateTimeFromTimeStamp(Long time, String mDateFormat) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(mDateFormat, Locale.FRANCE);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
-        Date dateTime = new Date(time);
-        return dateFormat.format(dateTime);
     }
 
     @Override
@@ -85,27 +87,27 @@ public class AddEventFragment extends Fragment {
         etAddAdress = view.findViewById(R.id.etAddAdressEvent);
         etTitleEvent = view.findViewById(R.id.etTitleEvent);
         etDescriptionEvent = view.findViewById(R.id.etDescriptionEvent);
-        tvDateTrip = view.findViewById(R.id.tvDateEventAdd);
+        tvStartDate = view.findViewById(R.id.tvDateStartEventAdd);
+        tvEndDate = view.findViewById(R.id.tvDateEndEventAdd);
         btCreateEvent = view.findViewById(R.id.btCreateEvent);
         tvStaffMember = view.findViewById(R.id.tvStaffEvent);
         tvParticipantEvent = view.findViewById(R.id.tvParticipantEvent);
-        tvDateTrip.setText(getDateTimeFromTimeStamp(System.currentTimeMillis(), "E dd MMM, HH:mm"));
-        tvDateTrip.setOnClickListener(new View.OnClickListener() {
+        tvStartDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDateTimePicker();
+                showDateTimePicker(tvStartDate);
             }
         });
-        tvParticipantEvent.setOnClickListener(new View.OnClickListener() {
+        tvEndDate.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                startActivity(new Intent(getContext(), ChooseUserActivity.class));
+            public void onClick(View view) {
+                showDateTimePicker(tvEndDate);
             }
         });
         tvStaffMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(getContext(), ChooseUserActivity.class));
+                sendData();
             }
         });
         btCreateEvent.setOnClickListener(new View.OnClickListener() {
@@ -117,7 +119,7 @@ public class AddEventFragment extends Fragment {
         return view;
     }
 
-    private void showDateTimePicker() {
+    private void showDateTimePicker(TextView tv) {
         final Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
         dateCal = Calendar.getInstance();
         new DatePickerDialog(getActivity(), R.style.MyDatePickerDialogStyle, new DatePickerDialog.OnDateSetListener() {
@@ -131,7 +133,7 @@ public class AddEventFragment extends Fragment {
                         dateCal.set(Calendar.MINUTE, minute);
                         SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
                         date = dateCal.getTime();
-                        tvDateTrip.setText(format.format(date));
+                        tv.setText(format.format(date));
                     }
                 }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
             }
@@ -139,6 +141,7 @@ public class AddEventFragment extends Fragment {
     }
 
     private void createEvent() {
+        eventIdTitle = ("ID" + etTitleEvent.getText().toString());
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection("users")
@@ -154,18 +157,34 @@ public class AddEventFragment extends Fragment {
                         String titleEvent = etTitleEvent.getText().toString();
                         String adressEvent = etAddAdress.getText().toString();
                         String descriptionEvent = etDescriptionEvent.getText().toString();
+                        String dateStartS = tvStartDate.getText().toString();
+                        String dateEndS = tvEndDate.getText().toString();
                         //TODO change MAP
+                        SimpleDateFormat sdf = new SimpleDateFormat("E dd MMM, HH:mm",
+                                Locale.FRENCH);
+                        try {
+                            dateStart = sdf.parse(dateStartS);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            dateEnd = sdf.parse(dateEndS);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
                         String urlImageRoute = "https://open.mapquestapi.com/staticmap/v4/getmap?key=" + KEY + "&size=600,400&type=map&imagetype=png&declutter=false&shapeformat=cmp&shape=uajsFvh}qMlJsK??zKfQ??tk@urAbaEyiC??y]{|AaPsoDa~@wjEhUwaDaM{y@??t~@yY??DX&scenter=40.0337,-76.5047&ecenter=39.9978,-76.3545";
 
-                        if (adressEvent.trim().isEmpty() || descriptionEvent.trim().isEmpty()) {
+                        if (titleEvent.trim().isEmpty() || adressEvent.trim().isEmpty() || descriptionEvent.trim().isEmpty()) {
                             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
                             return;
                         }
-                        if (date == null) {
-                            Toast.makeText(getActivity(), "Veuillez indiquer la date et l'heure du trajet", Toast.LENGTH_LONG).show();
+                        if (dateStart == null || dateEnd == null) {
+                            Toast.makeText(getActivity(), "Veuillez indiquer la date et l'heure de l'évnènement", Toast.LENGTH_LONG).show();
                             return;
                         }
+
+
                         StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://bigsis-777.appspot.com/imagesEvent/tbs.png");
                         storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
@@ -179,12 +198,26 @@ public class AddEventFragment extends Fragment {
                                         .collection("users")
                                         .document(mCurrentUserId)
                                         .collection("eventList");
-                                EventEntity eventEntity = new EventEntity(date, titleEvent, descriptionEvent, imageEventUrl, urlImageRoute, adressEvent);
+
+                                EventEntity eventEntity = new EventEntity(dateStart, dateEnd, titleEvent, descriptionEvent, imageEventUrl, urlImageRoute, adressEvent);
                                 UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname);
-                                eventReference.add(eventEntity).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                eventReference.document(eventIdTitle).set(eventEntity, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
-                                    public void onSuccess(DocumentReference documentReference) {
+                                    public void onComplete(@NonNull Task<Void> task) {
                                         startActivity(new Intent(getActivity(), SplashTripCreatedActivity.class));
+
+                                        eventReference.document(eventIdTitle)
+                                                .collection("createdBy")
+                                                .document(mCurrentUserId)
+                                                .set(userEntity);
+                                        eventReference.document(eventIdTitle)
+                                                .collection("participants")
+                                                .document(mCurrentUserId)
+                                                .set(userEntity);
+                                        userListsRef.document(eventIdTitle).set(eventEntity);
+                                    }
+                                });
+                                        /*startActivity(new Intent(getActivity(), SplashTripCreatedActivity.class));
                                         String idEvent = documentReference.getId();
                                         eventReference.document(idEvent)
                                                 .collection("createdBy")
@@ -196,11 +229,17 @@ public class AddEventFragment extends Fragment {
                                                 .set(userEntity);
                                         userListsRef.document(idEvent).set(eventEntity);
                                     }
-                                });
+                                });*/
                             }
                         });
                     }
                 });
+    }
+
+    private void sendData() {
+        Intent i = new Intent(getContext(), ChooseUserActivity.class);
+        i.putExtra("ID_EVENT", eventIdTitle);
+        getActivity().startActivity(i);
     }
 
     public void onButtonPressed() {

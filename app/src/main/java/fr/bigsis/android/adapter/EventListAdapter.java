@@ -2,9 +2,7 @@ package fr.bigsis.android.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
 import android.net.Uri;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,6 +42,7 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.ChooseUserActivity;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.entity.UserEntity;
@@ -128,11 +127,12 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             String titleEvent = documentSnapshot.getString("titleEvent");
                             String adressEvent = documentSnapshot.getString("adressEvent");
-                            Date dateEvent = documentSnapshot.getDate("dateEvent");
+                            Date dateStartEvent = documentSnapshot.getDate("dateStartEvent");
+                            Date dateEndEvent = documentSnapshot.getDate("dateEndEvent");
                             String imageEvent = documentSnapshot.getString("imageEvent");
                             String routeEventImage = documentSnapshot.getString("routeEventImage");
                             String descriptionEvent = documentSnapshot.getString("descriptionEvent");
-                            EventEntity eventEntity = new EventEntity(dateEvent, titleEvent, descriptionEvent, imageEvent, routeEventImage, adressEvent);
+                            EventEntity eventEntity = new EventEntity(dateStartEvent, dateEndEvent, titleEvent, descriptionEvent, imageEvent, routeEventImage, adressEvent);
                             mFirestore.collection("users")
                                     .document(mCurrentUserId)
                                     .collection("participateTo")
@@ -254,7 +254,7 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                             for (DocumentSnapshot document : task.getResult()) {
                                 count++;
                             }
-                            holder.mtvMore.setText(String.valueOf("+" + (count - 2)));
+                            holder.mtvMore.setText("+" + (count - 2));
                             if (count < 2) {
                                 holder.profile_image_one.setVisibility(View.GONE);
                                 holder.mtvMore.setText("...");
@@ -295,7 +295,7 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                 holder.tvDescriptionInfoEvent.setVisibility(View.VISIBLE);
                 holder.mImvPhotoEvent.setVisibility(View.GONE);
                 holder.tvTitleInformation.setVisibility(View.VISIBLE);
-                SeeMoreText.makeTextViewResizable(holder.tvDescriptionInfoEvent,4,"...voir plus",true);
+                SeeMoreText.makeTextViewResizable(holder.tvDescriptionInfoEvent, 4, mContext.getString(R.string.see_more), true);
             }
         });
         holder.imageButtonCancelInformation.setOnClickListener(new View.OnClickListener() {
@@ -308,6 +308,16 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                 holder.tvTitleInformation.setVisibility(View.GONE);
             }
         });
+
+        /*holder.mStaffMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, ChooseUserActivity.class);
+                intent.putExtra("ID_EVENT", idEvent);
+                intent.putExtra("STAFF", "staff members");
+                mContext.startActivity(intent);
+            }
+        });*/
     }
 
     @NonNull
@@ -330,17 +340,11 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
                 break;
             case FINISHED:
                 mSwipeRefreshLayout.setRefreshing(false);
-                showToast("reached_end_data");
                 break;
             case ERROR:
-                showToast("error_ocurred");
                 retry();
                 break;
         }
-    }
-
-    private void showToast(@NonNull String message) {
-        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -390,7 +394,7 @@ public class EventListAdapter extends FirestorePagingAdapter<EventEntity, EventL
         public void bind(@NonNull EventEntity item) {
             mTextTitle.setText(item.getTitleEvent());
             SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-            mTextDate.setText(format.format(item.getDateEvent().getTime()));
+            mTextDate.setText(format.format(item.getDateStartEvent().getTime()) + "\n " + format.format(item.getDateEndEvent().getTime()));
             tvDescriptionInfoEvent.setText(item.getDescriptionEvent());
             RequestOptions myOptions = new RequestOptions()
                     .fitCenter()

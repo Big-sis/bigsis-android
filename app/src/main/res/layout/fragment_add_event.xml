@@ -21,9 +21,11 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint_layout_menu"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="32dp"
+        android:layout_marginEnd="50dp"
         android:background="@drawable/rounded_menu_layout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/constraint_layout"
@@ -92,7 +94,7 @@
             app:layout_constraintTop_toBottomOf="@+id/etDescriptionEvent" />
 
         <TextView
-            android:id="@+id/tvDateEventAdd"
+            android:id="@+id/tvDateStartEventAdd"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
@@ -101,12 +103,29 @@
             android:clickable="true"
             android:focusable="true"
             android:gravity="start"
-            android:text="@string/date"
+            android:text="@string/event_start"
             android:textColor="@color/colorAccent"
             android:textSize="15sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/view" />
+
+        <TextView
+            android:id="@+id/tvDateEndEventAdd"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="start"
+            android:text="@string/end_event"
+            android:textColor="@color/colorAccent"
+            android:textSize="15sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDateStartEventAdd" />
 
         <View
             android:id="@+id/view2"
@@ -119,7 +138,7 @@
             android:background="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvDateEventAdd" />
+            app:layout_constraintTop_toBottomOf="@+id/tvDateEndEventAdd" />
 
         <TextView
             android:id="@+id/tvParticipantEvent"

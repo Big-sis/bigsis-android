@@ -31,7 +31,6 @@ public class OtherUserProfileFragment extends Fragment {
     private String firstname, lastname, descriptionUser, imageProfileUrl;
     private FirebaseFirestore mFirestore;
     private FirebaseAuth mFirebaseAuth;
-    private Uri imageProfileUri;
     private CircleImageView circleImageView;
     private StorageReference mStroageReference;
 

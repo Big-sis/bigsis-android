@@ -23,21 +23,19 @@ import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.EventListAdapter;
 import fr.bigsis.android.entity.EventEntity;
-import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.AddEventFragment;
-import fr.bigsis.android.fragment.RequestFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
 public class EventListActivity extends BigsisActivity implements AddEventFragment.OnFragmentInteractionListener {
 
+    protected FirebaseFirestore mFirestore;
+    protected FirebaseAuth mAuth;
+    protected String mCurrentUserId;
     AddEventFragment fragmentOpen = AddEventFragment.newInstance();
     @BindView(R.id.paging_recycler_event)
     RecyclerView mRecyclerView;
     @BindView(R.id.swipe_refresh_layout_event)
     SwipeRefreshLayout mSwipeRefreshLayout;
-    protected FirebaseFirestore mFirestore;
-    protected FirebaseAuth mAuth;
-    protected String mCurrentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
