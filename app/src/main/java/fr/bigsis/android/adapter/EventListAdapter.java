@@ -43,6 +43,7 @@ import java.util.Locale;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.ChooseUserActivity;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.entity.UserEntity;

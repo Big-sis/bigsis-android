@@ -32,13 +32,13 @@ import com.google.firebase.storage.StorageReference;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
 import fr.bigsis.android.R;
-import fr.bigsis.android.activity.ChooseUserActivity;
 import fr.bigsis.android.activity.SplashTripCreatedActivity;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.entity.UserEntity;
@@ -63,6 +63,7 @@ public class AddEventFragment extends Fragment {
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private String eventIdTitle;
+    private ArrayList<UserEntity> users;
 
     public AddEventFragment() {
     }
@@ -141,6 +142,7 @@ public class AddEventFragment extends Fragment {
     }
 
     private void createEvent() {
+
         eventIdTitle = ("ID" + etTitleEvent.getText().toString());
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
@@ -184,7 +186,6 @@ public class AddEventFragment extends Fragment {
                             return;
                         }
 
-
                         StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl("gs://bigsis-777.appspot.com/imagesEvent/tbs.png");
                         storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
@@ -198,13 +199,26 @@ public class AddEventFragment extends Fragment {
                                         .collection("users")
                                         .document(mCurrentUserId)
                                         .collection("eventList");
-
+                               /* Bundle extras = getActivity().getIntent().getExtras();
+                                ArrayList<String> arraylist = extras.getStringArrayList("arraylist");
+                                if (arraylist == null) {
+                                    Toast.makeText(getActivity(), "list", Toast.LENGTH_SHORT).show();
+                                    return;
+                                    for(String str : mlist) {
+                                        eventReference.document(eventIdTitle).collection("staffs").document(str).set("hola");
+                                    }
+                                   for (int i = 0; i < users.size(); i++) {
+                                    }
+                                }*/
                                 EventEntity eventEntity = new EventEntity(dateStart, dateEnd, titleEvent, descriptionEvent, imageEventUrl, urlImageRoute, adressEvent);
                                 UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname);
                                 eventReference.document(eventIdTitle).set(eventEntity, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                     @Override
                                     public void onComplete(@NonNull Task<Void> task) {
-                                        startActivity(new Intent(getActivity(), SplashTripCreatedActivity.class));
+                                        Intent i = new Intent(getActivity().getBaseContext(),
+                                                SplashTripCreatedActivity.class);
+                                        i.putExtra("ADD_EVENT", "add event");
+                                        getActivity().startActivity(i);
 
                                         eventReference.document(eventIdTitle)
                                                 .collection("createdBy")
@@ -237,9 +251,7 @@ public class AddEventFragment extends Fragment {
     }
 
     private void sendData() {
-        Intent i = new Intent(getContext(), ChooseUserActivity.class);
-        i.putExtra("ID_EVENT", eventIdTitle);
-        getActivity().startActivity(i);
+
     }
 
     public void onButtonPressed() {

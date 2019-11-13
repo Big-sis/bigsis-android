@@ -1,9 +1,12 @@
 package fr.bigsis.android.entity;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class UserEntity {
+public class UserEntity implements Parcelable {
 
     private String username;
     private String description;
@@ -19,6 +22,13 @@ public class UserEntity {
         this.imageProfileUrl = imageProfileUrl;
         this.firstname = firstname;
         this.lastname = lastname;
+    }
+    protected UserEntity(Parcel in) {
+        this.username = in.readString();
+        this.description = in.readString();
+        this.imageProfileUrl = in.readString();
+        this.firstname = in.readString();
+        this.lastname = in.readString();
     }
 
     public UserEntity(String username, String imageProfileUrl, String firstname, String lastname) {
@@ -39,6 +49,18 @@ public class UserEntity {
 
     public UserEntity() {
     }
+
+    public static final Creator<UserEntity> CREATOR = new Creator<UserEntity>() {
+        @Override
+        public UserEntity createFromParcel(Parcel in) {
+            return new UserEntity(in);
+        }
+
+        @Override
+        public UserEntity[] newArray(int size) {
+            return new UserEntity[size];
+        }
+    };
 
     public Map<String, Object> toHashMap() {
         Map<String, Object> tripMap = new HashMap<>();
@@ -104,5 +126,19 @@ public class UserEntity {
 
     public void setCreator(boolean creator) {
         this.creator = creator;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.username);
+        dest.writeString(this.description);
+        dest.writeString(this.imageProfileUrl);
+        dest.writeString(this.firstname);
+        dest.writeString(this.lastname);
     }
 }

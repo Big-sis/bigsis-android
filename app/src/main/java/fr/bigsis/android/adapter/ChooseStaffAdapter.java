@@ -3,7 +3,6 @@ package fr.bigsis.android.adapter;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,17 +21,11 @@ import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -44,6 +36,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.fragment.AddEventFragment;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
 
 public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, ChooseStaffAdapter.UserViewHolder> {
@@ -54,12 +47,15 @@ public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, Choos
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
     private String idEvent;
+    ArrayList<String> usernames = new ArrayList<>();
 
-    public ChooseStaffAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout, String midEvent) {
+    private Button choose;
+
+    public ChooseStaffAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout, Button mchoose) {
         super(options);
         mContext = context;
         mSwipeRefreshLayout = swipeRefreshLayout;
-        idEvent = midEvent;
+        choose = mchoose;
     }
 
     @Override
@@ -128,30 +124,22 @@ public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, Choos
 
         holder.btAddToStaff.setOnClickListener(new View.OnClickListener() {
             int i = 0;
-
             @Override
             public void onClick(View v) {
                 if (i == 0) {
                     holder.btAddToStaff.setSelected(true);
                     holder.btAddToStaff.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
-
-                    mFirestore.collection("events").document(idContact).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    mFirestore.collection("users").document(idContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
-                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                DocumentSnapshot document = task.getResult();
-                                if (document.exists()) {
-                                    document.getData();
-                                    mFirestore.collection("events")
-                                            .document(idEvent)
-                                            .collection("staff member")
-                                            .document(idContact)
-                                            .set(document.getData(), SetOptions.merge());
-                                }
-                            }
+                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                            String username = documentSnapshot.getString("username");
+                            String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                            String firstname = documentSnapshot.getString("firstname");
+                            String lastname = documentSnapshot.getString("lastname");
+                            UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                            usernames.add(username);
                         }
                     });
-
 
                     i++;
                     //unrequest
@@ -241,7 +229,6 @@ public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, Choos
             }
 
         });
-
             }
 
             @NonNull
@@ -272,7 +259,26 @@ public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, Choos
                         break;
                 }
             }
+public void onClickButton() {
+        choose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddEventFragment fragment = new AddEventFragment();
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList("arraylist", usernames);
+                fragment.setArguments(bundle);
 
+              /*  String allItems = "";
+                for(String str : usernames) {
+                    allItems = allItems + "\n" + str; //adds a new line between items
+                }*/
+
+                  //  Toast.makeText(mContext, allItems, Toast.LENGTH_SHORT).show();
+              // ((ChooseUserActivity) mContext).onBackPressed();
+            //((Activity) mContext).finish();
+            }
+        });
+}
             private void showToast(@NonNull String message) {
                 Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
             }
