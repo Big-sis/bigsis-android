@@ -61,11 +61,16 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
          idEvent = extras.getString("ID_EVENT");
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
+        curvedBottomNavigationView.setItemIconTintList(null);
         if (idTrip != null) {
             curvedBottomNavigationView.setSelectedItemId(R.id.action_trip);
+            MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_trip);
+            item.setIcon(R.drawable.ic_trip_selected);
         }
         if (idEvent != null) {
             curvedBottomNavigationView.setSelectedItemId(R.id.action_events);
+            MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_events);
+            item.setIcon(R.drawable.ic_event_selected);
         }
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override

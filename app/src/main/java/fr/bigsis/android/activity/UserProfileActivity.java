@@ -47,15 +47,18 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
         setContentView(R.layout.activity_user_profile);
 
         setToolBar();
-
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
+        curvedBottomNavigationView.setSelectedItemId(R.id.action_user_profile);
+        curvedBottomNavigationView.setItemIconTintList(null);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 return selectItem(item, curvedBottomNavigationView);
             }
         });
+        MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_user_profile);
+        item.setIcon(R.drawable.ic_profile_selected);
         MenuItem selectedItem =
                 curvedBottomNavigationView.getMenu().getItem(2);
         selectItem(selectedItem, curvedBottomNavigationView);

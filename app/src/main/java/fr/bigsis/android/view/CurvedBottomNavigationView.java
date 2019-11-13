@@ -42,7 +42,7 @@ public class CurvedBottomNavigationView extends com.google.android.material.bott
         mPath = new Path();
         mPaint = new Paint();
         mPaint.setStyle(Paint.Style.FILL_AND_STROKE);
-        int color = ContextCompat.getColor(getContext(), R.color.colorPrimary);
+        int color = ContextCompat.getColor(getContext(), R.color.colorWhite);
         mPaint.setColor(color);
         setBackgroundColor(Color.TRANSPARENT);
     }
