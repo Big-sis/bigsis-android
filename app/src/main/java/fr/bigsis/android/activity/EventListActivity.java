@@ -57,6 +57,7 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setSelectedItemId(R.id.action_events);
+        curvedBottomNavigationView.setItemIconTintList(null);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -65,6 +66,8 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
         });
         MenuItem selectedItem =
                 curvedBottomNavigationView.getMenu().getItem(2);
+        MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_events);
+        item.setIcon(R.drawable.ic_event_selected);
         selectItem(selectedItem, curvedBottomNavigationView);
     }
 
