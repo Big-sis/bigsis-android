@@ -29,7 +29,7 @@ import fr.bigsis.android.fragment.ProfileFragment;
 import fr.bigsis.android.fragment.ToolBarFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
-public class UserProfileActivity extends AppCompatActivity implements ToolBarFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListenerProfile {
+public class UserProfileActivity extends BigsisActivity implements ToolBarFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListenerProfile {
     ImageButton imgBtProfile, imgBtBack, imBtSettings;
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
@@ -137,24 +137,6 @@ public class UserProfileActivity extends AppCompatActivity implements ToolBarFra
     @Override
     public void onFragmentInteractionTool() {
         onBackPressed();
-    }
-
-    private boolean selectItem(@NonNull MenuItem item, CurvedBottomNavigationView curvedBottomNavigationView) {
-        switch (item.getItemId()) {
-            case R.id.action_user_profile:
-                Toast.makeText(UserProfileActivity.this, "hello", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_message:
-                Toast.makeText(UserProfileActivity.this, "ddd", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_events:
-                Toast.makeText(UserProfileActivity.this, "ii", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_route:
-                Toast.makeText(UserProfileActivity.this, "hh", Toast.LENGTH_SHORT).show();
-                return true;
-        }
-        return false;
     }
 
     public void openFragment() {

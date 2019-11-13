@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">bigsis-android</string>
-    <string name="participer">Participer</string>
+    <string name="participer">participer</string>
     <string name="rechercher_un_trajet">Rechercher un trajet</string>
     <string name="add">Ajouter</string>
 
@@ -38,4 +38,10 @@
     <string name="no">Non</string>
     <string name="required_fields">*Champs obligatoires</string>
     <string name="ok">OK</string>
+    <string name="participants">Participants</string>
+    <string name="my_contacts">Mes contacts</string>
+    <string name="requests">Demandes d\'ajout</string>
+    <string name="no_request">Pas de demandes d\'ajout</string>
+    <string name="accept">Accepter</string>
+    <string name="delete">Supprimer</string>
 </resources>

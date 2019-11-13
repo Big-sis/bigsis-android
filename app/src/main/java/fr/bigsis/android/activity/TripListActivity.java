@@ -1,12 +1,14 @@
 package fr.bigsis.android.activity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -15,8 +17,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -31,18 +33,32 @@ import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
+import fr.bigsis.android.adapter.TripListAdapter;
 import fr.bigsis.android.entity.TripEntity;
+import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.fragment.ToolBarFragment;
@@ -51,12 +67,11 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 
-public class TripListActivity extends AppCompatActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
+public class TripListActivity extends BigsisActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "TripListActivity";
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
     AddTripFragment fragmentAdd = AddTripFragment.newInstance();
-    FirestorePagingAdapter<TripEntity, TripListViewHolder> adapter;
     ConstraintLayout transitionContainer;
     ImageButton imbtSearch, imBtCancel, imBtAdd;
     TextView tvTitleToolbar;
@@ -64,10 +79,13 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
     RecyclerView mRecycler;
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
+    String id;
     private FrameLayout frameLayout;
     private SearchMenuViewModel viewModel;
     private CollectionReference mItemsCollection;
     private FirebaseFirestore mFirestore;
+    private String userId;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +105,7 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
+        curvedBottomNavigationView.setSelectedItemId(R.id.action_trip);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -136,9 +155,6 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
         tvTitleToolbar.setText(R.string.trips);
         imbtSearch.setVisibility(View.VISIBLE);
         imBtAdd.setVisibility(View.VISIBLE);
-
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        transitionContainer.setBackground(getDrawable(R.drawable.gradient));
 
         imBtAdd.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -214,123 +230,21 @@ public class TripListActivity extends AppCompatActivity implements SearchMenuFra
                 .setPageSize(20)
                 .build();
 
+        Query query = FirebaseFirestore.getInstance().collection("trips");
         FirestorePagingOptions<TripEntity> options = new FirestorePagingOptions.Builder<TripEntity>()
                 .setLifecycleOwner(this)
-                .setQuery(baseQuery, config, TripEntity.class)
+                .setQuery(query, config, TripEntity.class)
                 .build();
 
-        adapter = new FirestorePagingAdapter<TripEntity, TripListViewHolder>(options) {
-            @NonNull
-            @Override
-            public TripListViewHolder onCreateViewHolder(@NonNull ViewGroup parent,
-                                                         int viewType) {
-                View view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.trip_list_item, parent, false);
-                return new TripListViewHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull TripListViewHolder holder,
-                                            int position,
-                                            @NonNull TripEntity model) {
-                holder.bind(model);
-            }
-
-            @Override
-            protected void onLoadingStateChanged(@NonNull LoadingState state) {
-                switch (state) {
-                    case LOADING_INITIAL:
-                    case LOADING_MORE:
-                        mSwipeRefreshLayout.setRefreshing(true);
-                        break;
-                    case LOADED:
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        break;
-                    case FINISHED:
-                        mSwipeRefreshLayout.setRefreshing(false);
-                        showToast("Reached end of data set.");
-                        break;
-                    case ERROR:
-                        showToast("An error occurred.");
-                        retry();
-                        break;
-                }
-            }
-
-            @Override
-            protected void onError(@NonNull Exception e) {
-                mSwipeRefreshLayout.setRefreshing(false);
-                Log.e(TAG, e.getMessage(), e);
-            }
-        };
+        TripListAdapter adapter = new TripListAdapter(options, this, mSwipeRefreshLayout);
 
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setAdapter(adapter);
-
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
                 adapter.refresh();
             }
         });
-    }
-
-    private boolean selectItem(@NonNull MenuItem item, CurvedBottomNavigationView curvedBottomNavigationView) {
-        switch (item.getItemId()) {
-            case R.id.action_user_profile:
-                startActivity(new Intent(TripListActivity.this, UserProfileActivity.class));
-                return true;
-            case R.id.action_message:
-                Toast.makeText(TripListActivity.this, "ddd", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_events:
-                Toast.makeText(TripListActivity.this, "ii", Toast.LENGTH_SHORT).show();
-                return true;
-            case R.id.action_route:
-                Toast.makeText(TripListActivity.this, "hh", Toast.LENGTH_SHORT).show();
-                return true;
-        }
-        return false;
-    }
-
-    private void showToast(@NonNull String message) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-    }
-
-    public class TripListViewHolder extends RecyclerView.ViewHolder {
-
-        @BindView(R.id.tvTripsFrom)
-        TextView mTextFrom;
-
-        @BindView(R.id.tvTripsTo)
-        TextView mTextTo;
-
-        @BindView(R.id.ivTripImage)
-        ImageView mImvTripImage;
-
-        @BindView(R.id.tvDateTrip)
-        TextView mTextDate;
-
-        private TripListViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ButterKnife.bind(this, itemView);
-        }
-
-        private void bind(@NonNull TripEntity item) {
-            mTextFrom.setText(item.getFrom());
-            mTextTo.setText(item.getTo());
-            SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-            mTextDate.setText(format.format(item.getDate().getTime()));
-
-            RequestOptions myOptions = new RequestOptions()
-                    .fitCenter()
-                    .override(250, 250);
-
-            Glide.with(mImvTripImage.getContext())
-                    .asBitmap()
-                    .apply(myOptions)
-                    .load(item.getImage())
-                    .into(mImvTripImage);
-        }
     }
 }

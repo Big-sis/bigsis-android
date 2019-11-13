@@ -10,9 +10,8 @@ public class UserEntity {
     private String imageProfileUrl;
     private String firstname;
     private String lastname;
-
-    public UserEntity() {
-    }
+    private String userId;
+    private boolean creator;
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname, String lastname) {
         this.username = username;
@@ -22,6 +21,24 @@ public class UserEntity {
         this.lastname = lastname;
     }
 
+    public UserEntity(String username, String imageProfileUrl, String firstname, String lastname) {
+        this.username = username;
+        this.imageProfileUrl = imageProfileUrl;
+        this.firstname = firstname;
+        this.lastname = lastname;
+    }
+
+    public UserEntity(String username, String description, String imageProfileUrl, String firstname, String lastname, boolean creator) {
+        this.username = username;
+        this.imageProfileUrl = imageProfileUrl;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.creator = creator;
+        this.description = description;
+    }
+
+    public UserEntity() {
+    }
 
     public Map<String, Object> toHashMap() {
         Map<String, Object> tripMap = new HashMap<>();
@@ -71,5 +88,21 @@ public class UserEntity {
 
     public void setLastname(String lastname) {
         this.lastname = lastname;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public boolean isCreator() {
+        return creator;
+    }
+
+    public void setCreator(boolean creator) {
+        this.creator = creator;
     }
 }

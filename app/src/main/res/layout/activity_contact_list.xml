@@ -6,40 +6,39 @@
     android:layout_height="match_parent"
     tools:context=".activity.ContactListActivity">
 
-    <fr.bigsis.android.view.CurvedBottomNavigationView
-        android:id="@+id/customBottomBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"/>
+        <fr.bigsis.android.view.CurvedBottomNavigationView
+            android:id="@+id/customBottomBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fbTrip"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/customBottomBar"
-        android:backgroundTint="@color/colorPrimary"
-        app:srcCompat="@drawable/navigation" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fbTrip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorPrimary"
+            app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/customBottomBar"
+            app:srcCompat="@drawable/navigation" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraintLayout2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <include
-            android:id="@+id/toolbarLayout"
-            layout="@layout/fragment_tool_bar" />
+            <include
+                android:id="@+id/toolbarLayout"
+                layout="@layout/fragment_tool_bar" />
 
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
     <FrameLayout
         android:id="@+id/fragment_container_contact"
         android:layout_width="match_parent"
@@ -48,26 +47,48 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout2" />
 
+    <FrameLayout
+        android:id="@+id/fragment_container_request"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_container_contact" />
+
+    <TextView
+        android:id="@+id/tvMyContacts"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:text="@string/my_contacts"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fragment_container_request" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/fragment_container_contact">
+        app:layout_constraintTop_toBottomOf="@+id/tvMyContacts">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvContactList"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:scrollbars="vertical"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_container_contact" />
+            app:layout_constraintStart_toStartOf="parent" />
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>
+
