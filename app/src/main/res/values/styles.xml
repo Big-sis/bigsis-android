@@ -19,5 +19,19 @@
         <item name="android:textColorPrimary">@color/colorAccent</item>
         <item name="android:background">@color/colorPrimaryDark</item>
     </style>
+    <style name="NavigationMapRoute">
+        <!-- Colors -->
+        <item name="routeColor">@color/colorPrimary</item>
+        <item name="routeModerateCongestionColor">@color/colorPrimary</item>
+        <item name="routeSevereCongestionColor">@color/colorPrimary</item>
+        <item name="routeShieldColor">@color/colorWhite</item>
+        <!-- Scales -->
+        <item name="routeScale">1.0</item>
+    </style>
 
+    <style name="NavigationView" parent="Theme.AppCompat.NoActionBar">
+        <item name="navigationViewPrimary">@color/colorPrimary</item>
+        <item name="navigationViewSecondary">@color/colorPrimary</item>
+        <item name="navigationViewAccent">@color/colorPrimary</item>
+    </style>
 </resources>

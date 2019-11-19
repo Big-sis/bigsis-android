@@ -63,7 +63,7 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
         fbTrip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(UserProfileActivity.this, TripListActivity.class));
+                startActivity(new Intent(UserProfileActivity.this, MapsActivity.class));
             }
         });
         btContact = findViewById(R.id.btContact);

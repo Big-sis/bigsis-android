@@ -3,7 +3,7 @@
     <string name="participer">participer</string>
     <string name="rechercher_un_trajet">Rechercher un trajet</string>
     <string name="add">Ajouter</string>
-
+    <string name="access_token" translatable="false">pk.eyJ1IjoibGlsaWEyMSIsImEiOiJjazJ4OHphNXUwOWtrM2dvMnQyeWZiNmkyIn0.GYSr0eT4fVnUYSzf3EYEtA</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="create_trip">Créer un trajet</string>

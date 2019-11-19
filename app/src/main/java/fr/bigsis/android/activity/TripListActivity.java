@@ -37,6 +37,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -86,6 +87,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     private FirebaseFirestore mFirestore;
     private String userId;
     private FirebaseAuth mAuth;
+    private FloatingActionButton fbMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +99,13 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
 
         mFirestore = FirebaseFirestore.getInstance();
         mItemsCollection = mFirestore.collection("trips");
-
+        fbMap = findViewById(R.id.fbMap);
+        fbMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(TripListActivity.this, MapsActivity.class));
+            }
+        });
         setUpAdapter();
         setToolBar();
 
