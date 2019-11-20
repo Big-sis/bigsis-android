@@ -1,12 +1,9 @@
 package fr.bigsis.android.activity;
 
-import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,28 +11,18 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.RequestOptions;
-import com.bumptech.glide.request.target.Target;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.common.collect.Maps;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.auth.User;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
@@ -43,31 +30,28 @@ import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
 import com.mapbox.mapboxsdk.location.LocationComponentOptions;
-import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.fragment.MenuFilterFragment;
 import fr.bigsis.android.helpers.MapHelper;
+import fr.bigsis.android.viewModel.MenuFilterViewModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -80,11 +64,13 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 // classes needed to add a marker
 // classes to calculate a route
 
-public class MapsActivity extends BigsisActivity implements OnMapReadyCallback, MapboxMap.OnMapClickListener, PermissionsListener {
+public class MapsActivity extends BigsisActivity implements MenuFilterFragment.OnFragmentInteractionListener, OnMapReadyCallback, MapboxMap.OnMapClickListener, PermissionsListener {
 
     private static final String TAG = "DirectionsActivity";
     List<LatLng> pointPlaces;
-    FirebaseStorage storage;
+    LocationComponent locationComponent;
+    MenuFilterFragment menuFilterFragment = MenuFilterFragment.newInstance();
+    MenuFilterViewModel viewModel;
     private MapView mapView;
     private MapboxMap mapboxMap;
     private PermissionsManager permissionsManager;
@@ -92,12 +78,7 @@ public class MapsActivity extends BigsisActivity implements OnMapReadyCallback, 
     private NavigationMapRoute navigationMapRoute;
     private Button button;
     private FirebaseFirestore firebaseFirestore;
-    private LatLng originCoord;
-    private LatLng destinationCoord;
     private Location originLocation;
-    LocationComponent locationComponent;
-    LocationComponentOptions customLocationComponentOptions;
-    private Marker marker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,103 +88,110 @@ public class MapsActivity extends BigsisActivity implements OnMapReadyCallback, 
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
+        button = findViewById(R.id.startButton);
+
+        viewModel = ViewModelProviders.of(this).get(MenuFilterViewModel.class);
+
         pointPlaces = new ArrayList<>();
         firebaseFirestore = FirebaseFirestore.getInstance();
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.addToBackStack(null);
+        transaction.add(R.id.fragment_container_menu, menuFilterFragment, "MENU_FILTER_FRAGMENT")
+                .commit();
     }
 
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
-
-        Query placeQuery = firebaseFirestore.collection("places").orderBy("name", Query.Direction.ASCENDING);
-        placeQuery.addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+        viewModel.getfilterName().observe(this, new Observer<String>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot documentSnapshots, @Nullable FirebaseFirestoreException e) {
-                if (!documentSnapshots.isEmpty()) {
-                    for (DocumentChange doc : documentSnapshots.getDocumentChanges()) {
-                        double lat = doc.getDocument().getDouble("latitude");
-                        double lng = doc.getDocument().getDouble("longitude");
-                        String titre = doc.getDocument().getString("name");
-                     //   String imageUrl = doc.getDocument().getString("imageUrl");
-                      //  String uri = doc.getDocument().getString("image");
-                        //Uri url = Uri.parse(uri);
-
-                        // uris.add(uri);
-
-                        //pointPlaces.add(new LatLng(lat, lng));
-                        mapboxMap.addMarker(new MarkerOptions()
-                                        .position(new LatLng(lat, lng))
-                                        .title(titre));
-
-                        Icon icon;
-
-                    /*    RequestOptions myOptions = new RequestOptions()
-                                .fitCenter()
-                                .override(250, 250);
-                        storage = FirebaseStorage.getInstance();
-                        StorageReference storageRef = storage.getReferenceFromUrl(imageUrl);
-                        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                               /* Uri downloadUrl = uri;
-                                String urlImage = downloadUrl.toString();
-                                Bitmap bitmap = BitmapFactory.decodeFile(urlImage);
-                                //bitmap = bitmap.createScaledBitmap(bitmap, 70, 70, true);
-                                Drawable d = new BitmapDrawable(getResources(), bitmap);
-                                IconFactory iconFactory = IconFactory.getInstance(MapsActivity.this);
-                                Icon icon = iconFactory.fromResource();
-
-                                mapboxMap.addMarker((new MarkerOptions()
-                                        .position(new LatLng(lat, lng))
-                                        .title(titre)
-                                        .icon()ù
-
+            public void onChanged(String s) {
+                if (viewModel.getfilterName().getValue().equals("event")) {
+                    mapboxMap.clear();
+                    Query query = firebaseFirestore.collection("events").orderBy("titleEvent", Query.Direction.ASCENDING);
+                    query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                    Geocoder geocoder = new Geocoder(MapsActivity.this);
+                                    String addressEvent = doc.getDocument().getString("adressEvent");
+                                    String titleEvent = doc.getDocument().getString("titleEvent");
+                                    List<Address> addresses;
+                                    try {
+                                        addresses = geocoder.getFromLocationName(addressEvent, 1);
+                                        if (addresses.size() > 0) {
+                                            double latitude = addresses.get(0).getLatitude();
+                                            double longitude = addresses.get(0).getLongitude();
+                                            mapboxMap.addMarker(new MarkerOptions()
+                                                    .position(new LatLng(latitude, longitude))
+                                                    .title(titleEvent));
+                                        }
+                                    } catch (IOException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }
                             }
-                        });*/
-
-                      /*  CameraPosition position = new CameraPosition.Builder()
-                                .target(new LatLng(lat, lng)) // Sets the new camera position
-                                .zoom(12) // Sets the zoom to level 10
-                                .tilt(20) // Set the camera tilt to 20 degrees
-                                .build(); // Builds the CameraPosition object from the builder
-                        mapboxMap.setCameraPosition(position);
-                        mapboxMap.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(lat, lng)));*/
-
-
-                    }
-
-
+                        }
+                    });
                 }
-
-
+                if (viewModel.getfilterName().getValue().equals("trip")) {
+                    mapboxMap.clear();
+                    Query query = firebaseFirestore.collection("trips").orderBy("titleEvent", Query.Direction.ASCENDING);
+                    query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                    Geocoder geocoder = new Geocoder(MapsActivity.this);
+                                    String adress = doc.getDocument().getString("from");
+                                    String titleEvent = doc.getDocument().getString("titleEvent");
+                                    List<Address> addresses;
+                                    try {
+                                        addresses = geocoder.getFromLocationName(adress, 1);
+                                        if (addresses.size() > 0) {
+                                            double latitude = addresses.get(0).getLatitude();
+                                            double longitude = addresses.get(0).getLongitude();
+                                            mapboxMap.addMarker(new MarkerOptions()
+                                                    .position(new LatLng(latitude, longitude)));
+                                            // .title(titleEvent));
+                                        }
+                                    } catch (IOException ex) {
+                                        ex.printStackTrace();
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+                if (viewModel.getfilterName().getValue().equals("partner")) {
+                    mapboxMap.clear();
+                    Query query = firebaseFirestore.collection("places").orderBy("name", Query.Direction.ASCENDING);
+                    query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                            if (!queryDocumentSnapshots.isEmpty()) {
+                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                                    double lat = doc.getDocument().getDouble("latitude");
+                                    double lng = doc.getDocument().getDouble("longitude");
+                                    String titre = doc.getDocument().getString("name");
+                                    mapboxMap.addMarker(new MarkerOptions()
+                                            .position(new LatLng(lat, lng))
+                                            .title(titre));
+                                }
+                            }
+                        }
+                    });
+                }
             }
         });
-
-//        originCoord = new LatLng(originLocation.getLatitude(), originLocation.getLongitude());
-
-
         mapboxMap.setStyle(getString(R.string.navigation_guidance_day), new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
                 enableLocationComponent(style);
-
                 addDestinationIconSymbolLayer(style);
-
                 mapboxMap.addOnMapClickListener(MapsActivity.this);
-
-                button = findViewById(R.id.startButton);
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        boolean simulateRoute = true;
-                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
-                                .directionsRoute(currentRoute)
-                                //.shouldSimulateRoute(simulateRoute)
-                                .build();
-// Call this method with Context from within an Activity
-                        NavigationLauncher.startNavigation(MapsActivity.this, options);
-                    }
-                });
             }
         });
     }
@@ -349,5 +337,10 @@ public class MapsActivity extends BigsisActivity implements OnMapReadyCallback, 
     public void onLowMemory() {
         super.onLowMemory();
         mapView.onLowMemory();
+    }
+
+    @Override
+    public void onFragmentInteraction() {
+        onBackPressed();
     }
 }

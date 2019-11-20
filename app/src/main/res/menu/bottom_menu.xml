@@ -27,13 +27,13 @@
         android:enabled="true"
         android:checked="false"
         android:title="@null"
-        android:icon="@drawable/calendar"
+        android:icon="@drawable/ic_event"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_trip"
         android:enabled="true"
         android:checked="false"
         android:title="@null"
-        android:icon="@drawable/ic_trip"
+        android:icon="@drawable/ic_trip_route"
         app:showAsAction="ifRoom"/>
 </menu>
