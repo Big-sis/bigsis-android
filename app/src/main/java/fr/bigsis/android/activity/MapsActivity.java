@@ -3,11 +3,9 @@ package fr.bigsis.android.activity;
 import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -16,31 +14,32 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.storage.FirebaseStorage;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
-import com.mapbox.geojson.Feature;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
-import com.mapbox.mapboxsdk.location.LocationComponentOptions;
+import com.mapbox.mapboxsdk.location.modes.CameraMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
@@ -50,7 +49,6 @@ import java.util.List;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.fragment.MenuFilterFragment;
-import fr.bigsis.android.helpers.MapHelper;
 import fr.bigsis.android.viewModel.MenuFilterViewModel;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -60,11 +58,8 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
-// classes needed to add the location component
-// classes needed to add a marker
-// classes to calculate a route
-
-public class MapsActivity extends BigsisActivity implements MenuFilterFragment.OnFragmentInteractionListener, OnMapReadyCallback, MapboxMap.OnMapClickListener, PermissionsListener {
+public class MapsActivity extends BigsisActivity implements MenuFilterFragment.OnFragmentInteractionListener,
+        OnMapReadyCallback, PermissionsListener, MapboxMap.OnInfoWindowClickListener {
 
     private static final String TAG = "DirectionsActivity";
     List<LatLng> pointPlaces;
@@ -76,9 +71,8 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     private PermissionsManager permissionsManager;
     private DirectionsRoute currentRoute;
     private NavigationMapRoute navigationMapRoute;
-    private Button button;
+    private FloatingActionButton imgButtonStart;
     private FirebaseFirestore firebaseFirestore;
-    private Location originLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,11 +82,10 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-        button = findViewById(R.id.startButton);
-
+        imgButtonStart = findViewById(R.id.imgButtonStart);
         viewModel = ViewModelProviders.of(this).get(MenuFilterViewModel.class);
-
         pointPlaces = new ArrayList<>();
+        imgButtonStart.hide();
         firebaseFirestore = FirebaseFirestore.getInstance();
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -109,6 +102,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
             public void onChanged(String s) {
                 if (viewModel.getfilterName().getValue().equals("event")) {
                     mapboxMap.clear();
+
                     Query query = firebaseFirestore.collection("events").orderBy("titleEvent", Query.Direction.ASCENDING);
                     query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                         @Override
@@ -138,6 +132,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 }
                 if (viewModel.getfilterName().getValue().equals("trip")) {
                     mapboxMap.clear();
+
                     Query query = firebaseFirestore.collection("trips").orderBy("titleEvent", Query.Direction.ASCENDING);
                     query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                         @Override
@@ -147,6 +142,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                                     Geocoder geocoder = new Geocoder(MapsActivity.this);
                                     String adress = doc.getDocument().getString("from");
                                     String titleEvent = doc.getDocument().getString("titleEvent");
+                                    String idEvent = doc.getDocument().getId();
                                     List<Address> addresses;
                                     try {
                                         addresses = geocoder.getFromLocationName(adress, 1);
@@ -167,6 +163,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 }
                 if (viewModel.getfilterName().getValue().equals("partner")) {
                     mapboxMap.clear();
+
                     Query query = firebaseFirestore.collection("places").orderBy("name", Query.Direction.ASCENDING);
                     query.addSnapshotListener(new EventListener<QuerySnapshot>() {
                         @Override
@@ -176,6 +173,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                                     double lat = doc.getDocument().getDouble("latitude");
                                     double lng = doc.getDocument().getDouble("longitude");
                                     String titre = doc.getDocument().getString("name");
+                                    String idPartner = doc.getDocument().getId();
                                     mapboxMap.addMarker(new MarkerOptions()
                                             .position(new LatLng(lat, lng))
                                             .title(titre));
@@ -190,10 +188,40 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
             @Override
             public void onStyleLoaded(@NonNull Style style) {
                 enableLocationComponent(style);
-                addDestinationIconSymbolLayer(style);
-                mapboxMap.addOnMapClickListener(MapsActivity.this);
+                //addDestinationIconSymbolLayer(style);
             }
         });
+        mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull Marker marker) {
+                imgButtonStart.show();
+                onMapClick(marker.getPosition());
+                marker.showInfoWindow(mapboxMap, mapView);
+                onInfoWindowClick(marker);
+                mapboxMap.addOnCameraMoveListener(() -> mapboxMap.getMarkers().forEach(Marker::hideInfoWindow));
+
+                imgButtonStart.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                                .directionsRoute(currentRoute)
+                                .build();
+                        NavigationLauncher.startNavigation(MapsActivity.this, options);
+                    }
+                });
+                return true;
+            }
+        });
+    }
+
+    @Override
+    public boolean onInfoWindowClick(@NonNull Marker marker) {
+        String snippest = marker.getSnippet();
+        mapboxMap.addMarker(new MarkerOptions()
+                .position(marker.getPosition())
+                .title(marker.getTitle()));
+        Log.d(TAG, "onMarkerClick: " + snippest);
+        return true;
     }
 
     private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle) {
@@ -211,19 +239,11 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     }
 
     @SuppressWarnings({"MissingPermission"})
-    @Override
     public boolean onMapClick(@NonNull LatLng point) {
         Point destinationPoint = Point.fromLngLat(point.getLongitude(), point.getLatitude());
         Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
                 locationComponent.getLastKnownLocation().getLatitude());
-        GeoJsonSource source = mapboxMap.getStyle().getSourceAs("destination-source-id");
-        if (source != null) {
-            source.setGeoJson(Feature.fromGeometry(destinationPoint));
-        }
-
         getRoute(originPoint, destinationPoint);
-        button.setEnabled(true);
-        button.setBackgroundResource(R.color.colorPrimary);
         return true;
     }
 
@@ -236,7 +256,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 .getRoute(new Callback<DirectionsResponse>() {
                     @Override
                     public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
-// You can get the generic HTTP info about the response
                         Log.d(TAG, "Response code: " + response.code());
                         if (response.body() == null) {
                             Log.e(TAG, "No routes found, make sure you set the right user and access token.");
@@ -245,10 +264,10 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                             Log.e(TAG, "No routes found");
                             return;
                         }
-
                         currentRoute = response.body().routes().get(0);
+                        mapboxMap.addOnCameraMoveListener(() -> navigationMapRoute.removeRoute());
 
-// Draw the route on the map
+                        // Draw the route on the map
                         if (navigationMapRoute != null) {
                             navigationMapRoute.removeRoute();
                         } else {
@@ -258,19 +277,22 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                     }
 
                     @Override
-                    public void onFailure(Call<DirectionsResponse> call, Throwable throwable) {
-                        Log.e(TAG, "Error: " + throwable.getMessage());
+                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
                     }
                 });
     }
 
     @SuppressWarnings({"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
-// Check if permissions are enabled and if not request
+        // Check if permissions are enabled and if not request
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
-            MapHelper.setTheLocationComponent(loadedMapStyle, MapsActivity.this, mapboxMap, originLocation);
-            //originLocation = locationComponent.getLastKnownLocation();
-
+            // Activate the MapboxMap LocationComponent to show user location
+            // Adding in LocationComponentOptions is also an optional parameter
+            locationComponent = mapboxMap.getLocationComponent();
+            locationComponent.activateLocationComponent(this, loadedMapStyle);
+            locationComponent.setLocationComponentEnabled(true);
+            // Set the component's camera mode
+            locationComponent.setCameraMode(CameraMode.TRACKING);
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(this);

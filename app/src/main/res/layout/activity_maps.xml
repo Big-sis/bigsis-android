@@ -21,38 +21,22 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-        <include
-            android:id="@+id/toolbarLayout"
-            layout="@layout/fragment_tool_bar" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent"/>
 
     <com.mapbox.mapboxsdk.maps.MapView
         android:id="@+id/mapView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        mapbox:mapbox_cameraZoom="16"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2" />
-    <Button
-        android:id="@+id/startButton"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="16dp"
-        android:background="@color/colorPrimary"
-        android:enabled="false"
-        android:text="Start navigation"
-        android:textColor="@color/colorWhite"
-        mapbox:layout_constraintStart_toStartOf="parent"
-        mapbox:layout_constraintTop_toTopOf="parent" />
-    <ImageButton
+        app:layout_constraintTop_toTopOf="@+id/constraintLayout2"
+        mapbox:mapbox_cameraZoom="16">
+
+
+    </com.mapbox.mapboxsdk.maps.MapView>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fbAlertTrip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -60,16 +44,30 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/customBottomBar"
-        app:srcCompat="@drawable/ic_alert_map"
-        android:background="@null" />
+        app:srcCompat="@drawable/ic_alert_green"
+        app:fabSize="normal"
+        android:scaleType="fitXY"
+        android:padding="0dp"
+        app:maxImageSize="40dp"
+        android:backgroundTint="@color/colorPrimary"/>
 
     <FrameLayout
         android:id="@+id/fragment_container_menu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
+        app:layout_constraintBottom_toTopOf="@+id/imgButtonStart"
         app:layout_constraintEnd_toEndOf="parent" />
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/imgButtonStart"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/colorWhite"
+        app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        mapbox:srcCompat="@drawable/ic_localisation" />
 </androidx.constraintlayout.widget.ConstraintLayout>

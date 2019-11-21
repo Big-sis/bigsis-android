@@ -1,5 +1,6 @@
 package fr.bigsis.android.helpers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -8,6 +9,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Point;
@@ -31,8 +34,6 @@ import retrofit2.Response;
 public class MapHelper {
     private LocationComponent locationComponent;
 
-
-
     public static void addCustomLayers(@NonNull Style mMapboxMapStyle, Context context) {
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_marker_position);
         mMapboxMapStyle.addImage("position marker", icon);
@@ -43,29 +44,4 @@ public class MapHelper {
       //  symbolLayer.setFilter(eq(get(TYPE), StructureType.MOSQUITO_COLLECTION_POINT));
         mMapboxMapStyle.addLayer(symbolLayer);*/
     }
-
-    public static void setTheLocationComponent(@NonNull Style loadedMapStyle, Context context, MapboxMap mapboxMap, Location originLocation) {
-
-        // Create and customize the LocationComponent's options
-        LocationComponentOptions customLocationComponentOptions = LocationComponentOptions.builder(context)
-                .elevation(5)
-                .accuracyAlpha(.6f)
-                .accuracyColor(R.color.colorPrimary)
-                .foregroundDrawable(R.drawable.ic_marker_position)
-                .build();
-        LocationComponent locationComponent = mapboxMap.getLocationComponent();
-        LocationComponentActivationOptions locationComponentActivationOptions =
-                LocationComponentActivationOptions.builder(context, loadedMapStyle)
-                        .locationComponentOptions(customLocationComponentOptions)
-                        .build();
-        locationComponent.activateLocationComponent(locationComponentActivationOptions);
-        locationComponent.setLocationComponentEnabled(true);
-// Set the component's camera mode
-        locationComponent.setCameraMode(CameraMode.TRACKING);
-        originLocation = locationComponent.getLastKnownLocation();
-
-    }
-
-
-
 }
