@@ -5,6 +5,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -14,6 +15,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
@@ -46,9 +48,14 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.fragment.AlertFragment;
 import fr.bigsis.android.fragment.MenuFilterFragment;
+import fr.bigsis.android.helpers.KeyboardHelper;
+import fr.bigsis.android.helpers.MapHelper;
+import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.MenuFilterViewModel;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -59,10 +66,9 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacem
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 public class MapsActivity extends BigsisActivity implements MenuFilterFragment.OnFragmentInteractionListener,
-        OnMapReadyCallback, PermissionsListener, MapboxMap.OnInfoWindowClickListener {
+        OnMapReadyCallback, PermissionsListener, MapboxMap.OnInfoWindowClickListener, AlertFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "DirectionsActivity";
-    List<LatLng> pointPlaces;
     LocationComponent locationComponent;
     MenuFilterFragment menuFilterFragment = MenuFilterFragment.newInstance();
     MenuFilterViewModel viewModel;
@@ -73,6 +79,8 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     private NavigationMapRoute navigationMapRoute;
     private FloatingActionButton imgButtonStart;
     private FirebaseFirestore firebaseFirestore;
+    private FloatingActionButton fbAlertGreen;
+    private FloatingActionButton fbAlertRed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,17 +91,40 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
         imgButtonStart = findViewById(R.id.imgButtonStart);
+        fbAlertGreen = findViewById(R.id.fbAlert);
+        fbAlertRed = findViewById(R.id.fbAlertRed);
+        AlertFragment alertFragment = AlertFragment.newInstance();
         viewModel = ViewModelProviders.of(this).get(MenuFilterViewModel.class);
-        pointPlaces = new ArrayList<>();
         imgButtonStart.hide();
+        fbAlertRed.hide();
         firebaseFirestore = FirebaseFirestore.getInstance();
+        setMenuFilterFragment();
+        MapHelper.setOnCLickButton(fbAlertGreen, fbAlertRed, MapsActivity.this, this);
+        if(alertFragment.isAdded()){
+            fbAlertRed.show();
+            fbAlertGreen.hide();
+        }
+        final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
+        curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
+        curvedBottomNavigationView.setItemIconTintList(null);
+        curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                return selectItem(item, curvedBottomNavigationView);
+            }
+        });
+    }
+
+
+
+
+    private void setMenuFilterFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.addToBackStack(null);
         transaction.add(R.id.fragment_container_menu, menuFilterFragment, "MENU_FILTER_FRAGMENT")
                 .commit();
     }
-
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;

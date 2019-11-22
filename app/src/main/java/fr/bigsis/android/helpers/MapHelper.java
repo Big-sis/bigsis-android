@@ -6,9 +6,17 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.util.Log;
+import android.view.View;
+import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
@@ -27,12 +35,32 @@ import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.fragment.AlertFragment;
+import fr.bigsis.android.fragment.MenuFilterFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MapHelper {
-    private LocationComponent locationComponent;
+
+    public static void setOnCLickButton (FloatingActionButton fbAlertGreen, FloatingActionButton fbAlertRed,
+                                         Activity activity, Context context) {
+        AlertFragment alertFragment = AlertFragment.newInstance();
+
+        fbAlertGreen.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                fbAlertGreen.hide();
+                fbAlertRed.show();
+                FragmentManager fragmentManager = ((FragmentActivity)activity).getSupportFragmentManager();
+                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.addToBackStack(null);
+                transaction.add(R.id.fragment_container_alert, alertFragment, "MENU_ALERT_FRAGMENT")
+                        .commit();
+            }
+        });
+    }
+
 
     public static void addCustomLayers(@NonNull Style mMapboxMapStyle, Context context) {
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_marker_position);

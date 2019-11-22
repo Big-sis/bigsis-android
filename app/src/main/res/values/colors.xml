@@ -4,7 +4,9 @@
     <color name="colorPrimaryDark">#2B2B2A</color>
     <color name="colorAccent">#6B6A6B</color>
     <color name="colorWhite">#FFF</color>
+    <color name="colorRed">#EE1C1C</color>
     <color name="colorGradient">#33B592</color>
     <color name="colorGreyLight">#d4cdd4</color>
     <color name="colorGreenLight">#72FCA8</color>
+    <color name="colorRedGradient">#EE1C85</color>
 </resources>

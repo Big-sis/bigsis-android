@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel;
 public class MenuFilterViewModel extends ViewModel {
 
     private MutableLiveData<String> filterName;
+    private MutableLiveData<Boolean> fragmentIs;
 
     public MenuFilterViewModel() {
         filterName = new MutableLiveData<>();

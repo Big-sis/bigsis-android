@@ -44,4 +44,9 @@
     <string name="no_request">Pas de demandes d\'ajout</string>
     <string name="accept">Accepter</string>
     <string name="delete">Supprimer</string>
+    <string name="police_17">Police (17)</string>
+    <string name="pompier_18">Pompier (18)</string>
+    <string name="call">Appeler</string>
+    <string name="alert_staff">Alerter staff</string>
+    <string name="alert">Alerte</string>
 </resources>
