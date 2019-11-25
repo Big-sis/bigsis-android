@@ -115,9 +115,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         });
     }
 
-
-
-
     private void setMenuFilterFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();

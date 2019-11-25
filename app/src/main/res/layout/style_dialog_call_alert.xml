@@ -1,19 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/rounded_style"
     android:backgroundTint="@color/colorWhite">
 
     <TextView
-        android:id="@+id/tvTitleDialog"
+        android:id="@+id/tvTitleAlertDialog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
         android:layout_marginTop="24dp"
         android:layout_marginEnd="32dp"
-        android:text="Voulez-vous \n vraiment supprimer ce contact?"
+        android:text="@string/activate_alert"
         android:textColor="@color/colorPrimaryDark"
         android:textSize="18sp"
         android:gravity="center"
@@ -23,10 +25,10 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/btNo"
+        android:id="@+id/btCancelAlert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="50dp"
+        android:layout_marginStart="32dp"
         android:layout_marginTop="16dp"
         android:layout_marginBottom="24dp"
         android:background="@drawable/rounded_style"
@@ -34,33 +36,29 @@
         android:minHeight="30dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:text="Annuler"
+        android:text="@string/cancel"
         android:textAllCaps="false"
         android:textColor="@color/colorAccent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btDeleteFriend"
-        app:layout_constraintHorizontal_bias="0.494"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitleDialog"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/tvTitleAlertDialog" />
 
     <Button
-        android:id="@+id/btDeleteFriend"
+        android:id="@+id/btActivateAlert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="88dp"
+        android:layout_marginEnd="32dp"
         android:layout_marginBottom="24dp"
         android:background="@drawable/rounded_style"
-        android:backgroundTint="@color/colorPrimary"
+        android:backgroundTint="@color/colorRed"
         android:minHeight="30dp"
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
-        android:text="Supprimer"
+        android:text="@string/activate"
         android:textAllCaps="false"
         android:textColor="@color/colorWhite"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvTitleDialog" />
-
+        app:layout_constraintTop_toBottomOf="@+id/tvTitleAlertDialog" />
 </androidx.constraintlayout.widget.ConstraintLayout>
