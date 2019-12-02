@@ -40,20 +40,15 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
-import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.fragment.AlertFragment;
 import fr.bigsis.android.fragment.MenuFilterFragment;
-import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.helpers.MapHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.MenuFilterViewModel;
@@ -77,7 +72,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     private PermissionsManager permissionsManager;
     private DirectionsRoute currentRoute;
     private NavigationMapRoute navigationMapRoute;
-    private FloatingActionButton imgButtonStart;
+    private FloatingActionButton imgBtRecenter;
     private FirebaseFirestore firebaseFirestore;
     private FloatingActionButton fbAlertGreen;
     private FloatingActionButton fbAlertRed;
@@ -90,20 +85,20 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
         mapView.getMapAsync(this);
-        imgButtonStart = findViewById(R.id.imgButtonStart);
+        imgBtRecenter = findViewById(R.id.imgBtRecenter);
         fbAlertGreen = findViewById(R.id.fbAlert);
         fbAlertRed = findViewById(R.id.fbAlertRed);
         AlertFragment alertFragment = AlertFragment.newInstance();
         viewModel = ViewModelProviders.of(this).get(MenuFilterViewModel.class);
-        imgButtonStart.hide();
         fbAlertRed.hide();
         firebaseFirestore = FirebaseFirestore.getInstance();
         setMenuFilterFragment();
         MapHelper.setOnCLickButton(fbAlertGreen, fbAlertRed, MapsActivity.this, this);
-        if(alertFragment.isAdded()){
+        if (alertFragment.isAdded()) {
             fbAlertRed.show();
             fbAlertGreen.hide();
         }
+
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setItemIconTintList(null);
@@ -122,6 +117,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         transaction.add(R.id.fragment_container_menu, menuFilterFragment, "MENU_FILTER_FRAGMENT")
                 .commit();
     }
+
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
@@ -219,24 +215,31 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 //addDestinationIconSymbolLayer(style);
             }
         });
+        imgBtRecenter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                enableLocationComponent(mapboxMap.getStyle());
+            }
+        });
         mapboxMap.setOnMarkerClickListener(new MapboxMap.OnMarkerClickListener() {
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
-                imgButtonStart.show();
                 onMapClick(marker.getPosition());
                 marker.showInfoWindow(mapboxMap, mapView);
                 onInfoWindowClick(marker);
                 mapboxMap.addOnCameraMoveListener(() -> mapboxMap.getMarkers().forEach(Marker::hideInfoWindow));
 
-                imgButtonStart.setOnClickListener(new View.OnClickListener() {
+               /* imgButtonStart.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                       NavigationLauncherOptions options = NavigationLauncherOptions.builder()
                                 .directionsRoute(currentRoute)
                                 .build();
                         NavigationLauncher.startNavigation(MapsActivity.this, options);
+
+                        enableLocationComponent(mapboxMap.getStyle());
                     }
-                });
+                });*/
                 return true;
             }
         });

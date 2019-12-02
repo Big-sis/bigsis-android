@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     tools:context=".activity.MapsActivity">
 
     <fr.bigsis.android.view.CurvedBottomNavigationView
@@ -23,10 +23,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        mapbox:mapbox_cameraZoom="16">
-    </com.mapbox.mapboxsdk.maps.MapView>
-
-
+        mapbox:mapbox_cameraZoom="16"></com.mapbox.mapboxsdk.maps.MapView>
 
     <FrameLayout
         android:id="@+id/fragment_container_menu"
@@ -34,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/imgButtonStart"
+        app:layout_constraintBottom_toTopOf="@+id/imgBtRecenter"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <FrameLayout
@@ -46,7 +43,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/imgButtonStart"
+        android:id="@+id/imgBtRecenter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -60,28 +57,28 @@
         android:id="@+id/fbAlert"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
+        android:scaleType="fitXY"
+        app:fabSize="normal"
         app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/customBottomBar"
-        app:srcCompat="@drawable/ic_alert_green"
-        app:fabSize="normal"
         app:maxImageSize="50dp"
-        android:scaleType="fitXY"
-        android:backgroundTint="@color/colorPrimary"/>
+        app:srcCompat="@drawable/ic_alert_green" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fbAlertRed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorRed"
+        android:scaleType="fitXY"
+        app:fabSize="normal"
         app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/customBottomBar"
-        app:srcCompat="@drawable/ic_alert_map"
-        app:fabSize="normal"
         app:maxImageSize="50dp"
-        android:scaleType="fitXY"
-        android:backgroundTint="@color/colorRed"/>
+        app:srcCompat="@drawable/ic_alert_map" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
