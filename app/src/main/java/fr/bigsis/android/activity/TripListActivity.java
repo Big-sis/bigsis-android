@@ -114,6 +114,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setSelectedItemId(R.id.action_trip);
+        curvedBottomNavigationView.setItemIconTintList(null);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -122,6 +123,8 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
         });
         MenuItem selectedItem =
                 curvedBottomNavigationView.getMenu().getItem(2);
+        MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_trip);
+        item.setIcon(R.drawable.ic_trip_selected);
         selectItem(selectedItem, curvedBottomNavigationView);
 
         viewModel.getDeparture().observe(this, new Observer<String>() {

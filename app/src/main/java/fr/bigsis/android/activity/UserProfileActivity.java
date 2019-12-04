@@ -50,6 +50,8 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
+        curvedBottomNavigationView.setSelectedItemId(R.id.action_user_profile);
+        curvedBottomNavigationView.setItemIconTintList(null);
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -58,6 +60,8 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
         });
         MenuItem selectedItem =
                 curvedBottomNavigationView.getMenu().getItem(2);
+        MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_user_profile);
+        item.setIcon(R.drawable.ic_profile_selected);
         selectItem(selectedItem, curvedBottomNavigationView);
         fbTrip = findViewById(R.id.fbTrip);
         fbTrip.setOnClickListener(new View.OnClickListener() {
