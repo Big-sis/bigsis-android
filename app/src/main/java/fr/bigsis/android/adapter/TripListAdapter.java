@@ -53,7 +53,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
-    String imageProfileUrl;
 
     public TripListAdapter(@NonNull FirestorePagingOptions<TripEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -64,7 +63,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
     @Override
     protected void onBindViewHolder(@NonNull TripViewHolder holder, int position, @NonNull TripEntity item) {
         holder.bind(item);
-
         item.setTripId(this.getItem(position).getId());
         String idTrip = item.getTripId();
         mAuth = FirebaseAuth.getInstance();
@@ -93,7 +91,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
 
         holder.btParticipate.setOnClickListener(new View.OnClickListener() {
             int i = 0;
-
             @Override
             public void onClick(View v) {
                 //partcipate to a trip
@@ -117,7 +114,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                     .set(userEntity, SetOptions.merge());
                         }
                     });
-
                     mFirestore.collection("trips").document(idTrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -149,7 +145,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
 
                         }
                     });
-
                     mFirestore.collection("trips")
                             .document(idTrip)
                             .collection("participants")
@@ -186,9 +181,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
-                                RequestOptions myOptions = new RequestOptions()
-                                        .fitCenter()
-                                        .override(250, 250);
                                 storage = FirebaseStorage.getInstance();
                                 StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
                                 storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -197,8 +189,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                         Uri downloadUrl = uri;
                                         String urlImage = downloadUrl.toString();
                                         Glide.with(holder.profile_image_two.getContext())
-                                                .asBitmap()
-                                                .apply(myOptions)
                                                 .load(urlImage)
                                                 .into(holder.profile_image_two);
                                     }
@@ -210,27 +200,20 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
 
         mFirestore.collection("trips").document(idTrip).collection("participants")
                 .limit(1).whereEqualTo("creator", false).get()
-
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                imageProfileUrl = document.getData().get("imageProfileUrl").toString();
-
-                                RequestOptions myOptions = new RequestOptions()
-                                        .fitCenter()
-                                        .override(250, 250);
+                                String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
                                 storage = FirebaseStorage.getInstance();
-                                StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+                                StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
                                 storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
                                         Uri downloadUrl = uri;
                                         String urlImage = downloadUrl.toString();
                                         Glide.with(holder.profile_image_one.getContext())
-                                                .asBitmap()
-                                                .apply(myOptions)
                                                 .load(urlImage)
                                                 .into(holder.profile_image_one);
                                     }

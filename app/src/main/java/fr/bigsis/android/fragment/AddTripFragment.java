@@ -137,6 +137,7 @@ public class AddTripFragment extends Fragment {
                         String toFrom = etAddToDestination.getText().toString();
                         String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
                         String url = "https://open.mapquestapi.com/staticmap/v5/map?start=" + addFrom + "|via-33AB62&end=" + toFrom + "&routeWidth=5&routeColor=33AB62&type=light&size=170,170&&defaultMarker=marker-sm-33AB62&key=" + KEY;
+                        UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, true);
 
                         if (addFrom.trim().isEmpty() || toFrom.trim().isEmpty()) {
                             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
@@ -146,31 +147,31 @@ public class AddTripFragment extends Fragment {
                             Toast.makeText(getActivity(), "Veuillez indiquer la date et l'heure du trajet", Toast.LENGTH_LONG).show();
                             return;
                         }
-
                         CollectionReference tripReference = FirebaseFirestore.getInstance()
                                 .collection("trips");
                         CollectionReference userListsRef = mFirestore.collection("users").document(userId).collection("tripList");
                         TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, url, username);
-                        tripReference.add(tripEntity).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+                        tripReference.document(addFrom + "to" + toFrom).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
-                            public void onComplete(@NonNull Task<DocumentReference> task) {
+                            public void onSuccess(Void aVoid) {
                                 startActivity(new Intent(getActivity(), SplashTripCreatedActivity.class));
-                                String idtrip = tripReference.document().getId();
+                                String idtrip = addFrom + "to" + toFrom;
                                 userListsRef.document(idtrip).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, true);
                                         mFirestore.collection("trips")
                                                 .document(idtrip)
                                                 .collection("participants")
-                                                .add(userEntity);
+                                                .document(userId)
+                                                .set(userEntity);
                                     }
                                 });
                             }
                         });
                     }
                 });
-    }
+                }
+
 
     public void onButtonPressed() {
         if (mListener != null) {
