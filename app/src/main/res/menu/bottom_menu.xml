@@ -7,7 +7,7 @@
         android:enabled="true"
         android:title="@null"
         android:checked="false"
-        android:icon="@drawable/icon_user"
+        android:icon="@drawable/ic_profile"
         app:showAsAction="ifRoom"/>
 
     <item
@@ -15,7 +15,7 @@
         android:enabled="true"
         android:checked="false"
         android:title="@null"
-        android:icon="@drawable/dialogue"
+        android:icon="@drawable/ic_profile"
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_map"

@@ -53,6 +53,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
+    String imageProfileUrl;
 
     public TripListAdapter(@NonNull FirestorePagingOptions<TripEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -108,7 +109,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String firstname = documentSnapshot.getString("firstname");
                             String lastname = documentSnapshot.getString("lastname");
                             String descripition = documentSnapshot.getString("description");
-                            UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname, descripition, false);
+                            UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl, firstname, lastname, false);
                             mFirestore.collection("trips")
                                     .document(idTrip)
                                     .collection("participants")
@@ -208,18 +209,20 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 });
 
         mFirestore.collection("trips").document(idTrip).collection("participants")
-                .whereEqualTo("creator", false).limit(1).get()
+                .limit(1).whereEqualTo("creator", false).get()
+
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
+                                imageProfileUrl = document.getData().get("imageProfileUrl").toString();
+
                                 RequestOptions myOptions = new RequestOptions()
                                         .fitCenter()
                                         .override(250, 250);
                                 storage = FirebaseStorage.getInstance();
-                                StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
+                                StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
                                 storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
