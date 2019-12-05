@@ -51,4 +51,6 @@
     <string name="activate_alert">Êtes-vous sûr de vouloir déclencher l\'alerte?</string>
     <string name="activate">Déclencher</string>
     <string name="conversations">Conversations</string>
+    <string name="want_to_quit">Voulez-vous vraiment quitter cette conversation ?</string>
+    <string name="quit">Quitter</string>
 </resources>

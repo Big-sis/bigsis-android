@@ -162,19 +162,26 @@ public class AddTripFragment extends Fragment {
                                                 .document(userId)
                                                 .set(userEntity);
                                         String titleTrip = addFrom + " ... " + toFrom;
+                                        String idGroup = idtrip+"chatGroup";
                                         GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip,  url, date);
                                         CollectionReference groupChatRef = mFirestore.collection("GroupChat");
-                                        groupChatRef.document(idtrip)
+                                        groupChatRef.document(idGroup)
                                                 .set(groupChatEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                groupChatRef.document(idtrip).collection("participants")
+                                                groupChatRef.document(idGroup).collection("participants")
                                                         .document(userId)
                                                         .set(userEntity);
 
-                                                groupChatRef.document(idtrip).collection("trip")
+                                                groupChatRef.document(idGroup).collection("trip")
                                                         .document(idtrip)
                                                         .set(tripEntity);
+
+                                                mFirestore.collection("users")
+                                                        .document(userId)
+                                                        .collection("groupChat")
+                                                        .document(idGroup)
+                                                        .set(groupChatEntity);
                                             }
                                         });
                                     }

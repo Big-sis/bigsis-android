@@ -4,16 +4,21 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -28,12 +33,16 @@ public class GroupConversationActivity extends BigsisActivity {
     private GroupConversationAdapter adapter;
     private ImageButton imBt_notification;
     private TextView tvTitle;
+    private String mCurrentUserId;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_conversation);
 
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = mAuth.getCurrentUser().getUid();
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setSelectedItemId(R.id.action_message);
@@ -70,11 +79,11 @@ public class GroupConversationActivity extends BigsisActivity {
     }
 
     private void setUpRecyclerView() {
-        Query query = db.collection("GroupChat");
+        Query query = db.collection("users").document(mCurrentUserId).collection("groupChat");
         FirestoreRecyclerOptions<GroupChatEntity> options = new FirestoreRecyclerOptions.Builder<GroupChatEntity>()
                 .setQuery(query, GroupChatEntity.class)
                 .build();
-        adapter = new GroupConversationAdapter(options);
+        adapter = new GroupConversationAdapter(options, GroupConversationActivity.this);
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

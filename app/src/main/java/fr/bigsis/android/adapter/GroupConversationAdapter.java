@@ -1,15 +1,20 @@
 package fr.bigsis.android.adapter;
 
+import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -19,6 +24,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -30,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.GroupChatEntity;
 
 public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChatEntity, GroupConversationAdapter.GroupChatHolder> {
@@ -37,14 +44,21 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
     private OnLongClickListener mListener;
     private FirebaseFirestore mFirestore;
 
-    public GroupConversationAdapter(@NonNull FirestoreRecyclerOptions<GroupChatEntity> options) {
+    private Context mContext;
+
+
+    public GroupConversationAdapter(@NonNull FirestoreRecyclerOptions<GroupChatEntity> options, Context mContext) {
         super(options);
+        this.mContext = mContext;
     }
 
     @Override
     protected void onBindViewHolder(@NonNull GroupChatHolder holder, int position, @NonNull GroupChatEntity model) {
         mFirestore = FirebaseFirestore.getInstance();
-        String id = getSnapshots().getSnapshot(position).getReference().getId();
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        String mCurrentUserId = mAuth.getCurrentUser().getUid();
+        DocumentSnapshot r = getSnapshots().getSnapshot(position);
+        String id = r.getId();
         holder.textViewTitle.setText(model.getTitle());
         SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
         holder.textViewDate.setText(format.format(model.getDate().getTime()));
@@ -123,10 +137,81 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
 
         //SET BUTTONS(QUIT + NOTIFICATIONS) VISIBLE
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            int i = 0;
             @Override
             public boolean onLongClick(View v) {
-                holder.linearLayout.setVisibility(View.VISIBLE);
-                return true;
+                if (i == 0) {
+                    holder.linearLayout.setVisibility(View.VISIBLE);
+                    i++;
+                } else if (i == 1) {
+                    holder.linearLayout.setVisibility(View.GONE);
+                    i = 0;
+                }
+                    return true;
+            }
+        });
+        holder.imgButtonQuit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog dialogBuilder = new AlertDialog.Builder(mContext).create();
+                LayoutInflater inflater = LayoutInflater.from(mContext);
+                View dialogView = inflater.inflate(R.layout.style_alert_dialog, null);
+                TextView tvTitle = dialogView.findViewById(R.id.tvTitleDialog);
+                tvTitle.setText(R.string.want_to_quit);
+                Button btNo = dialogView.findViewById(R.id.btNo);
+                Button btYes = dialogView.findViewById(R.id.btDeleteFriend);
+                btYes.setText(R.string.quit);
+                btYes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mFirestore.collection("GroupChat")
+                                .document(id)
+                                .collection("participants")
+                                .document(mCurrentUserId)
+                                .delete();
+
+                        mFirestore.collection("users")
+                                .document(mCurrentUserId)
+                                .collection("groupChat")
+                                .document(id)
+                                .delete();
+                    }
+                });
+                btNo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialogBuilder.dismiss();
+                        holder.linearLayout.setVisibility(View.GONE);
+
+                    }
+                });
+                dialogBuilder.setView(dialogView);
+                dialogBuilder.show();
+            }
+        });
+
+        holder.profile_image_one.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
+                intent.putExtra("ID_GROUP", id);
+                mContext.startActivity(intent);
+            }
+        });
+        holder.profile_image_two.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
+                intent.putExtra("ID_GROUP", id);
+                mContext.startActivity(intent);
+            }
+        });
+        holder.profile_image_three.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
+                intent.putExtra("ID_GROUP", id);
+                mContext.startActivity(intent);
             }
         });
     }
@@ -162,6 +247,8 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         ImageView profile_image_two;
         ImageView profile_image_three;
         LinearLayout linearLayout;
+        ImageButton imgButtonQuit;
+        ImageButton imgButtonActivateNotif;
 
         GroupChatHolder(View itemView) {
             super(itemView);
@@ -172,6 +259,9 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
             profile_image_one = itemView.findViewById(R.id.profile_image_one_group);
             profile_image_two = itemView.findViewById(R.id.profile_image_two_group);
             profile_image_three = itemView.findViewById(R.id.profile_image_three_group);
+            linearLayout = itemView.findViewById(R.id.frameLayoutContainerGroup);
+            imgButtonQuit = itemView.findViewById(R.id.quitGroup);
+            imgButtonActivateNotif = itemView.findViewById(R.id.activateNotif);
             linearLayout = itemView.findViewById(R.id.frameLayoutContainerGroup);
 
             itemView.setOnClickListener(new View.OnClickListener() {
