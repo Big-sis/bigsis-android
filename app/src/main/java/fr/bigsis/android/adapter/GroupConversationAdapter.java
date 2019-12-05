@@ -36,6 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.Chat.ChatActivity;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.GroupChatEntity;
 
@@ -43,7 +44,6 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
     private OnItemClickListener listener;
     private OnLongClickListener mListener;
     private FirebaseFirestore mFirestore;
-
     private Context mContext;
 
 
@@ -175,6 +175,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                                 .collection("groupChat")
                                 .document(id)
                                 .delete();
+                        dialogBuilder.dismiss();
                     }
                 });
                 btNo.setOnClickListener(new View.OnClickListener() {
@@ -214,6 +215,20 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                 mContext.startActivity(intent);
             }
         });
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, ChatActivity.class);
+                intent.putExtra("chatid", model.getIdGroup());
+                intent.putExtra("ID_GROUP", id);
+               // intent.putExtra("otherchatid", chatModel.getOtherChatID());
+
+                intent.putExtra("userID", mCurrentUserId);
+                //intent.putExtra("initials", initials);
+                mContext.startActivity(intent);
+            }
+        });
+
     }
 
     @NonNull
@@ -231,6 +246,10 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
 
     public interface OnItemClickListener {
         void onItemClick(DocumentSnapshot documentSnapshot, int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 
     public interface OnLongClickListener {

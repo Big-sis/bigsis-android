@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".activity.GroupConversationActivity"
     android:id="@+id/layout">
+
     <fr.bigsis.android.view.CurvedBottomNavigationView
         android:id="@+id/customBottomBar"
         android:layout_width="match_parent"
@@ -22,10 +23,12 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:clickable="true">
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:tabMode="scrollable"/>
 </RelativeLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -52,4 +55,5 @@
             layout="@layout/fragment_tool_bar" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

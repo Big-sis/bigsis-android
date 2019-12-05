@@ -2,35 +2,46 @@ package fr.bigsis.android.entity;
 
 public class ChatEntity {
 
-    private String sender;
-    private String recipient;
+    private String id;
+    private String chatRoomId;
+    private String senderId;
     private String message;
-    private String type;
-    private String message_status;
-    private long time;
-    private Boolean isTagged;
+    private String username;
+    private long sent;
 
-    public ChatEntity() {
-    }
-
-    public ChatEntity(String sender, String recipient, String message, String type, String message_status, long time, Boolean isTagged) {
-        this.sender = sender;
-        this.recipient = recipient;
+    public ChatEntity(String id, String chatRoomId, String senderId, String username, String message, long sent) {
+        this.id = id;
+        this.chatRoomId = chatRoomId;
+        this.senderId = senderId;
         this.message = message;
-        this.type = type;
-        this.message_status = message_status;
-        this.time = time;
-        this.isTagged = isTagged;
+        this.username = username;
+        this.sent = sent;
     }
 
-    public String getSender() {
-        return sender;
+
+    public String getId() {
+        return id;
     }
 
-    public String getRecipient() {
-        return recipient;
+    public void setId(String id) {
+        this.id = id;
     }
 
+    public String getChatRoomId() {
+        return chatRoomId;
+    }
+
+    public void setChatRoomId(String chatRoomId) {
+        this.chatRoomId = chatRoomId;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
+    }
 
     public String getMessage() {
         return message;
@@ -40,35 +51,19 @@ public class ChatEntity {
         this.message = message;
     }
 
-    public String getType() {
-        return type;
+    public long getSent() {
+        return sent;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setSent(long sent) {
+        this.sent = sent;
     }
 
-    public String getMessage_status() {
-        return message_status;
+    public String getUsername() {
+        return username;
     }
 
-    public void setMessage_status(String message_status) {
-        this.message_status = message_status;
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long time) {
-        this.time = time;
-    }
-
-    public Boolean getTagged() {
-        return isTagged;
-    }
-
-    public void setTagged(Boolean tagged) {
-        isTagged = tagged;
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
