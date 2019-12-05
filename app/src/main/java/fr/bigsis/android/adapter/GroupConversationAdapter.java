@@ -5,7 +5,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -32,6 +34,7 @@ import fr.bigsis.android.entity.GroupChatEntity;
 
 public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChatEntity, GroupConversationAdapter.GroupChatHolder> {
     private OnItemClickListener listener;
+    private OnLongClickListener mListener;
     private FirebaseFirestore mFirestore;
 
     public GroupConversationAdapter(@NonNull FirestoreRecyclerOptions<GroupChatEntity> options) {
@@ -48,7 +51,6 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         RequestOptions myOptions = new RequestOptions()
                 .fitCenter()
                 .override(250, 250);
-
         Glide.with(holder.imgViewGroupe.getContext())
                 .asBitmap()
                 .apply(myOptions)
@@ -77,7 +79,6 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                         }
                     }
                 });
-
         mFirestore.collection("GroupChat").document(id).collection("participants")
                 .limit(1).whereEqualTo("creator", false).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -101,7 +102,6 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                         }
                     }
                 });
-
         mFirestore.collection("GroupChat").document(id).collection("participants")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -120,6 +120,15 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                         }
                     }
                 });
+
+        //SET BUTTONS(QUIT + NOTIFICATIONS) VISIBLE
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                holder.linearLayout.setVisibility(View.VISIBLE);
+                return true;
+            }
+        });
     }
 
     @NonNull
@@ -134,15 +143,16 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         getSnapshots().getSnapshot(position).getReference().delete();
     }
 
-    public void setOnItemClickListener(OnItemClickListener listener) {
-        this.listener = listener;
-    }
 
     public interface OnItemClickListener {
         void onItemClick(DocumentSnapshot documentSnapshot, int position);
     }
 
-    class GroupChatHolder extends RecyclerView.ViewHolder {
+    public interface OnLongClickListener {
+        void setOnLongClickListener(DocumentSnapshot documentSnapshot, int position);
+    }
+
+    public class GroupChatHolder extends RecyclerView.ViewHolder {
         TextView textViewTitle;
         TextView textViewLastMessage;
         TextView textViewDate;
@@ -151,9 +161,9 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         ImageView profile_image_one;
         ImageView profile_image_two;
         ImageView profile_image_three;
+        LinearLayout linearLayout;
 
-
-        public GroupChatHolder(View itemView) {
+        GroupChatHolder(View itemView) {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.tvTitleGroupChat);
             textViewDate = itemView.findViewById(R.id.tvDateGroupChat);
@@ -162,6 +172,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
             profile_image_one = itemView.findViewById(R.id.profile_image_one_group);
             profile_image_two = itemView.findViewById(R.id.profile_image_two_group);
             profile_image_three = itemView.findViewById(R.id.profile_image_three_group);
+            linearLayout = itemView.findViewById(R.id.frameLayoutContainerGroup);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -169,6 +180,8 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION && listener != null) {
                         listener.onItemClick(getSnapshots().getSnapshot(position), position);
+                        Toast.makeText(v.getContext(),
+                                "Position: " + position, Toast.LENGTH_SHORT).show();
                     }
                 }
             });
