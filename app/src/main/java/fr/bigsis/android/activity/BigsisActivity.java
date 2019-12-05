@@ -20,7 +20,7 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 public abstract class BigsisActivity extends AppCompatActivity {
 
     ConstraintLayout transitionContainer;
-    ImageButton imbtSearch, imBtCancel, imBtAdd;
+    ImageButton imbtSearch, imBtCancel, imBtAdd, imBt_notificationv;
     TextView tvTitleToolbar;
 
     @Override
@@ -35,7 +35,7 @@ public abstract class BigsisActivity extends AppCompatActivity {
                 startActivity(new Intent(this, UserProfileActivity.class));
                 return true;
             case R.id.action_message:
-                Toast.makeText(this, "ddd", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, GroupConversationActivity.class));
                 return true;
             case R.id.action_events:
                 Toast.makeText(this, "ii", Toast.LENGTH_SHORT).show();

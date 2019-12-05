@@ -112,6 +112,12 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                     .collection("participants")
                                     .document(mCurrentUserId)
                                     .set(userEntity, SetOptions.merge());
+
+                            mFirestore.collection("GroupChat")
+                                    .document(idTrip)
+                                    .collection("participants")
+                                    .document(mCurrentUserId)
+                                    .set(userEntity, SetOptions.merge());
                         }
                     });
                     mFirestore.collection("trips").document(idTrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -145,6 +151,13 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
 
                         }
                     });
+
+                    mFirestore.collection("GroupChat")
+                            .document(idTrip)
+                            .collection("participants")
+                            .document(mCurrentUserId)
+                            .delete();
+
                     mFirestore.collection("trips")
                             .document(idTrip)
                             .collection("participants")

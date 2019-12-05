@@ -15,15 +15,11 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -35,6 +31,7 @@ import java.util.TimeZone;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.SplashTripCreatedActivity;
+import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 
@@ -164,6 +161,22 @@ public class AddTripFragment extends Fragment {
                                                 .collection("participants")
                                                 .document(userId)
                                                 .set(userEntity);
+                                        String titleTrip = addFrom + " ... " + toFrom;
+                                        GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip,  url, date);
+                                        CollectionReference groupChatRef = mFirestore.collection("GroupChat");
+                                        groupChatRef.document(idtrip)
+                                                .set(groupChatEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                groupChatRef.document(idtrip).collection("participants")
+                                                        .document(userId)
+                                                        .set(userEntity);
+
+                                                groupChatRef.document(idtrip).collection("trip")
+                                                        .document(idtrip)
+                                                        .set(tripEntity);
+                                            }
+                                        });
                                     }
                                 });
                             }

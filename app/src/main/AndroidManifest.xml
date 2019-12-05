@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".activity.MapsActivity"></activity>
+        <activity android:name=".activity.GroupConversationActivity"></activity>
+        <activity android:name=".activity.MapsActivity" />
         <activity android:name=".activity.ParticipantsListActivity" />
         <activity android:name=".activity.RegisterContinuationActivity" />
         <activity android:name=".activity.ContactListActivity" />
