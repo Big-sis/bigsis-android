@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -42,6 +43,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.ParticipantsListActivity;
+import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 
@@ -68,6 +70,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
+        String idGroup = idTrip+"chatGroup";
+        CollectionReference groupChatRef = mFirestore.collection("GroupChat");
         DocumentReference documentReference = mFirestore.collection("trips")
                 .document(idTrip)
                 .collection("participants")
@@ -118,6 +122,12 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                     .collection("participants")
                                     .document(mCurrentUserId)
                                     .set(userEntity, SetOptions.merge());
+
+                            groupChatRef.document(idGroup).collection("participants")
+                                    .document(mCurrentUserId)
+                                    .set(userEntity);
+
+
                         }
                     });
                     mFirestore.collection("trips").document(idTrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -134,6 +144,14 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                     .collection("participateTo")
                                     .document(idTrip)
                                     .set(tripEntity, SetOptions.merge());
+                            String titleTrip = from + " ... " + to;
+
+                            GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, image, date);
+                            mFirestore.collection("users")
+                                    .document(mCurrentUserId)
+                                    .collection("groupChat")
+                                    .document(idGroup)
+                                    .set(groupChatEntity);
                         }
                     });
                     i++;
@@ -155,6 +173,16 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                     mFirestore.collection("GroupChat")
                             .document(idTrip)
                             .collection("participants")
+                            .document(mCurrentUserId)
+                            .delete();
+
+                    mFirestore.collection("users")
+                            .document(mCurrentUserId)
+                            .collection("groupChat")
+                            .document(idGroup)
+                            .delete();
+
+                    groupChatRef.document(idGroup).collection("participants")
                             .document(mCurrentUserId)
                             .delete();
 
