@@ -59,6 +59,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         String mCurrentUserId = mAuth.getCurrentUser().getUid();
         DocumentSnapshot r = getSnapshots().getSnapshot(position);
         String id = r.getId();
+        String name = r.getString("title");
         holder.textViewTitle.setText(model.getTitle());
         SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
         holder.textViewDate.setText(format.format(model.getDate().getTime()));
@@ -127,7 +128,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                                 count++;
                             }
                             holder.textViewCount.setText("+" + (count - 2));
-                            if (count < 2) {
+                            if (count < 3) {
                                 holder.profile_image_one.setVisibility(View.GONE);
                                 holder.textViewCount.setText("...");
                             }
@@ -221,14 +222,11 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                 Intent intent = new Intent(mContext, ChatActivity.class);
                 intent.putExtra("chatid", model.getIdGroup());
                 intent.putExtra("ID_GROUP", id);
-               // intent.putExtra("otherchatid", chatModel.getOtherChatID());
-
+                intent.putExtra("NAME_GROUP", name);
                 intent.putExtra("userID", mCurrentUserId);
-                //intent.putExtra("initials", initials);
                 mContext.startActivity(intent);
             }
         });
-
     }
 
     @NonNull

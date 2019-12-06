@@ -54,4 +54,6 @@
     <string name="want_to_quit">Voulez-vous vraiment quitter cette conversation ?</string>
     <string name="quit">Quitter</string>
     <string name="write_message">Taper message ...</string>
+    <string name="copy">Copier</string>
+    <string name="tag">Épingler</string>
 </resources>

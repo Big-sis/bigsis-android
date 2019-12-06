@@ -14,8 +14,8 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imgViewUser"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:layout_gravity="end"
             android:layout_marginEnd="8dp"
             android:src="@drawable/ic_profile"
@@ -36,16 +36,62 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="@string/date" />
 
-        <TextView
+        <com.github.library.bubbleview.BubbleTextView
             android:id="@+id/chat_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:background="@drawable/chat_sent_rounded_background"
-            android:padding="8dp"
+            android:padding="10dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:textColor="@color/colorWhite"
+            app:angle="5dp"
+            app:arrowCenter="false"
+            app:arrowHeight="10dp"
+            app:arrowLocation="right"
+            app:arrowPosition="6dp"
+            app:arrowWidth="8dp"
+            app:bubbleColor="@color/colorPrimary"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imgViewUser"
             app:layout_constraintTop_toBottomOf="@+id/tvDateMessage" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
+        <LinearLayout
+            android:id="@+id/linearLayoutContainerGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="0dp"
+            android:background="@drawable/layout_bg"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toTopOf="@+id/chat_message"
+            app:layout_constraintEnd_toStartOf="@+id/imgViewUser"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tvCopy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="@string/copy" />
+
+            <TextView
+                android:id="@+id/tvTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tag"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="@string/delete"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

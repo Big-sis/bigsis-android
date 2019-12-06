@@ -130,11 +130,13 @@ public class AddTripFragment extends Fragment {
                         String firstname = documentSnapshot.getString("firstname");
                         String lastname = documentSnapshot.getString("lastname");
                         String description = documentSnapshot.getString("description");
+                        Boolean isAdmin = documentSnapshot.getBoolean("admin");
                         String addFrom = etAddFromDestination.getText().toString();
                         String toFrom = etAddToDestination.getText().toString();
                         String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
                         String url = "https://open.mapquestapi.com/staticmap/v5/map?start=" + addFrom + "|via-33AB62&end=" + toFrom + "&routeWidth=5&routeColor=33AB62&type=light&size=170,170&&defaultMarker=marker-sm-33AB62&key=" + KEY;
-                        UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, true);
+                        UserEntity userEntity = new UserEntity(username, description,
+                                imageProfileUrl, firstname, lastname, true, isAdmin);
 
                         if (addFrom.trim().isEmpty() || toFrom.trim().isEmpty()) {
                             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();

@@ -19,9 +19,9 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 
 public abstract class BigsisActivity extends AppCompatActivity {
 
-    ConstraintLayout transitionContainer;
-    ImageButton imbtSearch, imBtCancel, imBtAdd, imBt_notificationv;
-    TextView tvTitleToolbar;
+    public ConstraintLayout transitionContainer;
+    public ImageButton imbtSearch, imBtCancel, imBtAdd, imBt_notificationv, imgBtBack;
+    public TextView tvTitleToolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState){

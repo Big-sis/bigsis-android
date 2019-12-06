@@ -24,6 +24,7 @@ import java.util.TimeZone;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.BigsisActivity;
+import fr.bigsis.android.activity.GroupConversationActivity;
 import fr.bigsis.android.adapter.ChatAdapter;
 import fr.bigsis.android.entity.ChatEntity;
 
@@ -35,6 +36,7 @@ public class ChatActivity extends BigsisActivity {
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
     private String idGroup;
+    private String titleGroup;
     private ChatAdapter adapter;
     private RecyclerView chats;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -43,12 +45,14 @@ public class ChatActivity extends BigsisActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
+
         mFirestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         Intent iin = getIntent();
         Bundle extras = iin.getExtras();
         idGroup = extras.getString("ID_GROUP");
+        titleGroup = extras.getString("NAME_GROUP");
         message = findViewById(R.id.message_text);
         send = findViewById(R.id.send_message);
         chats = findViewById(R.id.chats);
@@ -59,19 +63,30 @@ public class ChatActivity extends BigsisActivity {
             @Override
             public void onClick(View v) {
                 if (message.getText().toString().isEmpty()) {
-                    Toast.makeText(
-                            ChatActivity.this,
-                            "erreur",
-                            Toast.LENGTH_SHORT
-                    ).show();
+                    Toast.makeText(ChatActivity.this, "erreur", Toast.LENGTH_SHORT).show();
                 } else {
                     addMessageToChatRoom();
                 }
             }
         });
         showMessage();
+        setToolBar();
     }
 
+    private void setToolBar() {
+        transitionContainer = findViewById(R.id.toolbarLayoutChatRoom);
+        transitionContainer.setBackground(getDrawable(R.drawable.gradient));
+        imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
+        tvTitleToolbar = transitionContainer.findViewById(R.id.tvTitleToolbar);
+        tvTitleToolbar.setText(titleGroup);
+        imgBtBack.setVisibility(View.VISIBLE);
+        imgBtBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(ChatActivity.this, GroupConversationActivity.class));
+            }
+        });
+    }
     private void addMessageToChatRoom() {
         mFirestore.collection("users").document(mCurrentUserId)
                 .get()
@@ -79,13 +94,14 @@ public class ChatActivity extends BigsisActivity {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String username = documentSnapshot.getString("username");
+                        String avatar = documentSnapshot.getString("imageProfileUrl");
                         String chatMessage = message.getText().toString();
                         message.setText("");
                         String chatId = idGroup + "Chat";
                         SimpleDateFormat dateFormat = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRANCE);
                         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
                         Date dateTime = new Date(System.currentTimeMillis());
-                        ChatEntity chat = new ChatEntity(idGroup, chatId, mCurrentUserId, username, chatMessage, dateTime);
+                        ChatEntity chat = new ChatEntity(idGroup, chatId, mCurrentUserId, username, chatMessage, avatar, dateTime);
                         mFirestore.collection("GroupChat")
                                 .document(idGroup)
                                 .collection("chat")

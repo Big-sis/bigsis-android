@@ -12,6 +12,7 @@ public class UserEntity {
     private String lastname;
     private String userId;
     private boolean creator;
+    private boolean isAdmin;
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname, String lastname) {
         this.username = username;
@@ -21,6 +22,17 @@ public class UserEntity {
         this.lastname = lastname;
     }
 
+    public UserEntity(String username, String description, String imageProfileUrl, String firstname,
+                      String lastname, boolean creator, boolean isAdmin) {
+        this.username = username;
+        this.description = description;
+        this.imageProfileUrl = imageProfileUrl;
+        this.firstname = firstname;
+        this.lastname = lastname;
+        this.creator = creator;
+        this.isAdmin = isAdmin;
+    }
+
     public UserEntity(String username, String imageProfileUrl, String firstname, String lastname) {
         this.username = username;
         this.imageProfileUrl = imageProfileUrl;
@@ -28,7 +40,8 @@ public class UserEntity {
         this.lastname = lastname;
     }
 
-    public UserEntity(String username, String description, String imageProfileUrl, String firstname, String lastname, boolean creator) {
+    public UserEntity(String username, String description, String imageProfileUrl, String firstname,
+                      String lastname, boolean creator) {
         this.username = username;
         this.imageProfileUrl = imageProfileUrl;
         this.firstname = firstname;
@@ -104,5 +117,13 @@ public class UserEntity {
 
     public void setCreator(boolean creator) {
         this.creator = creator;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }

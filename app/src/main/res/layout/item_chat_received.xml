@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginTop="8dp"
     android:orientation="vertical">
 
@@ -36,18 +36,62 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="@string/date" />
 
-        <TextView
+        <com.github.library.bubbleview.BubbleTextView
             android:id="@+id/chat_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/chat_received_rounded_background"
-            android:padding="8dp"
-            android:textColor="@android:color/white"
+            android:padding="10dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:textColor="@color/colorPrimaryDark"
+            app:angle="5dp"
+            app:arrowCenter="false"
+            app:arrowHeight="10dp"
+            app:arrowLocation="left"
+            app:arrowPosition="6dp"
+            app:arrowWidth="8dp"
+            app:bubbleColor="@color/colorGreyLight"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imgViewUser"
             app:layout_constraintTop_toBottomOf="@+id/tvDateMessage" />
 
+        <LinearLayout
+            android:id="@+id/linearLayoutContainerGroup"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginBottom="0dp"
+            android:background="@drawable/layout_bg"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/chat_message"
+            app:layout_constraintStart_toEndOf="@+id/imgViewUser">
+
+            <TextView
+                android:id="@+id/tvCopy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="@string/copy" />
+
+            <TextView
+                android:id="@+id/tvTag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/tag"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tvDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="8dp"
+                android:paddingRight="8dp"
+                android:text="@string/delete"
+                android:visibility="gone"/>
+
+        </LinearLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>

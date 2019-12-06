@@ -110,24 +110,17 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String firstname = documentSnapshot.getString("firstname");
                             String lastname = documentSnapshot.getString("lastname");
                             String descripition = documentSnapshot.getString("description");
-                            UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl, firstname, lastname, false);
+                            Boolean isAdmin = documentSnapshot.getBoolean("admin");
+                            UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
+                                    firstname, lastname, false, isAdmin);
                             mFirestore.collection("trips")
                                     .document(idTrip)
                                     .collection("participants")
                                     .document(mCurrentUserId)
                                     .set(userEntity, SetOptions.merge());
-
-                            mFirestore.collection("GroupChat")
-                                    .document(idTrip)
-                                    .collection("participants")
-                                    .document(mCurrentUserId)
-                                    .set(userEntity, SetOptions.merge());
-
                             groupChatRef.document(idGroup).collection("participants")
                                     .document(mCurrentUserId)
                                     .set(userEntity);
-
-
                         }
                     });
                     mFirestore.collection("trips").document(idTrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

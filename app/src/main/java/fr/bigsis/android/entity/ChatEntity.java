@@ -10,16 +10,19 @@ public class ChatEntity {
     private String message;
     private String username;
     private Date date;
+    private String imageUSer;
+    private boolean isAdmin;
 
     public ChatEntity() {
     }
 
-    public ChatEntity(String id, String chatRoomId, String senderId, String username, String message, Date date) {
+    public ChatEntity(String id, String chatRoomId, String senderId, String username, String message, String imageUSer, Date date) {
         this.id = id;
         this.chatRoomId = chatRoomId;
         this.senderId = senderId;
         this.message = message;
         this.username = username;
+        this.imageUSer = imageUSer;
         this.date = date;
     }
 
@@ -70,5 +73,21 @@ public class ChatEntity {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getImageUSer() {
+        return imageUSer;
+    }
+
+    public void setImageUSer(String imageUSer) {
+        this.imageUSer = imageUSer;
+    }
+
+    public boolean isAdmin() {
+        return isAdmin;
+    }
+
+    public void setAdmin(boolean admin) {
+        isAdmin = admin;
     }
 }
