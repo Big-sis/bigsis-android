@@ -14,15 +14,14 @@
 
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/imgViewUser"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
             android:layout_gravity="end"
             android:layout_marginEnd="8dp"
             android:src="@drawable/ic_profile"
-            app:civ_border_color="@color/colorPrimaryDark"
+            app:civ_border_color="@color/colorWhite"
             app:civ_border_width="2dp"
             app:civ_circle_background_color="@color/colorAccent"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -31,7 +30,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="16dp"
             app:layout_constraintEnd_toStartOf="@+id/imgViewUser"
             app:layout_constraintTop_toTopOf="parent"
             tools:text="@string/date" />
@@ -40,17 +39,18 @@
             android:id="@+id/chat_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:paddingTop="8dp"
-            android:paddingBottom="8dp"
-            android:textColor="@color/colorWhite"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:padding="15dp"
+            android:textColor="@color/colorPrimary"
+            android:textSize="20sp"
             app:angle="5dp"
             app:arrowCenter="false"
             app:arrowHeight="10dp"
             app:arrowLocation="right"
             app:arrowPosition="6dp"
             app:arrowWidth="8dp"
-            app:bubbleColor="@color/colorPrimary"
+            app:bubbleColor="@color/colorGreenLight"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imgViewUser"
             app:layout_constraintTop_toBottomOf="@+id/tvDateMessage" />
@@ -63,35 +63,52 @@
             android:layout_marginBottom="0dp"
             android:background="@drawable/layout_bg"
             android:orientation="horizontal"
+            android:visibility="gone"
             app:layout_constraintBottom_toTopOf="@+id/chat_message"
-            app:layout_constraintEnd_toStartOf="@+id/imgViewUser"
-            android:visibility="gone">
+            app:layout_constraintEnd_toStartOf="@+id/imgViewUser">
 
             <TextView
                 android:id="@+id/tvCopy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="start"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:text="@string/copy" />
+                android:padding="8dp"
+                android:text="@string/copy"
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/tvTag"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
                 android:text="@string/tag"
+                android:textSize="16sp"
                 android:visibility="gone" />
 
             <TextView
                 android:id="@+id/tvDelete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
+                android:padding="8dp"
                 android:text="@string/delete"
-                android:visibility="gone"/>
-
+                android:textSize="16sp"
+                android:visibility="gone" />
         </LinearLayout>
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/imageViewTag"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="4dp"
+            android:src="@drawable/ic_tag"
+            android:visibility="gone"
+            app:civ_border_color="@color/colorGreyLight"
+            app:civ_border_width="2dp"
+            app:civ_circle_background_color="@color/colorWhite"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/chat_message" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </LinearLayout>

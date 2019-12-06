@@ -56,4 +56,5 @@
     <string name="write_message">Taper message ...</string>
     <string name="copy">Copier</string>
     <string name="tag">Épingler</string>
+    <string name="untag">Voulez-vous vraiment annuler l\'épinglage ?</string>
 </resources>

@@ -1,25 +1,29 @@
 package fr.bigsis.android.adapter;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -48,6 +52,8 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
     protected void onBindViewHolder(@NonNull ChatHolder holder, int position, @NonNull ChatEntity model) {
         String username = model.getUsername();
         String idGroup = model.getId();
+        DocumentSnapshot r = getSnapshots().getSnapshot(position);
+        String idMessage = r.getId();
         mFirestore = FirebaseFirestore.getInstance();
         holder.message.setText(model.getMessage());
         SimpleDateFormat format = new SimpleDateFormat("HH:mm", Locale.FRENCH);
@@ -74,7 +80,7 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Boolean isAdmin = documentSnapshot.getBoolean("admin");
-                if(isAdmin == true){
+                if (isAdmin == true) {
                     holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                         @Override
                         public boolean onLongClick(View v) {
@@ -107,6 +113,96 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
             @Override
             public void onClick(View view) {
                 holder.linearLayout.setVisibility(View.GONE);
+            }
+        });
+        //COPY TEXT
+        holder.tvCopy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager clipboard = (ClipboardManager) mContext
+                        .getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("textCopied", holder.message.getText());
+                clipboard.setPrimaryClip(clip);
+                holder.linearLayout.setVisibility(View.GONE);
+            }
+        });
+        //DELETE MESSAGE
+        holder.tvDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getSnapshots().getSnapshot(position).getReference().delete();
+                holder.linearLayout.setVisibility(View.GONE);
+            }
+        });
+        //TAG MESSAGE
+        holder.tvTag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+
+                mFirestore.collection("GroupChat")
+                        .document(idGroup)
+                        .collection("chat")
+                        .document(idMessage)
+                        .update("tagged", true).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        mFirestore.collection("GroupChat")
+                                .document(idGroup)
+                                .collection("messageTagged")
+                                .document(idMessage)
+                                .set(model, SetOptions.merge());
+
+                        holder.linearLayout.setVisibility(View.GONE);
+                    }
+                });
+            }
+        });
+        if (model.isTagged() == true) {
+            holder.imageViewTag.setVisibility(View.VISIBLE);
+        }
+        //UNTAG MESSAGE
+        holder.imageViewTag.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog dialogBuilder = new AlertDialog.Builder(mContext).create();
+                LayoutInflater inflater = LayoutInflater.from(mContext);
+                View dialogView = inflater.inflate(R.layout.style_alert_dialog, null);
+                TextView tvTitle = dialogView.findViewById(R.id.tvTitleDialog);
+                tvTitle.setText(R.string.untag);
+                Button btNo = dialogView.findViewById(R.id.btNo);
+                Button btYes = dialogView.findViewById(R.id.btDeleteFriend);
+                btYes.setText(R.string.yes);
+                btYes.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mFirestore.collection("GroupChat")
+                                .document(idGroup)
+                                .collection("chat")
+                                .document(idMessage)
+                                .update("tagged", false).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                mFirestore.collection("GroupChat")
+                                        .document(idGroup)
+                                        .collection("messageTagged")
+                                        .document(idMessage)
+                                        .delete();
+                            }
+                        });
+                        holder.imageViewTag.setVisibility(View.GONE);
+                        dialogBuilder.dismiss();
+                    }
+                });
+                btNo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialogBuilder.dismiss();
+                        holder.linearLayout.setVisibility(View.GONE);
+                    }
+                });
+                dialogBuilder.setView(dialogView);
+                dialogBuilder.show();
             }
         });
     }
@@ -154,6 +250,7 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
         TextView message;
         TextView tvDateMessage;
         ImageView imgViewUser;
+        ImageView imageViewTag;
         LinearLayout linearLayout;
         TextView tvCopy;
         TextView tvTag;
@@ -167,8 +264,10 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
             tvTag = itemView.findViewById(R.id.tvTag);
             tvDelete = itemView.findViewById(R.id.tvDelete);
             imgViewUser = itemView.findViewById(R.id.imgViewUser);
+            imageViewTag = itemView.findViewById(R.id.imageViewTag);
             linearLayout = itemView.findViewById(R.id.linearLayoutContainerGroup);
-
+            linearLayout.setVisibility(View.GONE);
+            imageViewTag.setVisibility(View.GONE);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

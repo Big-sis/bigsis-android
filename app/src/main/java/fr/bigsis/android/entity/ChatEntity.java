@@ -11,12 +11,13 @@ public class ChatEntity {
     private String username;
     private Date date;
     private String imageUSer;
-    private boolean isAdmin;
+    private boolean isTagged;
 
     public ChatEntity() {
     }
 
-    public ChatEntity(String id, String chatRoomId, String senderId, String username, String message, String imageUSer, Date date) {
+    public ChatEntity(String id, String chatRoomId, String senderId, String username, String message,
+                      String imageUSer, Date date, Boolean isTagged) {
         this.id = id;
         this.chatRoomId = chatRoomId;
         this.senderId = senderId;
@@ -24,8 +25,8 @@ public class ChatEntity {
         this.username = username;
         this.imageUSer = imageUSer;
         this.date = date;
+        this.isTagged = isTagged;
     }
-
 
     public String getId() {
         return id;
@@ -83,11 +84,11 @@ public class ChatEntity {
         this.imageUSer = imageUSer;
     }
 
-    public boolean isAdmin() {
-        return isAdmin;
+    public boolean isTagged() {
+        return isTagged;
     }
 
-    public void setAdmin(boolean admin) {
-        isAdmin = admin;
+    public void setTagged(boolean tagged) {
+        isTagged = tagged;
     }
 }

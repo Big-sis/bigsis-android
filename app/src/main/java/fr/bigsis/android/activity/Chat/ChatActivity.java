@@ -87,6 +87,7 @@ public class ChatActivity extends BigsisActivity {
             }
         });
     }
+
     private void addMessageToChatRoom() {
         mFirestore.collection("users").document(mCurrentUserId)
                 .get()
@@ -101,7 +102,7 @@ public class ChatActivity extends BigsisActivity {
                         SimpleDateFormat dateFormat = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRANCE);
                         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
                         Date dateTime = new Date(System.currentTimeMillis());
-                        ChatEntity chat = new ChatEntity(idGroup, chatId, mCurrentUserId, username, chatMessage, avatar, dateTime);
+                        ChatEntity chat = new ChatEntity(idGroup, chatId, mCurrentUserId, username, chatMessage, avatar, dateTime, false);
                         mFirestore.collection("GroupChat")
                                 .document(idGroup)
                                 .collection("chat")
@@ -125,9 +126,22 @@ public class ChatActivity extends BigsisActivity {
         adapter = new ChatAdapter(options, ChatActivity.this, mCurrentUserId);
         RecyclerView recyclerView = findViewById(R.id.chats);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(adapter);
-        recyclerView.setAdapter(adapter);
+
+        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+            @Override
+            public void onItemRangeInserted(int positionStart, int itemCount) {
+                super.onItemRangeInserted(positionStart, itemCount);
+                int numberOfMessages = adapter.getItemCount();
+                int lastVisiblePosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                if (lastVisiblePosition == -1 ||
+                        (positionStart >= (numberOfMessages - 1) && lastVisiblePosition == (positionStart - 1))) {
+                    recyclerView.scrollToPosition(positionStart);
+                }
+            }
+        });
     }
 
     @Override
