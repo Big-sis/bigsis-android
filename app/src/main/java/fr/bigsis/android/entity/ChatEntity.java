@@ -1,5 +1,7 @@
 package fr.bigsis.android.entity;
 
+import java.util.Date;
+
 public class ChatEntity {
 
     private String id;
@@ -7,15 +9,18 @@ public class ChatEntity {
     private String senderId;
     private String message;
     private String username;
-    private long sent;
+    private Date date;
 
-    public ChatEntity(String id, String chatRoomId, String senderId, String username, String message, long sent) {
+    public ChatEntity() {
+    }
+
+    public ChatEntity(String id, String chatRoomId, String senderId, String username, String message, Date date) {
         this.id = id;
         this.chatRoomId = chatRoomId;
         this.senderId = senderId;
         this.message = message;
         this.username = username;
-        this.sent = sent;
+        this.date = date;
     }
 
 
@@ -51,12 +56,12 @@ public class ChatEntity {
         this.message = message;
     }
 
-    public long getSent() {
-        return sent;
+    public Date getDate() {
+        return date;
     }
 
-    public void setSent(long sent) {
-        this.sent = sent;
+    public void setDate(Date sent) {
+        this.date = sent;
     }
 
     public String getUsername() {
