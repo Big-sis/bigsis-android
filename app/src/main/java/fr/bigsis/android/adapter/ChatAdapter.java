@@ -132,14 +132,20 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
             public void onClick(View v) {
                 getSnapshots().getSnapshot(position).getReference().delete();
                 holder.linearLayout.setVisibility(View.GONE);
+
+                if (model.isTagged() == true) {
+                    mFirestore.collection("GroupChat")
+                            .document(idGroup)
+                            .collection("messageTagged")
+                            .document(idMessage)
+                            .delete();
+                }
             }
         });
         //TAG MESSAGE
         holder.tvTag.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
                 mFirestore.collection("GroupChat")
                         .document(idGroup)
                         .collection("chat")
@@ -158,9 +164,20 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
                 });
             }
         });
-        if (model.isTagged() == true) {
-            holder.imageViewTag.setVisibility(View.VISIBLE);
-        }
+
+        mFirestore.collection("GroupChat")
+                .document(idGroup)
+                .collection("chat")
+                .document(idMessage)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Boolean isTagged = documentSnapshot.getBoolean("tagged");
+                if (isTagged == true) {
+                            holder.imageViewTag.setVisibility(View.VISIBLE);
+                }
+            }
+        });
         //UNTAG MESSAGE
         holder.imageViewTag.setOnClickListener(new View.OnClickListener() {
             @Override
