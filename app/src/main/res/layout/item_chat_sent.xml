@@ -39,8 +39,10 @@
             android:id="@+id/chat_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="16dp"
+            android:drawablePadding="5dp"
             android:padding="15dp"
             android:textColor="@color/colorPrimary"
             android:textSize="20sp"
@@ -54,6 +56,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imgViewUser"
             app:layout_constraintTop_toBottomOf="@+id/tvDateMessage" />
+
 
         <LinearLayout
             android:id="@+id/linearLayoutContainerGroup"

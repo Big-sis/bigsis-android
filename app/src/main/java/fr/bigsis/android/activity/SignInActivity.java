@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.collect.Maps;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -151,7 +152,7 @@ public class SignInActivity extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         firstname = documentSnapshot.getString("firstname");
                         if (firstname != null) {
-                            startActivity(new Intent(SignInActivity.this, UserProfileActivity.class));
+                            startActivity(new Intent(SignInActivity.this, MapsActivity.class));
                         } else {
                             startActivity(new Intent(SignInActivity.this, RegisterContinuationActivity.class));
                         }

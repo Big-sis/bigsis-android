@@ -1,8 +1,10 @@
 package fr.bigsis.android.adapter;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,19 +12,30 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -32,6 +45,7 @@ import java.util.Locale;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.ChatEntity;
+import fr.bigsis.android.viewModel.ChatViewModel;
 
 public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapter.ChatHolder> {
     private static final int SENT = 0;
@@ -41,11 +55,13 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
     private FirebaseFirestore mFirestore;
     private Context mContext;
     private String userId;
+    ChatViewModel viewModel;
 
     public ChatAdapter(@NonNull FirestoreRecyclerOptions<ChatEntity> options, Context mContext, String userId) {
         super(options);
         this.mContext = mContext;
         this.userId = userId;
+        viewModel = ViewModelProviders.of((FragmentActivity) mContext).get(ChatViewModel.class);
     }
 
     @Override
@@ -54,13 +70,20 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
         String idGroup = model.getId();
         DocumentSnapshot r = getSnapshots().getSnapshot(position);
         String idMessage = r.getId();
+
+        viewModel.setIdMessage(idMessage);
         mFirestore = FirebaseFirestore.getInstance();
-        holder.message.setText(model.getMessage());
+
+        if(!model.getMessage().equals("")) {
+            holder.message.setText(model.getMessage());
+        }
+
+
         SimpleDateFormat format = new SimpleDateFormat("HH:mm", Locale.FRENCH);
         holder.tvDateMessage.setText(username + " " + format.format(model.getDate().getTime()));
         String imageProfileUrl = model.getImageUSer();
-        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
-        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        StorageReference storageRefImageProfile = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+        storageRefImageProfile.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 Uri downloadUrl = uri;
@@ -142,6 +165,36 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
                 }
             }
         });
+
+        //SHOW IMAGE IN THE BUBBLE
+        if(!model.getImageMessage().equals("")) {
+                                    StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(model.getImageMessage());
+                                    storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            Uri downloadUrl = uri;
+                                            String urlImage = downloadUrl.toString();
+                                            ConstraintLayout.LayoutParams params =  (ConstraintLayout.LayoutParams) holder.message.getLayoutParams();
+                                            params.width = 500;
+                                            params.height = 500;
+                                            Glide.with(holder.message.getContext())
+                                                    .load(urlImage)
+                                                    .into(new CustomTarget<Drawable>(400,400) {
+                                                        @Override
+                                                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition)
+                                                        {                                            holder.message.setLayoutParams(params);
+                                                            holder.message.setCompoundDrawablesWithIntrinsicBounds(null, resource, null, null);
+                                                        }
+
+                                                        @Override
+                                                        public void onLoadCleared(@Nullable Drawable placeholder)
+                                                        {
+                                                            holder.message.setCompoundDrawablesWithIntrinsicBounds(null, placeholder, null, null);
+                                                        }
+                                                    });
+                                        }
+                                    });
+        }
         //TAG MESSAGE
         holder.tvTag.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -268,6 +321,7 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
         TextView tvDateMessage;
         ImageView imgViewUser;
         ImageView imageViewTag;
+        //ImageView imageViewMessage;
         LinearLayout linearLayout;
         TextView tvCopy;
         TextView tvTag;
@@ -281,6 +335,7 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
             tvTag = itemView.findViewById(R.id.tvTag);
             tvDelete = itemView.findViewById(R.id.tvDelete);
             imgViewUser = itemView.findViewById(R.id.imgViewUser);
+           // imageViewMessage = itemView.findViewById(R.id.imageViewMessage);
             imageViewTag = itemView.findViewById(R.id.imageViewTag);
             linearLayout = itemView.findViewById(R.id.linearLayoutContainerGroup);
             linearLayout.setVisibility(View.GONE);

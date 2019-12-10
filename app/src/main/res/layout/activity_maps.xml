@@ -52,7 +52,16 @@
         app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
         app:layout_constraintEnd_toEndOf="parent"
         mapbox:srcCompat="@drawable/ic_localisation" />
-
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/imgBtItinarary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="100dp"
+        android:layout_marginBottom="16dp"
+        android:backgroundTint="@color/colorWhite"
+        app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        mapbox:srcCompat="@drawable/ic_localisation" />
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fbAlert"
         android:layout_width="wrap_content"

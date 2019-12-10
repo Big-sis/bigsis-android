@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (mFirebaseAuth.getCurrentUser() == null) {
-                    startActivity(new Intent(MainActivity.this, SignInActivity.class));
+                    startActivity(new Intent(MainActivity.this, MapsActivity.class));
                 } else if (mFirebaseAuth.getCurrentUser() != null) {
                     if (!mFirebaseAuth.getCurrentUser().isEmailVerified()) {
                         mFirebaseAuth.signOut();

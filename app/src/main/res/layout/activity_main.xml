@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="fr.bigsis.android.activity.MainActivity"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimary">
 
     <Button
         android:id="@+id/btSignUp"
@@ -16,7 +16,7 @@
         android:layout_marginBottom="32dp"
         android:background="@drawable/rounded_btn_sign_up"
         android:text="@string/sign_up"
-        android:textColor="@color/colorWhite"
+        android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toTopOf="@+id/btSignIn"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -30,7 +30,7 @@
         android:layout_marginBottom="200dp"
         android:background="@drawable/rounded_button"
         android:text="@string/sign_in"
-        android:textColor="@color/colorWhite"
+        android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -42,7 +42,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:src="@drawable/logo_bigsis_resized"
+        android:src="@drawable/smile_logo"
         app:layout_constraintBottom_toTopOf="@+id/btSignUp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

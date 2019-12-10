@@ -57,7 +57,6 @@ public class ProfileFragment extends Fragment {
     public ProfileFragment() {
     }
 
-
     public static ProfileFragment newInstance() {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
@@ -83,7 +82,8 @@ public class ProfileFragment extends Fragment {
                         imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         tvUserNameFragment.setText(firstname + " " + lastname);
                         tvUserDescFragment.setText(description_user);
-                        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+                        StorageReference storageRef = FirebaseStorage.getInstance()
+                                .getReferenceFromUrl(imageProfileUrl);
                         storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                             @Override
                             public void onSuccess(Uri uri) {

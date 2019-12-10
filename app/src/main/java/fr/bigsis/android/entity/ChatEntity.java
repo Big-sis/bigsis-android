@@ -9,6 +9,7 @@ public class ChatEntity {
     private String senderId;
     private String message;
     private String username;
+    private String imageMessage;
     private Date date;
     private String imageUSer;
     private boolean isTagged;
@@ -17,7 +18,7 @@ public class ChatEntity {
     }
 
     public ChatEntity(String id, String chatRoomId, String senderId, String username, String message,
-                      String imageUSer, Date date, Boolean isTagged) {
+                      String imageUSer, Date date, String imageMessage,  Boolean isTagged) {
         this.id = id;
         this.chatRoomId = chatRoomId;
         this.senderId = senderId;
@@ -26,6 +27,7 @@ public class ChatEntity {
         this.imageUSer = imageUSer;
         this.date = date;
         this.isTagged = isTagged;
+        this.imageMessage = imageMessage;
     }
 
     public String getId() {
@@ -90,5 +92,13 @@ public class ChatEntity {
 
     public void setTagged(boolean tagged) {
         isTagged = tagged;
+    }
+
+    public String getImageMessage() {
+        return imageMessage;
+    }
+
+    public void setImageMessage(String imageMessage) {
+        this.imageMessage = imageMessage;
     }
 }

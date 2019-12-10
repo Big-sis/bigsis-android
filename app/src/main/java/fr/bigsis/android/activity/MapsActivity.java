@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -40,6 +41,8 @@ import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
+import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
@@ -228,8 +231,8 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 marker.showInfoWindow(mapboxMap, mapView);
                 onInfoWindowClick(marker);
                 mapboxMap.addOnCameraMoveListener(() -> mapboxMap.getMarkers().forEach(Marker::hideInfoWindow));
-
-               /* imgButtonStart.setOnClickListener(new View.OnClickListener() {
+                ImageButton imgBtItinarary = findViewById(R.id.imgBtItinarary);
+                imgBtItinarary.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
@@ -239,7 +242,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
 
                         enableLocationComponent(mapboxMap.getStyle());
                     }
-                });*/
+                });
                 return true;
             }
         });

@@ -36,25 +36,29 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="@string/date" />
 
-        <com.github.library.bubbleview.BubbleTextView
-            android:id="@+id/chat_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginBottom="16dp"
-            android:padding="15dp"
-            android:textColor="@color/colorAccent"
-            android:textSize="20sp"
-            app:angle="5dp"
-            app:arrowCenter="false"
-            app:arrowHeight="10dp"
-            app:arrowLocation="left"
-            app:arrowPosition="6dp"
-            app:arrowWidth="8dp"
-            app:bubbleColor="@color/colorGreyLight"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/imgViewUser"
-            app:layout_constraintTop_toBottomOf="@+id/tvDateMessage" />
+
+            <com.github.library.bubbleview.BubbleTextView
+                android:id="@+id/chat_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="16dp"
+                android:padding="15dp"
+                android:textColor="@color/colorAccent"
+                android:textSize="20sp"
+                app:angle="5dp"
+                app:arrowCenter="false"
+                app:arrowHeight="10dp"
+                app:arrowLocation="left"
+                app:arrowPosition="6dp"
+                app:arrowWidth="8dp"
+                app:bubbleColor="@color/colorGreyLight"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/imgViewUser"
+                app:layout_constraintTop_toBottomOf="@+id/tvDateMessage"/>
+
+
 
         <LinearLayout
             android:id="@+id/linearLayoutContainerGroup"
@@ -112,4 +116,5 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/chat_message" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 </LinearLayout>

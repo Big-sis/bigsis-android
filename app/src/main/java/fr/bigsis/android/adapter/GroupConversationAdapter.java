@@ -128,7 +128,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                                 count++;
                             }
                             holder.textViewCount.setText("+" + (count - 2));
-                            if (count < 3) {
+                            if (count < 2) {
                                 holder.profile_image_one.setVisibility(View.GONE);
                                 holder.textViewCount.setText("...");
                             }
