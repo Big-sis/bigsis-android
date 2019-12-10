@@ -82,7 +82,7 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         holder.btRequestFriend.setSelected(true);
-                        holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
                     }
                 }
             }
@@ -133,7 +133,7 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
             public void onClick(View v) {
                 if (i == 0) {
                     holder.btRequestFriend.setSelected(true);
-                    holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                    holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
 
                     mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override

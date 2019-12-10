@@ -83,7 +83,7 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
             @Override
             public void onClick(View v) {
                 holder.btAccept.setSelected(true);
-                holder.btAccept.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                holder.btAccept.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
                 mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -128,7 +128,7 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                 mFirestore.collection("users")
                         .document(mCurrentUserId)
                         .collection("Request received")
-                        .document(mCurrentUserId)
+                        .document(idContact)
                         .delete();
             }
         });

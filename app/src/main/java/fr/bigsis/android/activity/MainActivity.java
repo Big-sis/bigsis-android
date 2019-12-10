@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (mFirebaseAuth.getCurrentUser() == null) {
-                    startActivity(new Intent(MainActivity.this, MapsActivity.class));
+                    startActivity(new Intent(MainActivity.this, SignInActivity.class));
                 } else if (mFirebaseAuth.getCurrentUser() != null) {
                     if (!mFirebaseAuth.getCurrentUser().isEmailVerified()) {
                         mFirebaseAuth.signOut();
@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         firstname = documentSnapshot.getString("firstname");
                         if (firstname != null) {
-                            startActivity(new Intent(MainActivity.this, UserProfileActivity.class));
+                            startActivity(new Intent(MainActivity.this, MapsActivity.class));
 
                         } else {
                             mFirebaseAuth.signOut();

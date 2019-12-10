@@ -85,7 +85,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         holder.btParticipate.setSelected(true);
-                        holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                        holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
                     }
                 } else {
                     Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
@@ -100,7 +100,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 //partcipate to a trip
                 if (i == 0) {
                     holder.btParticipate.setSelected(true);
-                    holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
+                    holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
 
                     mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override

@@ -30,7 +30,7 @@ import fr.bigsis.android.fragment.ToolBarFragment;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
 public class UserProfileActivity extends BigsisActivity implements ToolBarFragment.OnFragmentInteractionListener, ProfileFragment.OnFragmentInteractionListenerProfile {
-    ImageButton imgBtProfile, imgBtBack, imBtSettings;
+    ImageButton imBtSettings;
     FloatingActionButton fbTrip;
     ConstraintLayout transitionContainer;
     FirebaseAuth mAuth;
@@ -80,7 +80,6 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
 
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
-
         mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection("users")
                 .document(userId).get()
@@ -94,40 +93,16 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
                         tvUserName.setText(firstname + " " + lastname);
                     }
                 });
+        openFragment();
     }
 
     private void setToolBar() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         transitionContainer = findViewById(R.id.toolbarLayout);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
-        imgBtProfile = transitionContainer.findViewById(R.id.imBt_ic_profile_frag);
-        imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
         imBtSettings = transitionContainer.findViewById(R.id.imBt_ic_setting);
         tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
-        imgBtProfile.setVisibility(View.VISIBLE);
         imBtSettings.setVisibility(View.VISIBLE);
-
-        imgBtProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TransitionManager.beginDelayedTransition(transitionContainer);
-                imgBtProfile.setVisibility(View.GONE);
-                imgBtBack.setVisibility(View.VISIBLE);
-                openFragment();
-            }
-        });
-
-        imgBtBack.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                TransitionManager.beginDelayedTransition(transitionContainer);
-                onFragmentInteractionProfile();
-                imgBtProfile.setVisibility(View.VISIBLE);
-                imgBtBack.setVisibility(View.GONE);
-                tvUserName.setText(firstname + " " + lastname);
-            }
-        });
-
         imBtSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,7 +121,8 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
     public void openFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+        transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top,
+                R.animator.enter_to_bottom, R.animator.exit_to_top);
         transaction.addToBackStack(null);
         transaction.add(R.id.fragment_container_profile, fragmentProfile, "PROFILE_USER_FRAGMENT")
                 .commit();

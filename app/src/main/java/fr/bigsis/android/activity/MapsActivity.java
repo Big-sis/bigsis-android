@@ -95,7 +95,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         viewModel = ViewModelProviders.of(this).get(MenuFilterViewModel.class);
         fbAlertRed.hide();
         firebaseFirestore = FirebaseFirestore.getInstance();
-        setMenuFilterFragment();
+       // setMenuFilterFragment();
         MapHelper.setOnCLickButton(fbAlertGreen, fbAlertRed, MapsActivity.this, this);
         if (alertFragment.isAdded()) {
             fbAlertRed.show();
@@ -124,6 +124,24 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     @Override
     public void onMapReady(@NonNull final MapboxMap mapboxMap) {
         this.mapboxMap = mapboxMap;
+        Query query = firebaseFirestore.collection("places").orderBy("name", Query.Direction.ASCENDING);
+        query.addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
+                if (!queryDocumentSnapshots.isEmpty()) {
+                    for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        double lat = doc.getDocument().getDouble("latitude");
+                        double lng = doc.getDocument().getDouble("longitude");
+                        String titre = doc.getDocument().getString("name");
+                        String idPartner = doc.getDocument().getId();
+                        mapboxMap.addMarker(new MarkerOptions()
+                                .position(new LatLng(lat, lng))
+                                .title(titre));
+                    }
+                }
+            }
+        });
+
         viewModel.getfilterName().observe(this, new Observer<String>() {
             @Override
             public void onChanged(String s) {
@@ -157,7 +175,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                         }
                     });
                 }
-                if (viewModel.getfilterName().getValue().equals("trip")) {
+               /* if (viewModel.getfilterName().getValue().equals("trip")) {
                     mapboxMap.clear();
 
                     Query query = firebaseFirestore.collection("trips").orderBy("titleEvent", Query.Direction.ASCENDING);
@@ -208,7 +226,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                             }
                         }
                     });
-                }
+                }*/
             }
         });
         mapboxMap.setStyle(getString(R.string.navigation_guidance_day), new Style.OnStyleLoaded() {

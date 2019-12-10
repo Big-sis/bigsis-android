@@ -77,7 +77,6 @@ public class ChatActivity extends BigsisActivity {
     private int STORAGE_PERMISSION_CODE = 2;
     String CHANNEL_ID = "ID_notif";
     private ChatViewModel viewModel;
-    private NotificationManagerCompat notificationManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,9 +96,6 @@ public class ChatActivity extends BigsisActivity {
         send = findViewById(R.id.send_message);
         chats = findViewById(R.id.chats);
         addImage = findViewById(R.id.add_image);
-        //BroadcastReceiver broadcastReceiver=new MyReceiver();
-        //IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        //egisterReceiver(broadcastReceiver,filter);
 
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,6 +227,12 @@ public class ChatActivity extends BigsisActivity {
         super.onStop();
         adapter.stopListening();
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        startActivity(new Intent(ChatActivity.this, GroupConversationActivity.class));
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == STORAGE_PERMISSION_CODE) {
@@ -256,12 +258,6 @@ public class ChatActivity extends BigsisActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 2 && resultCode == RESULT_OK && data != null && data.getData() != null) {
             imageProfileUri = data.getData();
-            /*Intent iin = getIntent();
-            Bundle extras = iin.getExtras();
-            idGroup = extras.getString("ID_GROUP");
-          /*  Glide.with(this)
-                    .load(imageProfileUri)
-                    .into(circleImageView);*/
 
             final StorageReference imgReference = mStroageReference.child(System.currentTimeMillis()
                     + "." + getFileExtension(imageProfileUri));

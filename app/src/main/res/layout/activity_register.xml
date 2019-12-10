@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activity.RegisterActivity"
-    android:background="@color/colorPrimaryDark">
+    android:background="@color/colorPrimary">
 
     <EditText
         android:id="@+id/etEmailRegister"
@@ -42,7 +42,6 @@
         android:textColorHint="@color/colorAccent"
         app:layout_constraintBottom_toTopOf="@+id/btRegister"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
@@ -54,10 +53,9 @@
         android:layout_marginBottom="136dp"
         android:background="@drawable/rounded_button"
         android:text="@string/register"
-        android:textColor="@color/colorWhite"
+        android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <ImageView
@@ -66,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginEnd="24dp"
-        android:src="@drawable/logo_bigsis_resized"
+        android:src="@drawable/smile_logo"
         app:layout_constraintBottom_toTopOf="@+id/etEmailRegister"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

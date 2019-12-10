@@ -29,7 +29,7 @@ public class GroupConversationActivity extends BigsisActivity {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FloatingActionButton fbtGoToMap;
     private GroupConversationAdapter adapter;
-    private ImageButton imBt_notification;
+    private ImageButton imBtParticipant;
     private TextView tvTitle;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
@@ -71,8 +71,8 @@ public class GroupConversationActivity extends BigsisActivity {
         transitionContainer = findViewById(R.id.toolbarLayoutGroup);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
         tvTitle = transitionContainer.findViewById(R.id.tvTitleToolbar);
-        imBt_notification = transitionContainer.findViewById(R.id.imBt_notification);
-        imBt_notification.setVisibility(View.VISIBLE);
+        imBtParticipant = transitionContainer.findViewById(R.id.imBt_participant);
+        imBtParticipant.setVisibility(View.VISIBLE);
         tvTitle.setText(R.string.conversations);
     }
 
