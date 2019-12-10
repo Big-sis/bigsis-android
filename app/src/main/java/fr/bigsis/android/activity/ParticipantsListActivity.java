@@ -42,6 +42,9 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
     ConstraintLayout transitionContainer;
     private String mCurrentUser;
     private FirebaseAuth mAuth;
+    String idTrip;
+    String idGroup;
+    String idGroupParticipant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,11 +55,29 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         mCurrentUser = mAuth.getCurrentUser().getUid();
         ButterKnife.bind(this);
         setToolBar();
-        setUpAdapter();
+
+        Intent iin = getIntent();
+        Bundle extras = iin.getExtras();
+        idTrip = extras.getString("ID_TRIP");
+        idGroup = extras.getString("ID_GROUP");
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
-        curvedBottomNavigationView.setSelectedItemId(R.id.action_trip);
+        curvedBottomNavigationView.setItemIconTintList(null);
+
+        if (idTrip != null) {
+            curvedBottomNavigationView.setSelectedItemId(R.id.action_trip);
+            MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_trip);
+            item.setIcon(R.drawable.ic_trip_selected);
+            setUpAdapterForTrips();
+        }
+
+        if (idGroup != null) {
+            curvedBottomNavigationView.setSelectedItemId(R.id.action_message);
+            MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_message);
+            item.setIcon(R.drawable.ic_dialog_selected);
+            setUpAdapterForGroupChat();
+        }
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -89,37 +110,31 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         });
     }
 
-    private void setUpAdapter() {
-        String idTrip;
-        String idGroup;
-        Intent iin = getIntent();
-        Bundle extras = iin.getExtras();
-        idTrip = extras.getString("ID_TRIP");
-        idGroup = extras.getString("ID_GROUP");
-        if(idTrip != null) {
-            Query query = FirebaseFirestore.getInstance()
-                    .collection("trips").document(idTrip).collection("participants");
-            PagedList.Config config = new PagedList.Config.Builder()
-                    .setEnablePlaceholders(false)
-                    .setPrefetchDistance(10)
-                    .setPageSize(20)
-                    .build();
-            FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
-                    .setLifecycleOwner(this)
-                    .setQuery(query, config, UserEntity.class)
-                    .build();
-            ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
-            mRecycler.setLayoutManager(new LinearLayoutManager(this));
-            mRecycler.setAdapter(adapter);
-            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    adapter.refresh();
-                }
-            });
-        }
+    private void setUpAdapterForTrips() {
+        Query query = FirebaseFirestore.getInstance()
+                .collection("trips").document(idTrip).collection("participants");
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(10)
+                .setPageSize(20)
+                .build();
+        FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
+                .setLifecycleOwner(this)
+                .setQuery(query, config, UserEntity.class)
+                .build();
+        ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
+        mRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mRecycler.setAdapter(adapter);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.refresh();
+            }
+        });
 
-        if (idGroup != null) {
+    }
+
+    private void setUpAdapterForGroupChat() {
             Query query = FirebaseFirestore.getInstance()
                     .collection("GroupChat").document(idGroup).collection("participants");
             PagedList.Config config = new PagedList.Config.Builder()
@@ -140,8 +155,9 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
                     adapter.refresh();
                 }
             });
-        }
     }
+
+
 
     @Override
     public void onFragmentInteractionOtherProfile() {

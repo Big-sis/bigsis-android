@@ -16,6 +16,7 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
@@ -51,6 +52,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.BigsisActivity;
 import fr.bigsis.android.activity.GroupConversationActivity;
+import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.adapter.ChatAdapter;
 import fr.bigsis.android.entity.ChatEntity;
 import fr.bigsis.android.helpers.FirestoreChatHelper;
@@ -63,7 +65,7 @@ public class ChatActivity extends BigsisActivity {
 
     private FirebaseFirestore mFirestore;
     private EditText message;
-    private ImageButton send, addImage;
+    private ImageButton send, addImage, imBt_participant;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
     private String idGroup;
@@ -127,13 +129,24 @@ public class ChatActivity extends BigsisActivity {
         transitionContainer = findViewById(R.id.toolbarLayoutChatRoom);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
         imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
+        imBt_participant = transitionContainer.findViewById(R.id.imBt_participant);
         tvTitleToolbar = transitionContainer.findViewById(R.id.tvTitleToolbar);
         tvTitleToolbar.setText(titleGroup);
         imgBtBack.setVisibility(View.VISIBLE);
+        imBt_participant.setVisibility(View.VISIBLE);
         imgBtBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(ChatActivity.this, GroupConversationActivity.class));
+            }
+        });
+
+        imBt_participant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ChatActivity.this, ParticipantsListActivity.class);
+                intent.putExtra("ID_GROUP", idGroup);
+                startActivity(intent);
             }
         });
     }
@@ -231,7 +244,23 @@ public class ChatActivity extends BigsisActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        startActivity(new Intent(ChatActivity.this, GroupConversationActivity.class));
+        super.onPause();
+
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        boolean screenOn;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+            screenOn = pm.isInteractive();
+        } else {
+            screenOn = pm.isScreenOn();
+        }
+        if (!screenOn) {    //Screen off by lock or power
+            Intent checkingIntent = new Intent(this, GroupConversationActivity.class);
+            checkingIntent.putExtra("checking", true);
+            checkingIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            startActivity(checkingIntent);
+            finish();
+
+        }
     }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

@@ -156,12 +156,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             .document(mCurrentUserId)
                             .collection("participateTo")
                             .document(idTrip)
-                            .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-
-                        }
-                    });
+                            .delete();
 
                     mFirestore.collection("GroupChat")
                             .document(idTrip)
@@ -279,29 +274,28 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         holder.profile_image_one.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
-                intent.putExtra("ID_TRIP", idTrip);
-                mContext.startActivity(intent);
+                goToParticipantActivity(idTrip);
             }
         });
         holder.profile_image_two.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
-                intent.putExtra("ID_TRIP", idTrip);
-                mContext.startActivity(intent);
+                goToParticipantActivity(idTrip);
             }
         });
         holder.profile_image_three.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
-                intent.putExtra("ID_TRIP", idTrip);
-                mContext.startActivity(intent);
+                goToParticipantActivity(idTrip);
             }
         });
     }
 
+    private void goToParticipantActivity(String idTrip) {
+        Intent intent = new Intent(mContext, ParticipantsListActivity.class);
+        intent.putExtra("ID_TRIP", idTrip);
+        mContext.startActivity(intent);
+    }
     @NonNull
     @Override
     public TripViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {

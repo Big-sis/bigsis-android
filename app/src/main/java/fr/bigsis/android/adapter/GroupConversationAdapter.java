@@ -195,25 +195,21 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         holder.profile_image_one.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
-                intent.putExtra("ID_GROUP", id);
-                mContext.startActivity(intent);
+                goToParticipantActivity(id);
+
             }
         });
         holder.profile_image_two.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
-                intent.putExtra("ID_GROUP", id);
-                mContext.startActivity(intent);
+                goToParticipantActivity(id);
+
             }
         });
         holder.profile_image_three.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(mContext, ParticipantsListActivity.class);
-                intent.putExtra("ID_GROUP", id);
-                mContext.startActivity(intent);
+                goToParticipantActivity(id);
             }
         });
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -229,6 +225,11 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         });
     }
 
+    private void goToParticipantActivity(String id) {
+        Intent intent = new Intent(mContext, ParticipantsListActivity.class);
+        intent.putExtra("ID_GROUP", id);
+        mContext.startActivity(intent);
+    }
     @NonNull
     @Override
     public GroupChatHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
