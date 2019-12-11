@@ -40,11 +40,10 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
     ImageButton imgBtBack;
     TextView tvTitle;
     ConstraintLayout transitionContainer;
-    private String mCurrentUser;
-    private FirebaseAuth mAuth;
     String idTrip;
     String idGroup;
-    String idGroupParticipant;
+    private String mCurrentUser;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,10 +101,11 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         tvTitle = transitionContainer.findViewById(R.id.tvTitleToolbar);
         imgBtBack.setVisibility(View.VISIBLE);
         tvTitle.setText(getString(R.string.participants));
+
         imgBtBack.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(ParticipantsListActivity.this, TripListActivity.class));
+                onBackPressed();
             }
         });
     }
@@ -135,28 +135,27 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
     }
 
     private void setUpAdapterForGroupChat() {
-            Query query = FirebaseFirestore.getInstance()
-                    .collection("GroupChat").document(idGroup).collection("participants");
-            PagedList.Config config = new PagedList.Config.Builder()
-                    .setEnablePlaceholders(false)
-                    .setPrefetchDistance(10)
-                    .setPageSize(20)
-                    .build();
-            FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
-                    .setLifecycleOwner(this)
-                    .setQuery(query, config, UserEntity.class)
-                    .build();
-            ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
-            mRecycler.setLayoutManager(new LinearLayoutManager(this));
-            mRecycler.setAdapter(adapter);
-            mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    adapter.refresh();
-                }
-            });
+        Query query = FirebaseFirestore.getInstance()
+                .collection("GroupChat").document(idGroup).collection("participants");
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(10)
+                .setPageSize(20)
+                .build();
+        FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
+                .setLifecycleOwner(this)
+                .setQuery(query, config, UserEntity.class)
+                .build();
+        ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
+        mRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mRecycler.setAdapter(adapter);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.refresh();
+            }
+        });
     }
-
 
 
     @Override
