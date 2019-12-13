@@ -1,16 +1,18 @@
 package fr.bigsis.android.activity;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -19,15 +21,21 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
+import fr.bigsis.android.fragment.AddEventFragment;
+import fr.bigsis.android.fragment.ChooseFragment;
 import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
+import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
-public class EventListActivity extends BigsisActivity {
+public class EventListActivity extends BigsisActivity implements AddEventFragment.OnFragmentInteractionListener, ChooseFragment.OnFragmentInteractionListener {
 
     FirebaseFirestore mFirestore;
     @BindView(R.id.rv_list_event)
     RecyclerView mRecycler;
     private FloatingActionButton buttonMap;
+    AddEventFragment fragmentAdd = AddEventFragment.newInstance();
+    ChooseFragment chooseUsersFragment = ChooseFragment.newInstance();
+    private ChooseUsersViewModel viewModel;
 
 
     @Override
@@ -37,6 +45,7 @@ public class EventListActivity extends BigsisActivity {
 
         ButterKnife.bind(this);
         mFirestore = FirebaseFirestore.getInstance();
+        viewModel = ViewModelProviders.of(this).get(ChooseUsersViewModel.class);
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
@@ -75,7 +84,7 @@ public class EventListActivity extends BigsisActivity {
         imBtAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //addTrip();
+                openFragmentAddEvent();
                 imBtAdd.setVisibility(View.GONE);
                 imBtCancel.setVisibility(View.VISIBLE);
                 tvTitleToolbar.setText(R.string.create_event);
@@ -89,18 +98,32 @@ public class EventListActivity extends BigsisActivity {
                 imBtAdd.setVisibility(View.VISIBLE);
                 FragmentManager manager = getSupportFragmentManager();
                 FragmentTransaction ft = manager.beginTransaction();
-              /*  Fragment addMenu = manager.findFragmentByTag("ADD_MENU_FRAGMENT");
-                Fragment searchMenu = manager.findFragmentByTag("SEARCH_MENU_FRAGMENT");
-                if (addMenu != null) {
-                    ft.remove(addMenu).commitAllowingStateLoss();
+               // Fragment addMenu = manager.findFragmentByTag("ADD_MENU_FRAGMENT");
+                Fragment addFrag = manager.findFragmentByTag("ADD_EVENT_FRAGMENT");
+                if (addFrag != null) {
+                    ft.remove(addFrag).commitAllowingStateLoss();
                 }
-                if (searchMenu != null) {
-                    ft.remove(searchMenu).commitAllowingStateLoss();
-                }*/
-
                 tvTitleToolbar.setText(R.string.events);
                 KeyboardHelper.CloseKeyboard(EventListActivity.this, view);
             }
         });
+    }
+
+    private void openFragmentAddEvent() {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+        transaction.addToBackStack(null);
+        transaction.add(R.id.fragment_container_event, fragmentAdd, "ADD_EVENT_FRAGMENT")
+                .commit();
+    }
+
+    @Override
+    public void onFragmentInteractionAddEvent() {
+    }
+
+    @Override
+    public void onFragmentInteraction() {
+
     }
 }

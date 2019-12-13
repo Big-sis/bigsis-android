@@ -10,17 +10,19 @@ public class EventEntity {
     private String titleEvent;
     private String addressEvent;
     private String image;
+    private String description;
     private String createdBy;
 
     public EventEntity() {
     }
 
-    public EventEntity(Date dateStart, Date dateEnd, String eventId, String titleEvent, String addressEvent, String image, String createdBy) {
+    public EventEntity(Date dateStart, Date dateEnd, String titleEvent, String addressEvent,
+                       String image, String description, String createdBy) {
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
-        this.eventId = eventId;
         this.titleEvent = titleEvent;
         this.image = image;
+        this.description = description;
         this.createdBy = createdBy;
         this.addressEvent = addressEvent;
     }
@@ -63,6 +65,14 @@ public class EventEntity {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getCreatedBy() {

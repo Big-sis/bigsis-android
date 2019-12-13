@@ -7,7 +7,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,29 +20,38 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.SplashTripCreatedActivity;
+import fr.bigsis.android.adapter.ChooseUsersAdapter;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
 public class AddEventFragment extends Fragment {
 
@@ -52,10 +66,14 @@ public class AddEventFragment extends Fragment {
     private TextView tvMembersFragment;
     private Button btCreateEvent;
     private Date date;
+    private Date dateStart;
+    private Date dateEnd;
     private Calendar dateCal;
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
     private String userId;
+    ChooseFragment fragmentAdd = ChooseFragment.newInstance();
+    private ChooseUsersViewModel viewModel;
 
     public AddEventFragment() {
         // Required empty public constructor
@@ -68,12 +86,14 @@ public class AddEventFragment extends Fragment {
         return fragment;
     }
 
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.fragment_add_event, container, false);
+        mAuth = FirebaseAuth.getInstance();
+        mFirestore = FirebaseFirestore.getInstance();
+
         etTitleEventFragment = view.findViewById(R.id.etTitleEventFragment);
         etAddressEventFragment = view.findViewById(R.id.etAddressEventFragment);
         descriptionEventFragment = view.findViewById(R.id.descriptionEventFragment);
@@ -82,6 +102,14 @@ public class AddEventFragment extends Fragment {
         tvParticipantFragment = view.findViewById(R.id.tvParticipantFragment);
         tvMembersFragment = view.findViewById(R.id.tvMembersFragment);
         btCreateEvent = view.findViewById(R.id.btCreateEvent);
+
+        tvParticipantFragment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFragmentAddEvent();
+            }
+        });
+
         tvDateEventFragmentStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,6 +128,8 @@ public class AddEventFragment extends Fragment {
                 createEvent();
             }
         });
+
+
 
         return view;
     }
@@ -124,8 +154,6 @@ public class AddEventFragment extends Fragment {
         }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
     }
 
-
-
     private void createEvent() {
         userId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
@@ -144,6 +172,8 @@ public class AddEventFragment extends Fragment {
                         String address = etAddressEventFragment.getText().toString();
                         String descriptionEvent = descriptionEventFragment.getText().toString();
                         String token = FirebaseInstanceId.getInstance().getToken();
+                        String dateStartS = tvDateEventFragmentStart.getText().toString();
+                        String dateEndS = tvDateEventFragmentEnd.getText().toString();
 
                         UserEntity userEntity = new UserEntity(username, description, imageProfileUrl,
                                 firstname, lastname, true, isAdmin, false, token);
@@ -152,47 +182,68 @@ public class AddEventFragment extends Fragment {
                             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
                             return;
                         }
-                        if (date == null) {
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("E dd MMM, HH:mm",
+                                Locale.FRENCH);
+                        try {
+                            dateStart = sdf.parse(dateStartS);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        try {
+                            dateEnd = sdf.parse(dateEndS);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                        if (dateStart == null || dateEnd == null) {
                             Toast.makeText(getActivity(), "Veuillez indiquer la date et l'heure de l'évènement", Toast.LENGTH_LONG).show();
                             return;
                         }
                         CollectionReference eventRef = FirebaseFirestore.getInstance()
                                 .collection("events");
                         CollectionReference userListsRef = mFirestore.collection("users").document(userId).collection("eventList");
-                        EventEntity eventEntity = new EventEntity();
-                        tripReference.document(addFrom + "to" + toFrom).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        EventEntity eventEntity = new EventEntity(dateStart, dateEnd, title, address, "", descriptionEvent, username);
+                        eventRef.add(eventEntity).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
-                            public void onSuccess(Void aVoid) {
-                                startActivity(new Intent(getActivity(), SplashTripCreatedActivity.class));
-                                String idtrip = addFrom + "to" + toFrom;
-                                userListsRef.document(idtrip).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            public void onSuccess(DocumentReference documentReference) {
+                                String eventId = documentReference.getId();
+                                userListsRef.document(eventId).set(eventEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        mFirestore.collection("trips")
-                                                .document(idtrip)
+                                        mFirestore.collection("events")
+                                                .document(eventId)
                                                 .collection("participants")
                                                 .document(userId)
                                                 .set(userEntity);
-                                        String titleTrip = addFrom + " ... " + toFrom;
-                                        String idGroup = idtrip+"chatGroup";
-                                        GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip,  url, date);
+                                        viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
+
+                                                viewModel.getName().observe(getActivity(), new Observer<String>() {
+                                                    @Override
+                                                    public void onChanged(String s) {
+                                                        Toast.makeText(getContext(), viewModel.getName().getValue(), Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+
+
+
+                                        GroupChatEntity groupChatEntity = new GroupChatEntity(title,  null, date);
                                         CollectionReference groupChatRef = mFirestore.collection("GroupChat");
-                                        groupChatRef.document(idGroup)
+                                        groupChatRef.document(eventId)
                                                 .set(groupChatEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
-                                                groupChatRef.document(idGroup).collection("participants")
+                                                groupChatRef.document(eventId).collection("participants")
                                                         .document(userId)
                                                         .set(userEntity);
 
-                                                groupChatRef.document(idGroup).collection("trip")
-                                                        .document(idtrip)
-                                                        .set(tripEntity);
+                                                groupChatRef.document(eventId).collection("trip")
+                                                        .document(eventId)
+                                                        .set(eventEntity);
 
                                                 mFirestore.collection("users")
                                                         .document(userId)
                                                         .collection("groupChat")
-                                                        .document(idGroup)
+                                                        .document(eventId)
                                                         .set(groupChatEntity);
                                             }
                                         });
@@ -202,15 +253,6 @@ public class AddEventFragment extends Fragment {
                         });
                     }
                 });
-    }
-
-
-
-    private static String getDateTimeFromTimeStamp(Long time, String mDateFormat) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat(mDateFormat, Locale.FRANCE);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
-        Date dateTime = new Date(time);
-        return dateFormat.format(dateTime);
     }
 
     public void onButtonPressed() {
@@ -238,5 +280,14 @@ public class AddEventFragment extends Fragment {
 
     public interface OnFragmentInteractionListener {
         void onFragmentInteractionAddEvent();
+    }
+
+    private void openFragmentAddEvent() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+        transaction.addToBackStack(null);
+        transaction.add(R.id.fragment_container_event, fragmentAdd, "CHOOSE_FG")
+                .commit();
     }
 }
