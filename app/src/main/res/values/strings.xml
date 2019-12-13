@@ -59,4 +59,12 @@
     <string name="untag">Voulez-vous vraiment annuler l\'épinglage ?</string>
     <string name="events">Évènements</string>
     <string name="create_event">Créer un évènement</string>
+    <string name="add_title">Ajouter un titre</string>
+    <string name="address">Addresse</string>
+    <string name="select_participants">Sélectionner participants</string>
+    <string name="select_staff_members">Sélectionner membres du staff</string>
+    <string name="description">Description</string>
+    <string name="alert_for_event">Alerte disponible pour cet évènement</string>
+    <string name="date_start_event">Début de l\'évènement</string>
+    <string name="date_end_event">Fin de l\'évènement</string>
 </resources>
