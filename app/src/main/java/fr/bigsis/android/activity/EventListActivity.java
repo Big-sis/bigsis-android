@@ -1,18 +1,16 @@
 package fr.bigsis.android.activity;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -32,11 +30,10 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
     FirebaseFirestore mFirestore;
     @BindView(R.id.rv_list_event)
     RecyclerView mRecycler;
-    private FloatingActionButton buttonMap;
     AddEventFragment fragmentAdd = AddEventFragment.newInstance();
     ChooseFragment chooseUsersFragment = ChooseFragment.newInstance();
+    private FloatingActionButton buttonMap;
     private ChooseUsersViewModel viewModel;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +95,6 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
                 imBtAdd.setVisibility(View.VISIBLE);
                 FragmentManager manager = getSupportFragmentManager();
                 FragmentTransaction ft = manager.beginTransaction();
-               // Fragment addMenu = manager.findFragmentByTag("ADD_MENU_FRAGMENT");
                 Fragment addFrag = manager.findFragmentByTag("ADD_EVENT_FRAGMENT");
                 if (addFrag != null) {
                     ft.remove(addFrag).commitAllowingStateLoss();

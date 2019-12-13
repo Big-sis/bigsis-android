@@ -4,28 +4,23 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProviders;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
@@ -38,24 +33,21 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TimeZone;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.SplashTripCreatedActivity;
-import fr.bigsis.android.adapter.ChooseUsersAdapter;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.entity.GroupChatEntity;
-import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
 public class AddEventFragment extends Fragment {
 
 
+    ChooseFragment fragmentAdd = ChooseFragment.newInstance();
     private OnFragmentInteractionListener mListener;
     private EditText etTitleEventFragment;
     private EditText etAddressEventFragment;
@@ -72,7 +64,6 @@ public class AddEventFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
     private String userId;
-    ChooseFragment fragmentAdd = ChooseFragment.newInstance();
     private ChooseUsersViewModel viewModel;
 
     public AddEventFragment() {
@@ -130,9 +121,9 @@ public class AddEventFragment extends Fragment {
         });
 
 
-
         return view;
     }
+
     private void showDateTimePicker(TextView tvDate) {
         final Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
         dateCal = Calendar.getInstance();
@@ -206,6 +197,9 @@ public class AddEventFragment extends Fragment {
                         eventRef.add(eventEntity).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
                             public void onSuccess(DocumentReference documentReference) {
+                                Intent intent = new Intent(getActivity(), SplashTripCreatedActivity.class);
+                                intent.putExtra("Event", "event");
+                                startActivity(intent);
                                 String eventId = documentReference.getId();
                                 userListsRef.document(eventId).set(eventEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -217,16 +211,22 @@ public class AddEventFragment extends Fragment {
                                                 .set(userEntity);
                                         viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
 
-                                                viewModel.getName().observe(getActivity(), new Observer<String>() {
-                                                    @Override
-                                                    public void onChanged(String s) {
-                                                        Toast.makeText(getContext(), viewModel.getName().getValue(), Toast.LENGTH_SHORT).show();
-                                                    }
-                                                });
+                                        viewModel.getUserList().observe(getActivity(), new Observer<List<UserEntity>>() {
+                                            @Override
+                                            public void onChanged(List<UserEntity> userEntities) {
+                                                Toast.makeText(getContext(), "GG", Toast.LENGTH_SHORT).show();
+                                                for (UserEntity user : userEntities) {
 
+                                                    mFirestore.collection("events")
+                                                            .document(eventId)
+                                                            .collection("llll")
+                                                            .add(user);
+                                                }
+                                            }
+                                        });
+                                        viewModel.reset();
 
-
-                                        GroupChatEntity groupChatEntity = new GroupChatEntity(title,  null, date);
+                                        GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, date);
                                         CollectionReference groupChatRef = mFirestore.collection("GroupChat");
                                         groupChatRef.document(eventId)
                                                 .set(groupChatEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -278,10 +278,6 @@ public class AddEventFragment extends Fragment {
         mListener = null;
     }
 
-    public interface OnFragmentInteractionListener {
-        void onFragmentInteractionAddEvent();
-    }
-
     private void openFragmentAddEvent() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -289,5 +285,9 @@ public class AddEventFragment extends Fragment {
         transaction.addToBackStack(null);
         transaction.add(R.id.fragment_container_event, fragmentAdd, "CHOOSE_FG")
                 .commit();
+    }
+
+    public interface OnFragmentInteractionListener {
+        void onFragmentInteractionAddEvent();
     }
 }

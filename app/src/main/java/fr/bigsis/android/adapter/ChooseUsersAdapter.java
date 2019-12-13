@@ -131,8 +131,8 @@ public class ChooseUsersAdapter extends FirestorePagingAdapter<UserEntity, Choos
                                   firstname, lastname, false);
                       //    chooseUsersViewModel.addToList(userEntity);
 
-                          chooseUsersViewModel.setName(idContact);
-                          Toast.makeText(mContext, chooseUsersViewModel.getName().getValue(), Toast.LENGTH_SHORT).show();
+                         // chooseUsersViewModel.setName(idContact);
+                          chooseUsersViewModel.addUser(userEntity);
                       }
                   });
                   i++;

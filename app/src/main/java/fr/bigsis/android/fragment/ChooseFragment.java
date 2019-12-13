@@ -1,8 +1,11 @@
 package fr.bigsis.android.fragment;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -12,34 +15,24 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.Toast;
-
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import java.util.List;
+
 import fr.bigsis.android.R;
-import fr.bigsis.android.activity.GroupConversationActivity;
 import fr.bigsis.android.adapter.ChooseUsersAdapter;
-import fr.bigsis.android.adapter.GroupConversationAdapter;
-import fr.bigsis.android.adapter.RequestListAdapter;
-import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
 
 public class ChooseFragment extends Fragment {
 
-    private OnFragmentInteractionListener mListener;
     Button btFinish;
+    private OnFragmentInteractionListener mListener;
     private ChooseUsersViewModel viewModel;
     private boolean mIsAttached = false;
 
@@ -71,20 +64,19 @@ public class ChooseFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                    viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
-                    viewModel.getName().observe(getActivity(), new Observer<String>() {
-                        @Override
-                        public void onChanged(String s) {
-                            Toast.makeText(getContext(), viewModel.getName().getValue(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    FragmentManager manager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction ft = manager.beginTransaction();
-                    Fragment addFrag = manager.findFragmentByTag("CHOOSE_FG");
-                    ft.remove(addFrag).commitAllowingStateLoss();
-                    getActivity().onBackPressed();
-                }
+                viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
 
+                viewModel.getUserList().observe(getActivity(), new Observer<List<UserEntity>>() {
+                    @Override
+                    public void onChanged(List<UserEntity> userEntities) {
+                    }
+                });
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                FragmentTransaction ft = manager.beginTransaction();
+                Fragment addFrag = manager.findFragmentByTag("CHOOSE_FG");
+                ft.remove(addFrag).commitAllowingStateLoss();
+                getActivity().onBackPressed();
+            }
         });
         String mCurrentUserId;
         FirebaseAuth mAuth;
@@ -95,8 +87,7 @@ public class ChooseFragment extends Fragment {
         mCurrentUserId = mAuth.getCurrentUser().getUid();
 
         Query query = FirebaseFirestore.getInstance()
-                .collection("users")
-        ;
+                .collection("users");
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
