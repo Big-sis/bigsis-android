@@ -13,6 +13,8 @@ public class UserEntity {
     private String userId;
     private boolean creator;
     private boolean isAdmin;
+    private boolean isOnline;
+    private String token;
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname, String lastname) {
         this.username = username;
@@ -23,7 +25,8 @@ public class UserEntity {
     }
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname,
-                      String lastname, boolean creator, boolean isAdmin) {
+                      String lastname, boolean creator,
+                      boolean isAdmin, boolean isOnline, String token) {
         this.username = username;
         this.description = description;
         this.imageProfileUrl = imageProfileUrl;
@@ -31,13 +34,18 @@ public class UserEntity {
         this.lastname = lastname;
         this.creator = creator;
         this.isAdmin = isAdmin;
+        this.isOnline = isOnline;
+        this.token = token;
     }
 
-    public UserEntity(String username, String imageProfileUrl, String firstname, String lastname) {
+    public UserEntity(String username, String imageProfileUrl,
+                      String firstname, String lastname,
+                      boolean isOnline) {
         this.username = username;
         this.imageProfileUrl = imageProfileUrl;
         this.firstname = firstname;
         this.lastname = lastname;
+        this.isOnline = isOnline;
     }
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname,
@@ -125,5 +133,21 @@ public class UserEntity {
 
     public void setAdmin(boolean admin) {
         isAdmin = admin;
+    }
+
+    public boolean isOnline() {
+        return isOnline;
+    }
+
+    public void setOnline(boolean isOnline) {
+        isOnline = isOnline;
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 }

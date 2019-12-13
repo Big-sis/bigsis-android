@@ -64,7 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
                     } else {
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                         String user_id = mFirebaseAuth.getCurrentUser().getUid();
-                        UserEntity user = new UserEntity(null, null, null, null, null, false, false);
+                        UserEntity user = new UserEntity(null, null, null, null, null, false, false, false, null);
                         db.collection("users")
                                 .document(user_id).set(user, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override

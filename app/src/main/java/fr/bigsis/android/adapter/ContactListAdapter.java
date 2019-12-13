@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -58,7 +59,14 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
+        if(mCurrentUserId.equals(idContact))
+        {
+            RecyclerView.LayoutParams param = (RecyclerView.LayoutParams)holder.itemView.getLayoutParams();
+            param.height = 0;
+            param.width = LinearLayout.LayoutParams.MATCH_PARENT;
+            holder.itemView.setVisibility(View.VISIBLE);
 
+        }
         //GO TO PROFILE
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -1,5 +1,9 @@
 package fr.bigsis.android.entity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 import java.util.Date;
 
 public class ChatEntity {
@@ -28,6 +32,18 @@ public class ChatEntity {
         this.date = date;
         this.isTagged = isTagged;
         this.imageMessage = imageMessage;
+    }
+
+    static SharedPreferences getSharedPreferences(Context ctx) {
+        return PreferenceManager.getDefaultSharedPreferences(ctx);
+    }
+
+    public ChatEntity(String id, String senderId, String username, String message, Date date) {
+        this.id = id;
+        this.senderId = senderId;
+        this.username = username;
+        this.message = message;
+        this.date = date;
     }
 
     public String getId() {
@@ -100,5 +116,14 @@ public class ChatEntity {
 
     public void setImageMessage(String imageMessage) {
         this.imageMessage = imageMessage;
+    }
+
+    public static void setGroup_ID(Context ctx, String group_ID){
+        SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
+        editor.putString("Group_ID", group_ID).apply();
+    }
+
+    public static String getGroup_ID(Context ctx){
+        return getSharedPreferences(ctx).getString("Group_ID","null");
     }
 }

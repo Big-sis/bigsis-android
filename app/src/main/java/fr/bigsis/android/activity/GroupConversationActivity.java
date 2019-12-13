@@ -20,7 +20,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import fr.bigsis.android.R;
-import fr.bigsis.android.activity.Chat.ChatActivity;
 import fr.bigsis.android.adapter.GroupConversationAdapter;
 import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.view.CurvedBottomNavigationView;

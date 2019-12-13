@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:340984058790:android:b756ec66b0a1470f",
         "android_client_info": {
-          "package_name": "fr.bigsis.android"
+          "package_name": "com.example.bigsis_android"
         }
       },
       "oauth_client": [
@@ -30,6 +30,57 @@
             {
               "client_id": "340984058790-vilbbk0go9h39pafmjt4i29ueh1va9g0.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "340984058790-i0tnne3p98smi9of4081nglf5t8t989h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "fr.bigsis.ios"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:340984058790:android:a7c9ebaffeab931babf567",
+        "android_client_info": {
+          "package_name": "fr.bigsis.android"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "340984058790-ujbpecjui7fu8p79t2f841va2d6f136b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "fr.bigsis.android",
+            "certificate_hash": "e4cc3299126376b7525408658a508a56d3dd0dac"
+          }
+        },
+        {
+          "client_id": "340984058790-vilbbk0go9h39pafmjt4i29ueh1va9g0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCTUZXy0gZOY0uKsKhCMXTXlIflt-F3DFM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "340984058790-vilbbk0go9h39pafmjt4i29ueh1va9g0.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "340984058790-i0tnne3p98smi9of4081nglf5t8t989h.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "fr.bigsis.ios"
+              }
             }
           ]
         }

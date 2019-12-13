@@ -91,7 +91,7 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                         String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         String firstname = documentSnapshot.getString("firstname");
                         String lastname = documentSnapshot.getString("lastname");
-                        UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                        UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname, false);
                         mFirestore.collection("users")
                                 .document(idContact)
                                 .collection("Friends")
@@ -110,7 +110,7 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                         String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         String firstname = documentSnapshot.getString("firstname");
                         String lastname = documentSnapshot.getString("lastname");
-                        UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname);
+                        UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname, false);
                         mFirestore.collection("users")
                                 .document(mCurrentUserId)
                                 .collection("Friends")

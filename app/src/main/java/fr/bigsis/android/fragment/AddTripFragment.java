@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -133,10 +134,13 @@ public class AddTripFragment extends Fragment {
                         Boolean isAdmin = documentSnapshot.getBoolean("admin");
                         String addFrom = etAddFromDestination.getText().toString();
                         String toFrom = etAddToDestination.getText().toString();
+                        String token = FirebaseInstanceId.getInstance().getToken();
+
                         String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
+                        //TODO DELETE MAP
                         String url = "https://open.mapquestapi.com/staticmap/v5/map?start=" + addFrom + "|via-33AB62&end=" + toFrom + "&routeWidth=5&routeColor=33AB62&type=light&size=170,170&&defaultMarker=marker-sm-33AB62&key=" + KEY;
                         UserEntity userEntity = new UserEntity(username, description,
-                                imageProfileUrl, firstname, lastname, true, isAdmin);
+                                imageProfileUrl, firstname, lastname, true, isAdmin, false, token);
 
                         if (addFrom.trim().isEmpty() || toFrom.trim().isEmpty()) {
                             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();

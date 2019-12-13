@@ -23,11 +23,29 @@ public class FirestoreChatHelper {
                 .collection(subCollection)
                 .add(object);
     }
+
     public static void getDetailFromDB(String principalCollection, String idGroup, String mCurrentUserId, TextView message) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-
-
-        
     }
 
+
+
+    public static void setStatusUser(String idGroup, String currentId, Boolean isOnline) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("GroupChat")
+                .document(idGroup)
+                .collection("participants")
+                .document(currentId)
+                .update("online", isOnline);
+    }
+
+    public static void updateData(String principalCollection, String id, String subCollection, String id2, Object object) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection(principalCollection)
+                .document(id)
+                .collection(subCollection)
+                .document(id2)
+                .set(object);
+    }
 }
+

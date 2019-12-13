@@ -36,7 +36,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import fr.bigsis.android.R;
-import fr.bigsis.android.activity.Chat.ChatActivity;
+import fr.bigsis.android.activity.ChatActivity;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.GroupChatEntity;
 

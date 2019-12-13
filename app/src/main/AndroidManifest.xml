@@ -15,7 +15,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".activity.Chat.ChatActivity" />
+        <activity android:name=".activity.ChatActivity" />
         <activity android:name=".activity.GroupConversationActivity" />
         <activity android:name=".activity.MapsActivity" />
         <activity android:name=".activity.ParticipantsListActivity" />
@@ -33,7 +33,6 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
         </activity>
-
     </application>
 
 </manifest>

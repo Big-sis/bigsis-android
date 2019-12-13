@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.util.List;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.constant.Constant;
 import fr.bigsis.android.fragment.AlertFragment;
 import fr.bigsis.android.fragment.MenuFilterFragment;
 import fr.bigsis.android.helpers.MapHelper;
@@ -64,7 +65,8 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacem
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 public class MapsActivity extends BigsisActivity implements MenuFilterFragment.OnFragmentInteractionListener,
-        OnMapReadyCallback, PermissionsListener, MapboxMap.OnInfoWindowClickListener, AlertFragment.OnFragmentInteractionListener {
+        OnMapReadyCallback, PermissionsListener, MapboxMap.OnInfoWindowClickListener,
+        AlertFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "DirectionsActivity";
     LocationComponent locationComponent;
@@ -83,7 +85,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Mapbox.getInstance(this, getString(R.string.access_token));
+        Mapbox.getInstance(this, Constant.MAPBOX_ACCESS_TOKEN);
         setContentView(R.layout.activity_maps);
         mapView = findViewById(R.id.mapView);
         mapView.onCreate(savedInstanceState);
@@ -133,7 +135,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                         double lat = doc.getDocument().getDouble("latitude");
                         double lng = doc.getDocument().getDouble("longitude");
                         String titre = doc.getDocument().getString("name");
-                        String idPartner = doc.getDocument().getId();
                         mapboxMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(lat, lng))
                                 .title(titre));

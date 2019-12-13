@@ -2,7 +2,10 @@ package fr.bigsis.android.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,8 +38,10 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -55,6 +60,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
+    String TAG = "triplist";
 
     public TripListAdapter(@NonNull FirestorePagingOptions<TripEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -112,7 +118,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String descripition = documentSnapshot.getString("description");
                             Boolean isAdmin = documentSnapshot.getBoolean("admin");
                             UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
-                                    firstname, lastname, false, isAdmin);
+                                    firstname, lastname, false, isAdmin, false, null);
                             mFirestore.collection("trips")
                                     .document(idTrip)
                                     .collection("participants")
@@ -187,7 +193,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 }
             }
         });
-        holder.mImvTripImage.setOnClickListener(new View.OnClickListener() {
+      /*  holder.mImvTripImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mFirestore.collection("trips").document(idTrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -201,7 +207,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                     }
                 });
             }
-        });
+        });*/
         mFirestore.collection("trips").document(idTrip).collection("participants")
                 .whereEqualTo("creator", true).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -341,8 +347,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         TextView mTextTo;
         @BindView(R.id.tvMore)
         TextView mtvMore;
-        @BindView(R.id.ivTripImage)
-        ImageView mImvTripImage;
+       // @BindView(R.id.ivTripImage)
         @BindView(R.id.tvDateTrip)
         TextView mTextDate;
         @BindView(R.id.btParticipate)
@@ -367,15 +372,12 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
             SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
             mTextDate.setText(format.format(item.getDate().getTime()));
 
+//TODO REPLACE IMAGEVIEW
             RequestOptions myOptions = new RequestOptions()
                     .fitCenter()
                     .override(250, 250);
 
-            Glide.with(mImvTripImage.getContext())
-                    .asBitmap()
-                    .apply(myOptions)
-                    .load(item.getImage())
-                    .into(mImvTripImage);
+
         }
     }
 }
