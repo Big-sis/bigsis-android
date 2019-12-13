@@ -42,6 +42,7 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
     ConstraintLayout transitionContainer;
     String idTrip;
     String idGroup;
+    String idEvent;
     private String mCurrentUser;
     private FirebaseAuth mAuth;
 
@@ -59,6 +60,7 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         Bundle extras = iin.getExtras();
         idTrip = extras.getString("ID_TRIP");
         idGroup = extras.getString("ID_GROUP");
+        idEvent = extras.getString("ID_EVENT");
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
@@ -77,6 +79,14 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             item.setIcon(R.drawable.ic_dialog_selected);
             setUpAdapterForGroupChat();
         }
+
+        if (idEvent != null) {
+            curvedBottomNavigationView.setSelectedItemId(R.id.action_message);
+            MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_message);
+            item.setIcon(R.drawable.ic_event_selected);
+            setUpAdapterForGroupChat();
+        }
+
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
