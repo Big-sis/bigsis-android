@@ -84,7 +84,7 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             curvedBottomNavigationView.setSelectedItemId(R.id.action_message);
             MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_message);
             item.setIcon(R.drawable.ic_event_selected);
-            setUpAdapterForGroupChat();
+            setUpAdapterForEvent();
         }
 
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -146,7 +146,8 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
 
     private void setUpAdapterForGroupChat() {
         Query query = FirebaseFirestore.getInstance()
-                .collection("GroupChat").document(idGroup).collection("participants");
+                .collection("GroupChat").document(idGroup)
+                .collection("participants");
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(10)
@@ -166,7 +167,29 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             }
         });
     }
-
+    private void setUpAdapterForEvent() {
+        Query query = FirebaseFirestore.getInstance()
+                .collection("events").document(idEvent)
+                .collection("participants");
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(10)
+                .setPageSize(20)
+                .build();
+        FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
+                .setLifecycleOwner(this)
+                .setQuery(query, config, UserEntity.class)
+                .build();
+        ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
+        mRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mRecycler.setAdapter(adapter);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.refresh();
+            }
+        });
+    }
 
     @Override
     public void onFragmentInteractionOtherProfile() {

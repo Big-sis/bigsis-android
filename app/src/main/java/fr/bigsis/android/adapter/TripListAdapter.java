@@ -2,6 +2,7 @@ package fr.bigsis.android.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -347,7 +348,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         TextView mTextTo;
         @BindView(R.id.tvMore)
         TextView mtvMore;
-       // @BindView(R.id.ivTripImage)
+       @BindView(R.id.ivTripImage)
+        ImageView imgview;
         @BindView(R.id.tvDateTrip)
         TextView mTextDate;
         @BindView(R.id.btParticipate)
@@ -370,12 +372,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
             mTextFrom.setText(item.getFrom());
             mTextTo.setText(item.getTo());
             SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-            mTextDate.setText(format.format(item.getDate().getTime()));
 
-//TODO REPLACE IMAGEVIEW
-            RequestOptions myOptions = new RequestOptions()
-                    .fitCenter()
-                    .override(250, 250);
+            mTextDate.setText(format.format(item.getDate().getTime()));
 
 
         }

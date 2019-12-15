@@ -50,7 +50,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.ChatAdapter;
 import fr.bigsis.android.entity.ChatEntity;
-import fr.bigsis.android.helpers.FirestoreChatHelper;
+import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.viewModel.ChatViewModel;
 
 
@@ -72,7 +72,6 @@ public class ChatActivity extends BigsisActivity {
     private int STORAGE_PERMISSION_CODE = 2;
     public static String CHANNEL_ID = "ID_notif";
     private ChatViewModel viewModel;
-    String CHANNEL_NAME= "Simplified Coding";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,7 +83,6 @@ public class ChatActivity extends BigsisActivity {
         mFirestore = FirebaseFirestore.getInstance();
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(ChatActivity.this);
         Intent iin = getIntent();
         Bundle extras = iin.getExtras();
         idGroup = extras.getString("ID_GROUP");
@@ -94,7 +92,7 @@ public class ChatActivity extends BigsisActivity {
         chats = findViewById(R.id.chats);
         addImage = findViewById(R.id.add_image);
         ChatEntity.setGroup_ID(ChatActivity.this, idGroup);
-        FirestoreChatHelper.setStatusUser(idGroup, mCurrentUserId, true);
+        FirestoreHelper.setStatusUser(idGroup, mCurrentUserId, true);
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -179,8 +177,8 @@ public class ChatActivity extends BigsisActivity {
                                 avatar, dateTime,"", false);
                         ChatEntity notification = new ChatEntity(idGroup, mCurrentUserId, username, chatMessage,
                                 dateTime);
-                        FirestoreChatHelper.addData("GroupChat", idGroup,"chat", chat);
-                        FirestoreChatHelper.updateData("GroupChat", idGroup,"notification",
+                        FirestoreHelper.addData("GroupChat", idGroup,"chat", chat);
+                        FirestoreHelper.updateData("GroupChat", idGroup,"notification",
                                 "IDnotification", notification);
                         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
 
@@ -268,14 +266,14 @@ public class ChatActivity extends BigsisActivity {
     protected void onStop() {
         super.onStop();
         adapter.stopListening();
-        FirestoreChatHelper.setStatusUser(idGroup, mCurrentUserId, false);
+        FirestoreHelper.setStatusUser(idGroup, mCurrentUserId, false);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         super.onPause();
-        FirestoreChatHelper.setStatusUser(idGroup, mCurrentUserId, false);
+        FirestoreHelper.setStatusUser(idGroup, mCurrentUserId, false);
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         boolean screenOn;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
@@ -340,7 +338,7 @@ public class ChatActivity extends BigsisActivity {
                                         Date dateTime = new Date(System.currentTimeMillis());
                                         ChatEntity chat = new ChatEntity(idGroup, chatId, mCurrentUserId, username, "",
                                                 avatar, dateTime, link, false);
-                                        FirestoreChatHelper.addData("GroupChat", idGroup,"chat", chat);
+                                        FirestoreHelper.addData("GroupChat", idGroup,"chat", chat);
 
                                     }
                                 });

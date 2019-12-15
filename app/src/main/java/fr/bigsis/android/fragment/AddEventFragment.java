@@ -29,7 +29,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.iid.FirebaseInstanceId;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -57,7 +56,6 @@ public class AddEventFragment extends Fragment {
     private TextView tvParticipantFragment;
     private TextView tvMembersFragment;
     private Button btCreateEvent;
-    private Date date;
     private Date dateStart;
     private Date dateEnd;
     private Calendar dateCal;
@@ -104,13 +102,13 @@ public class AddEventFragment extends Fragment {
         tvDateEventFragmentStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDateTimePicker(tvDateEventFragmentStart);
+                showDateTimePickerStart();
             }
         });
         tvDateEventFragmentEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDateTimePicker(tvDateEventFragmentEnd);
+                showDateTimePickerEnd();
             }
         });
         btCreateEvent.setOnClickListener(new View.OnClickListener() {
@@ -119,12 +117,10 @@ public class AddEventFragment extends Fragment {
                 createEvent();
             }
         });
-
-
         return view;
     }
 
-    private void showDateTimePicker(TextView tvDate) {
+    private void showDateTimePickerStart() {
         final Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
         dateCal = Calendar.getInstance();
         new DatePickerDialog(getActivity(), R.style.MyDatePickerDialogStyle, new DatePickerDialog.OnDateSetListener() {
@@ -137,8 +133,29 @@ public class AddEventFragment extends Fragment {
                         dateCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         dateCal.set(Calendar.MINUTE, minute);
                         SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-                        date = dateCal.getTime();
-                        tvDate.setText(format.format(date));
+                        dateStart = dateCal.getTime();
+                        tvDateEventFragmentStart.setText(format.format(dateStart));
+                    }
+                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+            }
+        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
+    }
+
+    private void showDateTimePickerEnd() {
+        final Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
+        dateCal = Calendar.getInstance();
+        new DatePickerDialog(getActivity(), R.style.MyDatePickerDialogStyle, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
+                dateCal.set(year, month, dayOfMonth);
+                new TimePickerDialog(getActivity(), R.style.MyDatePickerDialogStyle, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        dateCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        dateCal.set(Calendar.MINUTE, minute);
+                        SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+                        dateEnd = dateCal.getTime();
+                        tvDateEventFragmentEnd.setText(format.format(dateEnd));
                     }
                 }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
             }
@@ -163,8 +180,6 @@ public class AddEventFragment extends Fragment {
                         String address = etAddressEventFragment.getText().toString();
                         String descriptionEvent = descriptionEventFragment.getText().toString();
                         String token = FirebaseInstanceId.getInstance().getToken();
-                        String dateStartS = tvDateEventFragmentStart.getText().toString();
-                        String dateEndS = tvDateEventFragmentEnd.getText().toString();
 
                         UserEntity userEntity = new UserEntity(username, description, imageProfileUrl,
                                 firstname, lastname, true, isAdmin, false, token);
@@ -174,22 +189,6 @@ public class AddEventFragment extends Fragment {
                             return;
                         }
 
-                        SimpleDateFormat sdf = new SimpleDateFormat("E dd MMM, HH:mm",
-                                Locale.FRENCH);
-                        try {
-                            dateStart = sdf.parse(dateStartS);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        try {
-                            dateEnd = sdf.parse(dateEndS);
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                        if (dateStart == null || dateEnd == null) {
-                            Toast.makeText(getActivity(), "Veuillez indiquer la date et l'heure de l'évènement", Toast.LENGTH_LONG).show();
-                            return;
-                        }
                         CollectionReference eventRef = FirebaseFirestore.getInstance()
                                 .collection("events");
                         CollectionReference userListsRef = mFirestore.collection("users").document(userId).collection("eventList");
@@ -226,7 +225,7 @@ public class AddEventFragment extends Fragment {
                                         });
                                         viewModel.reset();
 
-                                        GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, date);
+                                        GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart);
                                         CollectionReference groupChatRef = mFirestore.collection("GroupChat");
                                         groupChatRef.document(eventId)
                                                 .set(groupChatEntity).addOnSuccessListener(new OnSuccessListener<Void>() {

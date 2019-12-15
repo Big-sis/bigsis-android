@@ -10,15 +10,19 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
 import fr.bigsis.android.R;
+import fr.bigsis.android.adapter.EventListAdapter;
+import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.fragment.AddEventFragment;
 import fr.bigsis.android.fragment.ChooseFragment;
 import fr.bigsis.android.helpers.KeyboardHelper;
@@ -28,22 +32,24 @@ import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 public class EventListActivity extends BigsisActivity implements AddEventFragment.OnFragmentInteractionListener, ChooseFragment.OnFragmentInteractionListener {
 
     FirebaseFirestore mFirestore;
-    @BindView(R.id.rv_list_event)
-    RecyclerView mRecycler;
     AddEventFragment fragmentAdd = AddEventFragment.newInstance();
     ChooseFragment chooseUsersFragment = ChooseFragment.newInstance();
+    EventListAdapter adapter;
     private FloatingActionButton buttonMap;
     private ChooseUsersViewModel viewModel;
+    private FirebaseFirestore db = FirebaseFirestore.getInstance();
+    private String mCurrentUserId;
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_list);
 
-        ButterKnife.bind(this);
         mFirestore = FirebaseFirestore.getInstance();
         viewModel = ViewModelProviders.of(this).get(ChooseUsersViewModel.class);
-
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = mAuth.getCurrentUser().getUid();
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setSelectedItemId(R.id.action_events);
@@ -67,6 +73,7 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
             }
         });
         setToolBar();
+        setUpRecyclerView();
     }
 
     private void setToolBar() {
@@ -114,6 +121,18 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
                 .commit();
     }
 
+    private void setUpRecyclerView() {
+        Query query = db.collection("events");
+        FirestoreRecyclerOptions<EventEntity> options = new FirestoreRecyclerOptions.Builder<EventEntity>()
+                .setQuery(query, EventEntity.class)
+                .build();
+        adapter = new EventListAdapter(options, EventListActivity.this);
+        RecyclerView recyclerView = findViewById(R.id.rv_list_event);
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+    }
+
     @Override
     public void onFragmentInteractionAddEvent() {
     }
@@ -121,5 +140,17 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
     @Override
     public void onFragmentInteraction() {
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        adapter.startListening();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        adapter.stopListening();
     }
 }
