@@ -1,11 +1,8 @@
 package fr.bigsis.android.fragment;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -16,6 +13,11 @@ import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -24,24 +26,22 @@ import com.google.firebase.firestore.Query;
 import java.util.List;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.adapter.ChooseStaffAdapter;
 import fr.bigsis.android.adapter.ChooseUsersAdapter;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
-
-public class ChooseFragment extends Fragment {
-
-    Button btFinish;
-    private OnFragmentInteractionListener mListener;
+public class ChooseStaffFragment extends Fragment {
     private ChooseUsersViewModel viewModel;
-    private boolean mIsAttached = false;
+    private OnFragmentInteractionListener mListener;
+    Button btFinishStaff;
 
-
-    public ChooseFragment() {
+    public ChooseStaffFragment() {
+        // Required empty public constructor
     }
 
-    public static ChooseFragment newInstance() {
-        ChooseFragment fragment = new ChooseFragment();
+    public static ChooseStaffFragment newInstance() {
+        ChooseStaffFragment fragment = new ChooseStaffFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -50,41 +50,40 @@ public class ChooseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+
+        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View view = inflater.inflate(R.layout.fragment_choose_staff, container, false);
 
-        View view = inflater.inflate(R.layout.fragment_choose, container, false);
-        btFinish = view.findViewById(R.id.btFinish);
+        btFinishStaff = view.findViewById(R.id.btFinishStaff);
         viewModel = ViewModelProviders.of(this).get(ChooseUsersViewModel.class);
 
-        btFinish.setOnClickListener(new View.OnClickListener() {
+        btFinishStaff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
                 viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
 
-                viewModel.getUserList().observe(getActivity(), new Observer<List<UserEntity>>() {
+                viewModel.getStaffList().observe(getActivity(), new Observer<List<UserEntity>>() {
                     @Override
                     public void onChanged(List<UserEntity> userEntities) {
                     }
                 });
                 FragmentManager manager = getActivity().getSupportFragmentManager();
                 FragmentTransaction ft = manager.beginTransaction();
-                Fragment addFrag = manager.findFragmentByTag("CHOOSE_FG");
+                Fragment addFrag = manager.findFragmentByTag("CHOOSE_STAFF");
                 ft.remove(addFrag).commitAllowingStateLoss();
                 getActivity().onBackPressed();
             }
         });
-        String mCurrentUserId;
-        FirebaseAuth mAuth;
-        mAuth = FirebaseAuth.getInstance();
 
-        RecyclerView mRecyclerRequest = view.findViewById(R.id.rvssss);
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserId = mAuth.getCurrentUser().getUid();
+        RecyclerView mRecyclerRequest = view.findViewById(R.id.rvStaff);
 
         Query query = FirebaseFirestore.getInstance()
                 .collection("users");
@@ -100,9 +99,10 @@ public class ChooseFragment extends Fragment {
                 .setQuery(query, config, UserEntity.class)
                 .build();
 
-        ChooseUsersAdapter adapterRequest = new ChooseUsersAdapter(options, getContext());
+        ChooseStaffAdapter adapterRequest = new ChooseStaffAdapter(options, getContext());
         mRecyclerRequest.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerRequest.setAdapter(adapterRequest);
+
         return view;
     }
 
@@ -121,8 +121,6 @@ public class ChooseFragment extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
-        mIsAttached = true;
-
     }
 
     @Override
@@ -130,10 +128,7 @@ public class ChooseFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction();
     }
-
-
 }

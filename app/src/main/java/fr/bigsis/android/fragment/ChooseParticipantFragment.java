@@ -1,0 +1,131 @@
+package fr.bigsis.android.fragment;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.PagedList;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+
+import java.util.List;
+
+import fr.bigsis.android.R;
+import fr.bigsis.android.adapter.ChooseUsersAdapter;
+import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.viewModel.ChooseUsersViewModel;
+import fr.bigsis.android.viewModel.SearchContactViewModel;
+
+
+public class ChooseParticipantFragment extends Fragment {
+
+    Button btFinish;
+    private OnFragmentInteractionListener mListener;
+    private ChooseUsersViewModel viewModel;
+
+    public ChooseParticipantFragment() {
+    }
+
+    public static ChooseParticipantFragment newInstance() {
+        ChooseParticipantFragment fragment = new ChooseParticipantFragment();
+        Bundle args = new Bundle();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.fragment_choose, container, false);
+        btFinish = view.findViewById(R.id.btFinish);
+        viewModel = ViewModelProviders.of(this).get(ChooseUsersViewModel.class);
+
+        btFinish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
+                viewModel.getParticipantList().observe(getActivity(), new Observer<List<UserEntity>>() {
+                    @Override
+                    public void onChanged(List<UserEntity> userEntities) {
+                    }
+                });
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                FragmentTransaction ft = manager.beginTransaction();
+                Fragment addFrag = manager.findFragmentByTag("CHOOSE_FG");
+                ft.remove(addFrag).commitAllowingStateLoss();
+                getActivity().onBackPressed();
+            }
+        });
+        RecyclerView mRecyclerRequest = view.findViewById(R.id.rvssss);
+        Query query = FirebaseFirestore.getInstance()
+                .collection("users");
+
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(10)
+                .setPageSize(20)
+                .build();
+
+        FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
+                .setLifecycleOwner(this)
+                .setQuery(query, config, UserEntity.class)
+                .build();
+
+        ChooseUsersAdapter adapterRequest = new ChooseUsersAdapter(options, getContext());
+        mRecyclerRequest.setLayoutManager(new LinearLayoutManager(getContext()));
+        mRecyclerRequest.setAdapter(adapterRequest);
+        return view;
+    }
+
+    public void onButtonPressed() {
+        if (mListener != null) {
+            mListener.onFragmentInteraction();
+        }
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
+
+    public interface OnFragmentInteractionListener {
+        void onFragmentInteraction();
+    }
+}

@@ -16,32 +16,28 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-
-import fr.bigsis.android.entity.ChatEntity;
 
 public class FirestoreHelper {
 
     public static void addData(String principalCollection, String id, String subCollection, Object object) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-
         mFirestore.collection(principalCollection)
                 .document(id)
                 .collection(subCollection)
                 .add(object);
     }
 
-    public static void getDetailFromDB(String principalCollection, String idGroup, String mCurrentUserId, TextView message) {
+    public static void setData(String principalCollection, String id, String subCollection, String idTwo, Object object) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection(principalCollection)
+                .document(id)
+                .collection(subCollection)
+                .document(idTwo)
+                .set(object, SetOptions.merge());
     }
-
-
 
     public static void setStatusUser(String idGroup, String currentId, Boolean isOnline) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
@@ -90,8 +86,25 @@ public class FirestoreHelper {
                 });
     }
 
+    public static void getStorage(String image, Context context, ImageView imageView) {
+        FirebaseStorage storage;
+        storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReferenceFromUrl(image);
+        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Uri downloadUrl = uri;
+                String urlImage = downloadUrl.toString();
+                Glide.with(context)
+                        .asBitmap()
+                        .load(urlImage)
+                        .into(imageView);
+            }
+        });
+    }
+
     public static void getCountOfParticipants(String principalCollection, String id, String subCollection,
-                                       TextView textview, ImageView imageView) {
+                                              TextView textview, ImageView imageView) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection(principalCollection).document(id).collection(subCollection)
                 .get()
@@ -112,5 +125,14 @@ public class FirestoreHelper {
                     }
                 });
     }
-}
 
+    public static void deleteFromdb(String principalCollection, String id, String subCollection,
+                                    String idTwo) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection(principalCollection)
+                .document(id)
+                .collection(subCollection)
+                .document(idTwo)
+                .delete();
+    }
+}

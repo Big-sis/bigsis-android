@@ -26,7 +26,7 @@ public class UserEntity {
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname,
                       String lastname, boolean creator,
-                      boolean isAdmin, boolean isOnline, String token) {
+                      boolean isAdmin, boolean isOnline, String userId) {
         this.username = username;
         this.description = description;
         this.imageProfileUrl = imageProfileUrl;
@@ -35,7 +35,7 @@ public class UserEntity {
         this.creator = creator;
         this.isAdmin = isAdmin;
         this.isOnline = isOnline;
-        this.token = token;
+        this.userId = userId;
     }
 
     public UserEntity(String username, String imageProfileUrl,
@@ -49,7 +49,7 @@ public class UserEntity {
     }
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname,
-                      String lastname, boolean creator) {
+                      String lastname, boolean creator, boolean isAdmin) {
         this.username = username;
         this.imageProfileUrl = imageProfileUrl;
         this.firstname = firstname;

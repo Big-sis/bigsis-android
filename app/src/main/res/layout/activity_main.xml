@@ -28,7 +28,7 @@
         android:layout_marginStart="50dp"
         android:layout_marginEnd="50dp"
         android:layout_marginBottom="200dp"
-        android:background="@drawable/rounded_button"
+        android:background="@drawable/rounded_btn_sign_up"
         android:text="@string/sign_in"
         android:textColor="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"

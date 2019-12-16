@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -41,12 +42,16 @@ import fr.bigsis.android.activity.SplashTripCreatedActivity;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
+
+import static android.content.Context.MODE_PRIVATE;
 
 public class AddEventFragment extends Fragment {
 
 
-    ChooseFragment fragmentAdd = ChooseFragment.newInstance();
+    ChooseParticipantFragment fragmentParticipantAdd = ChooseParticipantFragment.newInstance();
+    ChooseStaffFragment fragmentStaffAdd = ChooseStaffFragment.newInstance();
     private OnFragmentInteractionListener mListener;
     private EditText etTitleEventFragment;
     private EditText etAddressEventFragment;
@@ -95,7 +100,13 @@ public class AddEventFragment extends Fragment {
         tvParticipantFragment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openFragmentAddEvent();
+                openFragmentAddParticipantEvent();
+            }
+        });
+        tvMembersFragment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openFragmentAddStaffEvent();
             }
         });
 
@@ -182,7 +193,7 @@ public class AddEventFragment extends Fragment {
                         String token = FirebaseInstanceId.getInstance().getToken();
 
                         UserEntity userEntity = new UserEntity(username, description, imageProfileUrl,
-                                firstname, lastname, true, isAdmin, false, token);
+                                firstname, lastname, true, isAdmin, false, userId);
 
                         if (title.trim().isEmpty() || address.trim().isEmpty()) {
                             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
@@ -200,54 +211,62 @@ public class AddEventFragment extends Fragment {
                                 intent.putExtra("Event", "event");
                                 startActivity(intent);
                                 String eventId = documentReference.getId();
+                                FirestoreHelper.setData("events", eventId, "creator", userId, userEntity);
+                                GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart);
+                                CollectionReference groupChatRef = mFirestore.collection("GroupChat");
+                                groupChatRef.document(eventId)
+                                        .set(groupChatEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        groupChatRef.document(eventId).collection("participants")
+                                                .document(userId)
+                                                .set(userEntity);
+
+                                        FirestoreHelper.setData("GroupChat", eventId,"participants", userId, userEntity);
+                                        FirestoreHelper.setData("GroupChat", eventId,"staffMembers", userId, userEntity);
+
+                                        groupChatRef.document(eventId).collection("trip")
+                                                .document(eventId)
+                                                .set(eventEntity);
+
+                                        mFirestore.collection("users")
+                                                .document(userId)
+                                                .collection("groupChat")
+                                                .document(eventId)
+                                                .set(groupChatEntity);
+                                    }
+                                });
                                 userListsRef.document(eventId).set(eventEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        mFirestore.collection("events")
-                                                .document(eventId)
-                                                .collection("participants")
-                                                .document(userId)
-                                                .set(userEntity);
-                                        viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
-
-                                        viewModel.getUserList().observe(getActivity(), new Observer<List<UserEntity>>() {
-                                            @Override
-                                            public void onChanged(List<UserEntity> userEntities) {
-                                                Toast.makeText(getContext(), "GG", Toast.LENGTH_SHORT).show();
-                                                for (UserEntity user : userEntities) {
-
-                                                    mFirestore.collection("events")
-                                                            .document(eventId)
-                                                            .collection("llll")
-                                                            .add(user);
-                                                }
-                                            }
-                                        });
-                                        viewModel.reset();
-
-                                        GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart);
-                                        CollectionReference groupChatRef = mFirestore.collection("GroupChat");
-                                        groupChatRef.document(eventId)
-                                                .set(groupChatEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                groupChatRef.document(eventId).collection("participants")
-                                                        .document(userId)
-                                                        .set(userEntity);
-
-                                                groupChatRef.document(eventId).collection("trip")
-                                                        .document(eventId)
-                                                        .set(eventEntity);
-
-                                                mFirestore.collection("users")
-                                                        .document(userId)
-                                                        .collection("groupChat")
-                                                        .document(eventId)
-                                                        .set(groupChatEntity);
-                                            }
-                                        });
+                                        FirestoreHelper.setData("events", eventId, "participants", userId, userEntity);
                                     }
                                 });
+                                viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
+                                viewModel.getParticipantList().observe(getActivity(), new Observer<List<UserEntity>>() {
+                                    @Override
+                                    public void onChanged(List<UserEntity> userEntities) {
+                                        for (UserEntity user : userEntities) {
+                                            FirestoreHelper.setData("events", eventId,"participants", user.getUserId(), user);
+                                            FirestoreHelper.setData("users", user.getUserId(),"eventList", eventId, eventEntity);
+                                            FirestoreHelper.setData("GroupChat", eventId,"participants", user.getUserId(), user);
+                                        }
+                                    }
+                                });
+                                FirestoreHelper.setData("events", eventId, "staffMembers", userId, userEntity);
+                                viewModel.getStaffList().observe(getActivity(), new Observer<List<UserEntity>>() {
+                                    @Override
+                                    public void onChanged(List<UserEntity> userEntities) {
+                                        for (UserEntity user : userEntities) {
+                                            FirestoreHelper.setData("events", eventId,"staffMembers", user.getUserId(), user);
+                                            FirestoreHelper.setData("users", user.getUserId(),"eventList", eventId, eventEntity);
+                                            FirestoreHelper.setData("users", user.getUserId(),"staffOfEvent", eventId, eventEntity);
+                                            FirestoreHelper.setData("GroupChat", eventId,"staffMembers", user.getUserId(), user);
+                                        }
+                                    }
+                                });
+                                viewModel.reset();
+                                viewModel.resetStaffMember();
                             }
                         });
                     }
@@ -277,12 +296,21 @@ public class AddEventFragment extends Fragment {
         mListener = null;
     }
 
-    private void openFragmentAddEvent() {
+    private void openFragmentAddParticipantEvent() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
         transaction.addToBackStack(null);
-        transaction.add(R.id.fragment_container_event, fragmentAdd, "CHOOSE_FG")
+        transaction.add(R.id.fragment_container_event, fragmentParticipantAdd, "CHOOSE_FG")
+                .commit();
+    }
+
+    private void openFragmentAddStaffEvent() {
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+        transaction.addToBackStack(null);
+        transaction.add(R.id.fragment_container_event, fragmentStaffAdd, "CHOOSE_STAFF")
                 .commit();
     }
 

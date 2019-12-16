@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -24,22 +25,25 @@ import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.EventListAdapter;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.fragment.AddEventFragment;
-import fr.bigsis.android.fragment.ChooseFragment;
+import fr.bigsis.android.fragment.ChooseParticipantFragment;
+import fr.bigsis.android.fragment.ChooseStaffFragment;
 import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
-public class EventListActivity extends BigsisActivity implements AddEventFragment.OnFragmentInteractionListener, ChooseFragment.OnFragmentInteractionListener {
+public class EventListActivity extends BigsisActivity implements AddEventFragment.OnFragmentInteractionListener,
+        ChooseParticipantFragment.OnFragmentInteractionListener, ChooseStaffFragment.OnFragmentInteractionListener {
 
     FirebaseFirestore mFirestore;
     AddEventFragment fragmentAdd = AddEventFragment.newInstance();
-    ChooseFragment chooseUsersFragment = ChooseFragment.newInstance();
+    ChooseParticipantFragment chooseUsersFragment = ChooseParticipantFragment.newInstance();
     EventListAdapter adapter;
     private FloatingActionButton buttonMap;
     private ChooseUsersViewModel viewModel;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
+    private ImageButton imBt_ic_back_frag;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,11 +84,16 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
         transitionContainer = findViewById(R.id.toolbarLayoutEvent);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
         imBtAdd = transitionContainer.findViewById(R.id.imBt_add_frag);
+        imBt_ic_back_frag = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
         imBtCancel = transitionContainer.findViewById(R.id.imBt_cancel_frag);
         tvTitleToolbar = transitionContainer.findViewById(R.id.tvTitleToolbar);
         tvTitleToolbar.setText(R.string.events);
         imBtAdd.setVisibility(View.VISIBLE);
+        FragmentManager manager = getSupportFragmentManager();
 
+        if(chooseUsersFragment.isAdded()){
+            imBt_ic_back_frag.setVisibility(View.VISIBLE);
+        }
         imBtAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -100,7 +109,7 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
             public void onClick(View view) {
                 imBtCancel.setVisibility(View.GONE);
                 imBtAdd.setVisibility(View.VISIBLE);
-                FragmentManager manager = getSupportFragmentManager();
+                onBackPressed();
                 FragmentTransaction ft = manager.beginTransaction();
                 Fragment addFrag = manager.findFragmentByTag("ADD_EVENT_FRAGMENT");
                 if (addFrag != null) {
@@ -111,6 +120,7 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
             }
         });
     }
+
 
     private void openFragmentAddEvent() {
         FragmentManager fragmentManager = getSupportFragmentManager();

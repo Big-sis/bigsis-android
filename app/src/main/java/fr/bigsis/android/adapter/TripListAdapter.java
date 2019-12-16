@@ -52,6 +52,7 @@ import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.helpers.FirestoreHelper;
 
 public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripListAdapter.TripViewHolder> {
 
@@ -62,6 +63,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
     String TAG = "triplist";
+    int i = 0;
 
     public TripListAdapter(@NonNull FirestorePagingOptions<TripEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
         super(options);
@@ -78,12 +80,10 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
         String idGroup = idTrip+"chatGroup";
-        CollectionReference groupChatRef = mFirestore.collection("GroupChat");
         DocumentReference documentReference = mFirestore.collection("trips")
                 .document(idTrip)
                 .collection("participants")
                 .document(mCurrentUserId);
-
         //Check if user is participating to a trip or not , and keep the button in the right color
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -91,8 +91,9 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 if (task.isSuccessful()) {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
+                        i = 1;
                         holder.btParticipate.setSelected(true);
-                        holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
+                        holder.btParticipate.setText("Ne plus participer");
                     }
                 } else {
                     Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
@@ -101,13 +102,12 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         });
 
         holder.btParticipate.setOnClickListener(new View.OnClickListener() {
-            int i = 0;
             @Override
             public void onClick(View v) {
                 //partcipate to a trip
-                if (i == 0) {
+                if (i == 0 ) {
                     holder.btParticipate.setSelected(true);
-                    holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
+                    holder.btParticipate.setText("Ne plus participer");
 
                     mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
@@ -120,17 +120,12 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             Boolean isAdmin = documentSnapshot.getBoolean("admin");
                             UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
                                     firstname, lastname, false, isAdmin, false, null);
-                            mFirestore.collection("trips")
-                                    .document(idTrip)
-                                    .collection("participants")
-                                    .document(mCurrentUserId)
-                                    .set(userEntity, SetOptions.merge());
-                            groupChatRef.document(idGroup).collection("participants")
-                                    .document(mCurrentUserId)
-                                    .set(userEntity);
+                            FirestoreHelper.setData("trips", idTrip, "participants", mCurrentUserId, userEntity);
+                            FirestoreHelper.setData("GroupChat", idGroup, "participants", mCurrentUserId, userEntity);
                         }
                     });
-                    mFirestore.collection("trips").document(idTrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    mFirestore.collection("trips")
+                            .document(idTrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             String from = documentSnapshot.getString("from");
@@ -139,57 +134,23 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String image = documentSnapshot.getString("image");
                             String createdBy = documentSnapshot.getString("createdBy");
                             TripEntity tripEntity = new TripEntity(from, to, date, image, createdBy);
-                            mFirestore.collection("users")
-                                    .document(mCurrentUserId)
-                                    .collection("participateTo")
-                                    .document(idTrip)
-                                    .set(tripEntity, SetOptions.merge());
+                            FirestoreHelper.setData("users", mCurrentUserId, "participateTo", idTrip, tripEntity);
                             String titleTrip = from + " ... " + to;
-
                             GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, image, date);
-                            mFirestore.collection("users")
-                                    .document(mCurrentUserId)
-                                    .collection("groupChat")
-                                    .document(idGroup)
-                                    .set(groupChatEntity);
+                            FirestoreHelper.setData("users", mCurrentUserId, "groupChat", idGroup, groupChatEntity);
                         }
                     });
                     i++;
                     //unparticipate
-                } else if (i == 1) {
+                } else if (i == 1 || holder.btParticipate.isSelected()) {
                     holder.btParticipate.setSelected(false);
                     holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorAccent));
-                    mFirestore.collection("users")
-                            .document(mCurrentUserId)
-                            .collection("participateTo")
-                            .document(idTrip)
-                            .delete();
-
-                    mFirestore.collection("GroupChat")
-                            .document(idTrip)
-                            .collection("participants")
-                            .document(mCurrentUserId)
-                            .delete();
-
-                    mFirestore.collection("users")
-                            .document(mCurrentUserId)
-                            .collection("groupChat")
-                            .document(idGroup)
-                            .delete();
-
-                    groupChatRef.document(idGroup).collection("participants")
-                            .document(mCurrentUserId)
-                            .delete();
-
-                    mFirestore.collection("trips")
-                            .document(idTrip)
-                            .collection("participants")
-                            .document(mCurrentUserId)
-                            .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                        }
-                    });
+                    holder.btParticipate.setText("Participer");
+                    FirestoreHelper.deleteFromdb("users", mCurrentUserId, "participateTo",idTrip);
+                    FirestoreHelper.deleteFromdb("GroupChat", idTrip, "participants",mCurrentUserId);
+                    FirestoreHelper.deleteFromdb("users", mCurrentUserId, "groupChat",idGroup);
+                    FirestoreHelper.deleteFromdb("GroupChat", idGroup, "participants",mCurrentUserId);
+                    FirestoreHelper.deleteFromdb("trips", idTrip, "participants",mCurrentUserId);
                     i = 0;
                 }
             }

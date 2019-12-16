@@ -43,6 +43,7 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
     String idTrip;
     String idGroup;
     String idEvent;
+    String idStaff;
     private String mCurrentUser;
     private FirebaseAuth mAuth;
 
@@ -55,12 +56,15 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         mCurrentUser = mAuth.getCurrentUser().getUid();
         ButterKnife.bind(this);
         setToolBar();
+        transitionContainer = findViewById(R.id.toolbarLayout);
+        tvTitle = transitionContainer.findViewById(R.id.tvTitleToolbar);
 
         Intent iin = getIntent();
         Bundle extras = iin.getExtras();
         idTrip = extras.getString("ID_TRIP");
         idGroup = extras.getString("ID_GROUP");
         idEvent = extras.getString("ID_EVENT");
+        idStaff = extras.getString("STAFF");
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
@@ -71,6 +75,7 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_trip);
             item.setIcon(R.drawable.ic_trip_selected);
             setUpAdapterForTrips();
+            tvTitle.setText(getString(R.string.participants));
         }
 
         if (idGroup != null) {
@@ -78,6 +83,7 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_message);
             item.setIcon(R.drawable.ic_dialog_selected);
             setUpAdapterForGroupChat();
+            tvTitle.setText(getString(R.string.participants));
         }
 
         if (idEvent != null) {
@@ -85,6 +91,15 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_message);
             item.setIcon(R.drawable.ic_event_selected);
             setUpAdapterForEvent();
+            tvTitle.setText(getString(R.string.participants));
+        }
+
+        if (idStaff != null) {
+            tvTitle.setText("Membres du staff");
+            curvedBottomNavigationView.setSelectedItemId(R.id.action_message);
+            MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_message);
+            item.setIcon(R.drawable.ic_event_selected);
+            setUPAdapterForStaff();
         }
 
         curvedBottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -105,12 +120,9 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
 
     private void setToolBar() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        transitionContainer = findViewById(R.id.toolbarLayout);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
         imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
-        tvTitle = transitionContainer.findViewById(R.id.tvTitleToolbar);
         imgBtBack.setVisibility(View.VISIBLE);
-        tvTitle.setText(getString(R.string.participants));
 
         imgBtBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -171,6 +183,29 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         Query query = FirebaseFirestore.getInstance()
                 .collection("events").document(idEvent)
                 .collection("participants");
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setEnablePlaceholders(false)
+                .setPrefetchDistance(10)
+                .setPageSize(20)
+                .build();
+        FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
+                .setLifecycleOwner(this)
+                .setQuery(query, config, UserEntity.class)
+                .build();
+        ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
+        mRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mRecycler.setAdapter(adapter);
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.refresh();
+            }
+        });
+    }
+    private void setUPAdapterForStaff() {
+        Query query = FirebaseFirestore.getInstance()
+                .collection("events").document(idStaff)
+                .collection("staffMembers");
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
                 .setPrefetchDistance(10)

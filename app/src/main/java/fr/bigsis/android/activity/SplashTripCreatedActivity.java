@@ -10,6 +10,7 @@ import fr.bigsis.android.R;
 public class SplashTripCreatedActivity extends AppCompatActivity {
 
     String event;
+    String trip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +19,7 @@ public class SplashTripCreatedActivity extends AppCompatActivity {
         Intent iin = getIntent();
         Bundle extras = iin.getExtras();
         event = extras.getString("Event");
-
+        trip = extras.getString("Trip");
 
         Thread myThread = new Thread() {
             @Override
@@ -28,10 +29,10 @@ public class SplashTripCreatedActivity extends AppCompatActivity {
                     if (event != null) {
                         Intent intent = new Intent(getApplicationContext(), EventListActivity.class);
                         startActivity(intent);
-                    } else {
-                        Intent intent = new Intent(getApplicationContext(), TripListActivity.class);
-                        startActivity(intent);
-                    }
+                    } if (trip != null) {
+                    Intent intent = new Intent(getApplicationContext(), TripListActivity.class);
+                    startActivity(intent);
+                }
                     finish();
                 } catch (InterruptedException e) {
                     e.printStackTrace();

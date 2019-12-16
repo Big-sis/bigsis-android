@@ -18,6 +18,7 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -72,6 +73,7 @@ public class ChatActivity extends BigsisActivity {
     private int STORAGE_PERMISSION_CODE = 2;
     public static String CHANNEL_ID = "ID_notif";
     private ChatViewModel viewModel;
+    private LinearLayout linearLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +93,7 @@ public class ChatActivity extends BigsisActivity {
         send = findViewById(R.id.send_message);
         chats = findViewById(R.id.chats);
         addImage = findViewById(R.id.add_image);
+        linearLayout = findViewById(R.id.frameLayoutContainerGroup);
         ChatEntity.setGroup_ID(ChatActivity.this, idGroup);
         FirestoreHelper.setStatusUser(idGroup, mCurrentUserId, true);
         addImage.setOnClickListener(new View.OnClickListener() {
@@ -114,12 +117,31 @@ public class ChatActivity extends BigsisActivity {
                 }
             }
         });
+
+        mFirestore.collection("GroupChat").document(idGroup).collection("staffMembers")
+                .document(mCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        linearLayout.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+        });
+
         showMessage();
         setToolBar();
        // updateToken();
-
     }
 
+    private void showEditTextForStaffs(){
+        Intent iin = getIntent();
+        Bundle extras = iin.getExtras();
+        idGroup = extras.getString("ID_GROUP");
+
+    }
     private void setToolBar() {
         transitionContainer = findViewById(R.id.toolbarLayoutChatRoom);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
@@ -192,11 +214,6 @@ public class ChatActivity extends BigsisActivity {
                                     @Override
                                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                         if (task.isSuccessful()) {
-                                            /*for (QueryDocumentSnapshot document : task.getResult()) {
-
-                                            }*/
-
-
                                             notification.setUsername(username);
                                             notification.setMessage(chatMessage);
                                             for (QueryDocumentSnapshot document : task.getResult()) {
@@ -208,10 +225,6 @@ public class ChatActivity extends BigsisActivity {
                                                         .collection("notif")
                                                 .document("notifId").set(notification);
                                                 mFirestore.collection("notification").document(token).set(notification);
-
-
-
-
 
                                             }
                                         }

@@ -140,7 +140,7 @@ public class AddTripFragment extends Fragment {
                         //TODO DELETE MAP
                         String url = "https://open.mapquestapi.com/staticmap/v5/map?start=" + addFrom + "|via-33AB62&end=" + toFrom + "&routeWidth=5&routeColor=33AB62&type=light&size=170,170&&defaultMarker=marker-sm-33AB62&key=" + KEY;
                         UserEntity userEntity = new UserEntity(username, description,
-                                imageProfileUrl, firstname, lastname, true, isAdmin, false, token);
+                                imageProfileUrl, firstname, lastname, true, isAdmin, false, userId);
 
                         if (addFrom.trim().isEmpty() || toFrom.trim().isEmpty()) {
                             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
@@ -157,7 +157,9 @@ public class AddTripFragment extends Fragment {
                         tripReference.document(addFrom + "to" + toFrom).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                startActivity(new Intent(getActivity(), SplashTripCreatedActivity.class));
+                                Intent intent = new Intent(getActivity(), SplashTripCreatedActivity.class);
+                                intent.putExtra("Trip", "trip");
+                                startActivity(intent);
                                 String idtrip = addFrom + "to" + toFrom;
                                 userListsRef.document(idtrip).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override

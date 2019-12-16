@@ -7,44 +7,56 @@ import androidx.lifecycle.ViewModel;
 import com.google.firebase.firestore.auth.User;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import fr.bigsis.android.entity.UserEntity;
 
 public class ChooseUsersViewModel extends ViewModel {
 
-    private MutableLiveData<String> mName = new MutableLiveData<>();
+    private MutableLiveData<List<UserEntity>> participantListLiveData = new MutableLiveData<List<UserEntity>>();
+    private ArrayList<UserEntity> participantList = new ArrayList<>();
 
-    private MutableLiveData<List<UserEntity>> userListLiveData = new MutableLiveData<List<UserEntity>>();
-    private List<UserEntity> userList = new ArrayList<>();
+    private MutableLiveData<List<UserEntity>> staffListLiveData = new MutableLiveData<List<UserEntity>>();
+    private ArrayList<UserEntity> staffList = new ArrayList<>();
 
-    public void setName(String name) {
-        mName.setValue(name);
+    public void init() {
+        participantListLiveData = new MutableLiveData<List<UserEntity>>();
     }
 
-    public LiveData<String> getName() {
-        return mName;
+    public LiveData<List<UserEntity>> getParticipantList(){
+        return participantListLiveData;
     }
 
-
-    public LiveData<List<UserEntity>> getUserList(){
-
-        return userListLiveData;
+    public LiveData<List<UserEntity>> getStaffList(){
+        return staffListLiveData;
     }
 
-    public void addUser(UserEntity user){
-        userList.add(user);
-        userListLiveData.setValue(userList);
+    public void addParticipant(UserEntity user){
+        participantList.add(user);
+        participantListLiveData.setValue(participantList);
     }
 
-    public void removeUser(UserEntity user) {
-        userList.remove(user);
-        userListLiveData.setValue(userList);
+    public void removeParticipant(UserEntity user) {
+        participantList.remove(user);
     }
 
     public void reset() {
-        userList.clear();
-        userListLiveData.setValue(userList);
+        participantList.clear();
+        participantListLiveData.setValue(participantList);
     }
 
+    public void addStaffMember(UserEntity user){
+        staffList.add(user);
+        staffListLiveData.setValue(staffList);
+    }
+
+    public void removeStaffMember(UserEntity user) {
+        staffList.remove(user);
+    }
+
+    public void resetStaffMember() {
+        staffList.clear();
+        staffListLiveData.setValue(staffList);
+    }
 }

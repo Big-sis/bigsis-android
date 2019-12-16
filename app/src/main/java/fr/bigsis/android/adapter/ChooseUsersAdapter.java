@@ -1,6 +1,7 @@
 package fr.bigsis.android.adapter;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -45,6 +46,8 @@ import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public class ChooseUsersAdapter extends FirestorePagingAdapter<UserEntity, ChooseUsersAdapter.ChooseUserViewHolder> {
     FirebaseStorage storage;
     private Context mContext;
@@ -58,8 +61,6 @@ public class ChooseUsersAdapter extends FirestorePagingAdapter<UserEntity, Choos
         mContext = context;
         chooseUsersViewModel = ViewModelProviders.of((FragmentActivity) context).get(ChooseUsersViewModel.class);
     }
-
-
 
     @Override
     protected void onBindViewHolder(@NonNull ChooseUserViewHolder holder, int position, @NonNull UserEntity item) {
@@ -94,31 +95,13 @@ public class ChooseUsersAdapter extends FirestorePagingAdapter<UserEntity, Choos
         });*/
 
       holder.btSelect.setOnClickListener(new View.OnClickListener() {
+          int i = 0;
           @Override
           public void onClick(View v) {
-              int i = 0;
-
               if (i == 0) {
                   holder.btSelect.setSelected(true);
                   holder.btSelect.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
 
-                 /* mFirestore.collection("users")
-                          .document(mCurrentUserId).get()
-                          .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                      @Override
-                      public void onSuccess(DocumentSnapshot documentSnapshot) {
-                          String username = documentSnapshot.getString("username");
-                          String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
-                          String firstname = documentSnapshot.getString("firstname");
-                          String lastname = documentSnapshot.getString("lastname");
-                          UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname, false);
-                          mFirestore.collection("users")
-                                  .document(idContact)
-                                  .collection("Request received")
-                                  .document(mCurrentUserId)
-                                  .set(userEntity, SetOptions.merge());
-                      }
-                  });*/
                   mFirestore.collection("users")
                           .document(idContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                       @Override
@@ -127,28 +110,36 @@ public class ChooseUsersAdapter extends FirestorePagingAdapter<UserEntity, Choos
                           String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                           String firstname = documentSnapshot.getString("firstname");
                           String lastname = documentSnapshot.getString("lastname");
-                          UserEntity userEntity = new UserEntity(username, imageProfileUrl,
-                                  firstname, lastname, false);
-                      //    chooseUsersViewModel.addToList(userEntity);
-
-                         // chooseUsersViewModel.setName(idContact);
-                          chooseUsersViewModel.addUser(userEntity);
+                          String description = documentSnapshot.getString("description");
+                          Boolean isAdmin = documentSnapshot.getBoolean("admin");
+                          UserEntity userEntity = new UserEntity(username, description, imageProfileUrl,
+                                  firstname, lastname, false, isAdmin, false, idContact);
+                              chooseUsersViewModel.addParticipant(userEntity);
                       }
                   });
                   i++;
                   //unrequest
               } else if (i == 1) {
-
                   holder.btSelect.setSelected(false);
-                  holder.btSelect.setTextColor(ContextCompat.getColor(mContext, R.color.colorAccent));
-
+                  holder.btSelect.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
                   mFirestore.collection("users")
-                          .document(mCurrentUserId)
-                          .collection("Request sent")
-                          .document(idContact)
-                          .delete();
+                          .document(idContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                      @Override
+                      public void onSuccess(DocumentSnapshot documentSnapshot) {
+                          String username = documentSnapshot.getString("username");
+                          String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                          String firstname = documentSnapshot.getString("firstname");
+                          String lastname = documentSnapshot.getString("lastname");
+                          String description = documentSnapshot.getString("description");
+                          Boolean isAdmin = documentSnapshot.getBoolean("admin");
+                          UserEntity userEntity = new UserEntity(username, description, imageProfileUrl,
+                                  firstname, lastname, false, isAdmin, false, idContact);
+                          chooseUsersViewModel.removeParticipant(userEntity);
+                      }
+                  });
                   i = 0;
               }
+
           }
       });
     }
@@ -200,6 +191,5 @@ public class ChooseUsersAdapter extends FirestorePagingAdapter<UserEntity, Choos
                     });
                 }
             }
-
     }
 

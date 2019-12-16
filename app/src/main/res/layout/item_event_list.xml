@@ -5,7 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical">
-
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <RelativeLayout
         android:id="@+id/relativeLayoutEvent"
         android:layout_width="match_parent"
@@ -43,9 +45,63 @@
             android:layout_alignEnd="@id/eventImage"
             android:layout_alignBottom="@id/eventImage"
             android:backgroundTint="@android:color/transparent"
-            android:src="@drawable/ic_add_image_event" />
+            android:src="@drawable/ic_add_image_event"
+            android:visibility="gone"/>
+
 
     </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayoutEventText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignBottom="@+id/relativeLayoutEvent"
+        android:layout_alignParentTop="true"
+        android:layout_marginBottom="0dp"
+        android:background="@color/colorWhite"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tvInformations"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="20dp"
+            android:background="@color/colorWhite"
+            android:text="@string/information"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tvDesctiptionEvent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/tvInformations"
+            android:layout_alignParentBottom="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="0dp"
+            android:adjustViewBounds="true"
+            android:background="@color/colorWhite"
+            android:padding="10dp"
+            android:textSize="16sp" />
+        <ImageButton
+            android:id="@+id/imgBtCancelInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:backgroundTint="@color/colorWhite"
+            android:src="@drawable/ic_cancel"
+            app:backgroundTint="@color/colorWhite" />
+    </RelativeLayout>
+</RelativeLayout>
+
+
 
     <RelativeLayout
         android:id="@+id/layoutItemEvent"
