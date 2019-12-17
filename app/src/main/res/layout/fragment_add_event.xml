@@ -23,9 +23,9 @@
         android:id="@+id/constraint_layout_menu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
         android:layout_marginTop="10dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginEnd="50dp"
+        android:layout_marginEnd="20dp"
         android:background="@drawable/rounded_menu_layout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/constraint_layout"
@@ -62,10 +62,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="10dp"
+            android:text="@string/date_start_event"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/etAddressEventFragment"
-            android:text="@string/date_start_event" />
+            app:layout_constraintTop_toBottomOf="@+id/etAddressEventFragment" />
 
         <TextView
             android:id="@+id/tvDateEventFragmentEnd"
@@ -73,21 +73,21 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="10dp"
+            android:text="@string/date_end_event"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvDateEventFragmentStart"
-            android:text="@string/date_end_event" />
+            app:layout_constraintTop_toBottomOf="@+id/tvDateEventFragmentStart" />
 
         <TextView
             android:id="@+id/tvParticipantFragment"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/select_participants"
-            android:textSize="16sp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="16dp"
             android:drawableEnd="@drawable/ic_open"
+            android:text="@string/select_participants"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvDateEventFragmentEnd" />
@@ -97,11 +97,11 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="@string/select_staff_members"
-            android:textSize="16sp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="16dp"
             android:drawableEnd="@drawable/ic_open"
+            android:text="@string/select_staff_members"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvParticipantFragment"
@@ -137,6 +137,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/descriptionEventFragment" />
+
         <Button
             android:id="@+id/btCreateEvent"
             android:layout_width="0dp"

@@ -106,6 +106,11 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                 } else {
                     Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
                 }
+                if(mCurrentUserId.equals(idContact))
+                {
+                    holder.btRequestFriend.setVisibility(View.GONE);
+                    holder.btDeleteFriend.setVisibility(View.GONE);
+                }
             }
         });
 

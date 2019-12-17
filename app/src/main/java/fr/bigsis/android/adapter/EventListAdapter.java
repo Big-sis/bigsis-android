@@ -38,6 +38,7 @@ import java.util.Locale;
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.EventEntity;
+import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.helpers.UploadImageHelper;
@@ -126,7 +127,6 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
             @Override
             public void onClick(View v) {
                 v.setFocusable(false);
-
                 if (i == 0) {
                    holder.btParticipateEvent.setSelected(true);
                     holder.btParticipateEvent.setText("Ne plus participer");
@@ -142,6 +142,8 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                             Boolean isAdmin = documentSnapshot.getBoolean("admin");
                             UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl, firstname, lastname, false, isAdmin);
                             FirestoreHelper.setData("events", idEvent, "participants", mCurrentUserId, userEntity);
+                            FirestoreHelper.setData("GroupChat", idEvent, "participants", mCurrentUserId, userEntity);
+
                         }
                     });
                     mFirestore.collection("events").document(idEvent).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -155,7 +157,9 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                             String routeEventImage = documentSnapshot.getString("routeEventImage");
                             String descriptionEvent = documentSnapshot.getString("descriptionEvent");
                             EventEntity eventEntity = new EventEntity(dateStartEvent, dateEndEvent, titleEvent, descriptionEvent, imageEvent, routeEventImage, adressEvent);
-                            FirestoreHelper.setData("users", mCurrentUserId, "participateTo", idEvent, eventEntity);
+                            FirestoreHelper.setData("users", mCurrentUserId, "participateToEvent", idEvent, eventEntity);
+                            GroupChatEntity groupChatEntity = new GroupChatEntity(model.getTitleEvent(), model.getImage(), model.getDateStart());
+                            FirestoreHelper.setData("users", mCurrentUserId, "groupChat", idEvent, groupChatEntity);
                         }
                     });
                 i++;
@@ -164,6 +168,8 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                     holder.btParticipateEvent.setText(R.string.participer);
                     FirestoreHelper.deleteFromdb("users", mCurrentUserId, "participateTo", idEvent);
                     FirestoreHelper.deleteFromdb("events", idEvent, "participants", mCurrentUserId);
+                    FirestoreHelper.deleteFromdb("users", mCurrentUserId, "groupChat",idEvent);
+
                     i = 0;
                 }
             }

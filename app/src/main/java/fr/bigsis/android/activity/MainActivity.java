@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -21,13 +22,14 @@ public class MainActivity extends BigsisActivity {
     String firstname;
     String userId;
     FirebaseFirestore mFirestore;
+    private ProgressBar mProgressBarSign;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         btSignUp = findViewById(R.id.btSignUp);
-
+        mProgressBarSign = findViewById(R.id.progressBarSign);
 
         btSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,6 +43,7 @@ public class MainActivity extends BigsisActivity {
         btSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mProgressBarSign.setVisibility(View.VISIBLE);
 
                 if (mFirebaseAuth.getCurrentUser() == null) {
                     startActivity(new Intent(MainActivity.this, SignInActivity.class));
@@ -75,5 +78,21 @@ public class MainActivity extends BigsisActivity {
                         }
                     }
                 });
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mProgressBarSign.setVisibility(View.GONE);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
 }

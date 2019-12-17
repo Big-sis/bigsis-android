@@ -1,10 +1,13 @@
 package fr.bigsis.android.activity;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.transition.TransitionManager;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,6 +48,7 @@ import fr.bigsis.android.fragment.ProfileFragment;
 import fr.bigsis.android.fragment.RequestFragment;
 import fr.bigsis.android.fragment.SearchContactFragment;
 import fr.bigsis.android.helpers.FirestoreHelper;
+import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
 public class ContactListActivity extends BigsisActivity implements SearchContactFragment.OnFragmentInteractionContact, RequestFragment.OnFragmentInteractionListener, OtherUserProfileFragment.OnFragmentInteractionListenerProfile {
@@ -71,7 +75,6 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
 
         ButterKnife.bind(this);
         setToolBar();
-        openFragment();
         setUpAdapterForContacts();
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
@@ -109,6 +112,7 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         fbTrip.setOnClickListener(view -> {
             startActivity(new Intent(ContactListActivity.this, MapsActivity.class));
         });
+        openFragment();
     }
 
     private void setToolBar() {
@@ -139,12 +143,14 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
     }
 
     public void openFragment() {
+
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
         transaction.addToBackStack(null);
         transaction.add(R.id.fragment_container_contact, fragmentProfile, "PROFILE_USER_FRAGMENT")
                 .commit();
+
     }
 
     private void setUpAdapterForContacts() {

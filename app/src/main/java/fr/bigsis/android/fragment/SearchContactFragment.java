@@ -1,6 +1,7 @@
 package fr.bigsis.android.fragment;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -15,9 +16,12 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.ContactListActivity;
 import fr.bigsis.android.activity.TripListActivity;
 import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.viewModel.SearchContactViewModel;
@@ -42,15 +46,16 @@ public class SearchContactFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         viewModel = ViewModelProviders.of(getActivity()).get(SearchContactViewModel.class);
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view =inflater.inflate(R.layout.fragment_search_contact, container, false); ;
+        View view =inflater.inflate(R.layout.fragment_search_contact, container, false);
         etSearchContact = view.findViewById(R.id.etSearchContact);
-
         return view;
     }
 
