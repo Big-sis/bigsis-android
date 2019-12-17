@@ -42,6 +42,7 @@ import java.util.Locale;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.ChatEntity;
+import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.viewModel.ChatViewModel;
 
 public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapter.ChatHolder> {
@@ -70,6 +71,7 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
         String idMessage = r.getId();
         viewModel.setIdMessage(idMessage);
         mFirestore = FirebaseFirestore.getInstance();
+        //FirestoreHelper.update("GroupChat", id, "participants");
 
         if(!model.getMessage().equals("")) {
             holder.message.setText(model.getMessage());

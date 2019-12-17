@@ -14,16 +14,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fbTrip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/colorPrimary"
-            app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/customBottomBar"
-            app:srcCompat="@drawable/navigation" />
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fbTrip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
+        android:scaleType="fitXY"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/customBottomBar"
+        app:maxImageSize="50dp"
+        app:srcCompat="@drawable/navigation" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraintLayout2"

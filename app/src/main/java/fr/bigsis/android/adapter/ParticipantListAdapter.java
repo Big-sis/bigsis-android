@@ -43,6 +43,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
+import fr.bigsis.android.helpers.FirestoreHelper;
 
 public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, ParticipantListAdapter.ParticipantViewHolder> {
 
@@ -87,7 +88,6 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                 }
             }
         });
-
         mFirestore.collection("users")
                 .document(mCurrentUserId)
                 .collection("Friends")

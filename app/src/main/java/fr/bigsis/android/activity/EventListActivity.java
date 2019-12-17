@@ -109,12 +109,14 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
             public void onClick(View view) {
                 imBtCancel.setVisibility(View.GONE);
                 imBtAdd.setVisibility(View.VISIBLE);
-                onBackPressed();
                 FragmentTransaction ft = manager.beginTransaction();
                 Fragment addFrag = manager.findFragmentByTag("ADD_EVENT_FRAGMENT");
-                if (addFrag != null) {
+                ft.remove(fragmentAdd).commitAllowingStateLoss();
+                onBackPressed();
+
+               /* if (addFrag != null) {
                     ft.remove(addFrag).commitAllowingStateLoss();
-                }
+                }*/
                 tvTitleToolbar.setText(R.string.events);
                 KeyboardHelper.CloseKeyboard(EventListActivity.this, view);
             }

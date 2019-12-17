@@ -80,6 +80,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
         String idGroup = idTrip+"chatGroup";
+        FirestoreHelper.update("trips", idTrip, "participants", "imageProfileUrl");
         DocumentReference documentReference = mFirestore.collection("trips")
                 .document(idTrip)
                 .collection("participants")
@@ -100,6 +101,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 }
             }
         });
+      //  FirestoreHelper.updateUserProfile(mCurrentUserId, "trips", idTrip, "participants", mCurrentUserId);
 
         holder.btParticipate.setOnClickListener(new View.OnClickListener() {
             @Override

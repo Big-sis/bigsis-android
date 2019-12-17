@@ -35,6 +35,7 @@ import com.google.firebase.storage.UploadTask;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
+import fr.bigsis.android.helpers.FirestoreHelper;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -179,17 +180,18 @@ public class ProfileFragment extends Fragment {
                 imgReference.putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-
                         String user_id = mFirebaseAuth.getCurrentUser().getUid();
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                         db.collection("users")
-                                .document(user_id).update("imageProfileUrl", link).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                .document(user_id)
+                                .update("imageProfileUrl", link).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 Toast.makeText(getActivity(), "Votre image a bien été modifiée",
                                         Toast.LENGTH_LONG).show();
                             }
                         });
+                        FirestoreHelper.updateUserProfile(user_id, "users", user_id, "Friends", user_id,"imageProfileUrl");
                     }
                 });
             }

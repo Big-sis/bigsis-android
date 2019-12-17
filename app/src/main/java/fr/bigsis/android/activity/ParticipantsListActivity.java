@@ -28,6 +28,7 @@ import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.ParticipantListAdapter;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
+import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
 public class ParticipantsListActivity extends BigsisActivity implements OtherUserProfileFragment.OnFragmentInteractionListenerProfile {
@@ -46,6 +47,7 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
     String idStaff;
     private String mCurrentUser;
     private FirebaseAuth mAuth;
+    FloatingActionButton fbtGoToMapParticipant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +58,13 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
         mCurrentUser = mAuth.getCurrentUser().getUid();
         ButterKnife.bind(this);
         setToolBar();
-        transitionContainer = findViewById(R.id.toolbarLayout);
-        tvTitle = transitionContainer.findViewById(R.id.tvTitleToolbar);
+        fbtGoToMapParticipant = findViewById(R.id.fbtGoToMapParticipant);
+        fbtGoToMapParticipant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(ParticipantsListActivity.this, MapsActivity.class));
+            }
+        });
 
         Intent iin = getIntent();
         Bundle extras = iin.getExtras();
@@ -75,7 +82,6 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_trip);
             item.setIcon(R.drawable.ic_trip_selected);
             setUpAdapterForTrips();
-            tvTitle.setText(getString(R.string.participants));
         }
 
         if (idGroup != null) {
@@ -83,7 +89,6 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_message);
             item.setIcon(R.drawable.ic_dialog_selected);
             setUpAdapterForGroupChat();
-            tvTitle.setText(getString(R.string.participants));
         }
 
         if (idEvent != null) {
@@ -91,7 +96,6 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_message);
             item.setIcon(R.drawable.ic_event_selected);
             setUpAdapterForEvent();
-            tvTitle.setText(getString(R.string.participants));
         }
 
         if (idStaff != null) {
@@ -108,20 +112,19 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
                 return selectItem(item, curvedBottomNavigationView);
             }
         });
-
         MenuItem selectedItem =
                 curvedBottomNavigationView.getMenu().getItem(2);
         selectItem(selectedItem, curvedBottomNavigationView);
-        fbTrip = findViewById(R.id.fbTrip);
-        fbTrip.setOnClickListener(view -> {
-            startActivity(new Intent(ParticipantsListActivity.this, TripListActivity.class));
-        });
     }
 
     private void setToolBar() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
+        transitionContainer = findViewById(R.id.toolbarLayout);
+        tvTitle = transitionContainer.findViewById(R.id.tvTitleToolbar);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
         imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
+        tvTitle.setText(getString(R.string.participants));
+
         imgBtBack.setVisibility(View.VISIBLE);
 
         imgBtBack.setOnClickListener(new View.OnClickListener() {
@@ -153,7 +156,6 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
                 adapter.refresh();
             }
         });
-
     }
 
     private void setUpAdapterForGroupChat() {

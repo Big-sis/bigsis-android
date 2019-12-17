@@ -11,12 +11,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:backgroundTint="@color/colorPrimary"
-        android:clickable="true"
-        app:fabSize="mini"
+        android:scaleType="fitXY"
+        app:fabSize="normal"
         app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/customBottomBar"
+        app:maxImageSize="50dp"
         app:srcCompat="@drawable/navigation" />
 
     <fr.bigsis.android.view.CurvedBottomNavigationView

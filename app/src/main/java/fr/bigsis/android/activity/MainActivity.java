@@ -14,7 +14,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import fr.bigsis.android.R;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends BigsisActivity {
 
     Button btSignIn, btSignUp;
     FirebaseAuth mFirebaseAuth;
@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         btSignUp = findViewById(R.id.btSignUp);
+
 
         btSignUp.setOnClickListener(new View.OnClickListener() {
             @Override

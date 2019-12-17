@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.bumptech.glide.load.model.FileLoader;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -60,7 +61,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     private FirebaseFirestore mFirestore;
     private String userId;
     private FirebaseAuth mAuth;
-    private FloatingActionButton fbMap;
+    private FloatingActionButton btMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,8 +73,8 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
 
         mFirestore = FirebaseFirestore.getInstance();
         mItemsCollection = mFirestore.collection("trips");
-        fbMap = findViewById(R.id.fbMap);
-        fbMap.setOnClickListener(new View.OnClickListener() {
+        btMap = findViewById(R.id.imageBtMap);
+        btMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startActivity(new Intent(TripListActivity.this, MapsActivity.class));

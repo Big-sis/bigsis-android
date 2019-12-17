@@ -6,6 +6,20 @@
     android:layout_height="match_parent"
     tools:context=".activity.TripListActivity">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/imageBtMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/colorPrimary"
+        android:scaleType="fitXY"
+        app:fabSize="normal"
+        app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/customBottomBar"
+        app:maxImageSize="50dp"
+        app:srcCompat="@drawable/navigation" />
+
     <fr.bigsis.android.view.CurvedBottomNavigationView
         android:id="@+id/customBottomBar"
         android:layout_width="match_parent"
@@ -14,24 +28,29 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fbMap"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:backgroundTint="@color/colorPrimary"
-        app:fabSize="mini"
-        android:clickable="true"
+    <View
+        android:layout_width="0dp"
+        android:layout_height="4dp"
+        android:background="@drawable/shadow"
         app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/customBottomBar"
-        app:srcCompat="@drawable/navigation" />
+        app:layout_constraintEnd_toStartOf="@+id/imageBtMap"
+        android:layout_marginEnd="30dp"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="4dp"
+        android:background="@drawable/shadow"
+        app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
+        app:layout_constraintStart_toEndOf="@+id/imageBtMap"
+        android:layout_marginStart="30dp"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipe_refresh_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="@+id/fbMap"
+        app:layout_constraintBottom_toTopOf="@+id/imageBtMap"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">

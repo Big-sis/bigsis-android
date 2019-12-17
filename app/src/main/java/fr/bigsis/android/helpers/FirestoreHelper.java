@@ -12,6 +12,7 @@ import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -134,5 +135,65 @@ public class FirestoreHelper {
                 .collection(subCollection)
                 .document(idTwo)
                 .delete();
+    }
+
+    public static void updateUserProfile(String id, String collection2,
+                                         String idTwo, String subCollecion, String idThree, String field ) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("users")
+                .document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String imageProfileUrlUpdated = documentSnapshot.getString("imageProfileUrl");
+                DocumentReference documentReference = mFirestore.collection(collection2)
+                        .document(idTwo).collection(subCollecion)
+                        .document(idThree);
+                documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String imageProfileUrl = documentSnapshot.getString(field);
+                        if(!imageProfileUrlUpdated.equals(imageProfileUrl)){
+                            documentReference.update(field,imageProfileUrlUpdated);
+                        }
+
+                    }
+                });
+
+            }
+        });
+
+    }
+
+    public static void update(String collection2,
+                              String idTwo, String subCollecion, String field) {
+
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("users")
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String idForimage = document.getId().toString();
+
+                        mFirestore.collection(collection2).document(idTwo)
+                                .collection(subCollecion)
+                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        String id = document.getId().toString();
+                                        if(idForimage.equals(id)) {
+                                            updateUserProfile(idForimage, collection2, idTwo,subCollecion,id, field);
+                                    }
+                                }
+                                    }
+                            }
+                        });
+                    }
+                    }
+            }
+        });
     }
 }

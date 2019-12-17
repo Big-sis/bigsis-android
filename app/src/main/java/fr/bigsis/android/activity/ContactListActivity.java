@@ -44,6 +44,7 @@ import fr.bigsis.android.fragment.OtherUserProfileFragment;
 import fr.bigsis.android.fragment.ProfileFragment;
 import fr.bigsis.android.fragment.RequestFragment;
 import fr.bigsis.android.fragment.SearchContactFragment;
+import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
 public class ContactListActivity extends BigsisActivity implements SearchContactFragment.OnFragmentInteractionContact, RequestFragment.OnFragmentInteractionListener, OtherUserProfileFragment.OnFragmentInteractionListenerProfile {
@@ -106,7 +107,7 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         selectItem(selectedItem, curvedBottomNavigationView);
         fbTrip = findViewById(R.id.fbTrip);
         fbTrip.setOnClickListener(view -> {
-            startActivity(new Intent(ContactListActivity.this, TripListActivity.class));
+            startActivity(new Intent(ContactListActivity.this, MapsActivity.class));
         });
     }
 

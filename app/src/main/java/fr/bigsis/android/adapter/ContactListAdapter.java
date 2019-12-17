@@ -35,6 +35,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
+import fr.bigsis.android.helpers.FirestoreHelper;
 
 public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, ContactListAdapter.ContactViewHolder> {
     FirebaseStorage storage;
@@ -67,6 +68,9 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
             holder.itemView.setVisibility(View.VISIBLE);
 
         }
+        //FirestoreHelper.updateUserProfile(idContact, "users", mCurrentUserId, "Friends", idContact);
+        FirestoreHelper.update("users", mCurrentUserId, "Friends", "imageProfileUrl");
+
         //GO TO PROFILE
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,6 +98,8 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                 View dialogView = inflater.inflate(R.layout.style_alert_dialog, null);
                 Button btNo = dialogView.findViewById(R.id.btNo);
                 Button btDelete = dialogView.findViewById(R.id.btDeleteFriend);
+
+
                 btDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -108,6 +114,7 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                                         .show();
                             }
                         });
+
                         mFirestore.collection("users")
                                 .document(idContact)
                                 .collection("Friends")

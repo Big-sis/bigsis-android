@@ -68,6 +68,10 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
         DocumentReference documentReference = mFirestore.collection("events").document(idEvent)
                 .collection("participants")
                 .document(mCurrentUserId);
+
+        FirestoreHelper.update("events", idEvent, "participants","imageProfileUrl");
+        FirestoreHelper.update("events", idEvent, "staffMembers", "imageProfileUrl");
+
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

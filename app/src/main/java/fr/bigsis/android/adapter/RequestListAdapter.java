@@ -37,6 +37,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.OtherUserProfileFragment;
+import fr.bigsis.android.helpers.FirestoreHelper;
 
 public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, RequestListAdapter.RequestViewHolder> {
     FirebaseStorage storage;
@@ -77,6 +78,12 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                         .commit();
             }
         });
+       // FirestoreHelper.updateUserProfile(idContact, "users", mCurrentUserId, "Request received", idContact);
+
+        FirestoreHelper.update("users", mCurrentUserId, "Request received", "imageProfileUrl");
+
+        //  FirestoreHelper.updateUserProfile(mCurrentUserId, "trips", idTrip, "participants", mCurrentUserId);
+
 
 // ACCEPT REQUEST
         holder.btAccept.setOnClickListener(new View.OnClickListener() {

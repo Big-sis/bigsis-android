@@ -39,6 +39,7 @@ import fr.bigsis.android.R;
 import fr.bigsis.android.activity.ChatActivity;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.GroupChatEntity;
+import fr.bigsis.android.helpers.FirestoreHelper;
 
 public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChatEntity, GroupConversationAdapter.GroupChatHolder> {
     private OnItemClickListener listener;
@@ -63,6 +64,9 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         holder.textViewTitle.setText(model.getTitle());
         SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
         holder.textViewDate.setText(format.format(model.getDate().getTime()));
+        FirestoreHelper.update("GroupChat", id, "participants", "imageProfileUrl");
+        FirestoreHelper.update("GroupChat", id, "chat", "imageUSer");
+
         RequestOptions myOptions = new RequestOptions()
                 .fitCenter()
                 .override(250, 250);

@@ -63,7 +63,7 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
         MenuItem item = curvedBottomNavigationView.getMenu().findItem(R.id.action_user_profile);
         item.setIcon(R.drawable.ic_profile_selected);
         selectItem(selectedItem, curvedBottomNavigationView);
-        fbTrip = findViewById(R.id.fbTrip);
+        fbTrip = findViewById(R.id.fbtGoToMapUserProfile);
         fbTrip.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
