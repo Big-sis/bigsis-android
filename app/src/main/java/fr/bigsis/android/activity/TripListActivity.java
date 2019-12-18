@@ -146,6 +146,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                 addTrip();
                 imBtAdd.setVisibility(View.GONE);
                 imBtCancel.setVisibility(View.VISIBLE);
+                imbtSearch.setVisibility(View.GONE);
                 tvTitleToolbar.setText(R.string.add_a_trip);
             }
         });

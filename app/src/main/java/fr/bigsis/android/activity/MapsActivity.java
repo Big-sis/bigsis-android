@@ -70,8 +70,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
 
     private static final String TAG = "DirectionsActivity";
     LocationComponent locationComponent;
-    MenuFilterFragment menuFilterFragment = MenuFilterFragment.newInstance();
-    MenuFilterViewModel viewModel;
     private MapView mapView;
     private MapboxMap mapboxMap;
     private PermissionsManager permissionsManager;
@@ -81,7 +79,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     private FirebaseFirestore firebaseFirestore;
     private FloatingActionButton fbAlertGreen;
     private FloatingActionButton fbAlertRed;
-
+    FloatingActionButton imgBtItinarary;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,10 +92,9 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         fbAlertGreen = findViewById(R.id.fbAlert);
         fbAlertRed = findViewById(R.id.fbAlertRed);
         AlertFragment alertFragment = AlertFragment.newInstance();
-        viewModel = ViewModelProviders.of(this).get(MenuFilterViewModel.class);
         fbAlertRed.hide();
         firebaseFirestore = FirebaseFirestore.getInstance();
-       // setMenuFilterFragment();
+        imgBtItinarary = findViewById(R.id.imgBtItinarary);
         MapHelper.setOnCLickButton(fbAlertGreen, fbAlertRed, MapsActivity.this, this);
         if (alertFragment.isAdded()) {
             fbAlertRed.show();
@@ -113,14 +110,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 return selectItem(item, curvedBottomNavigationView);
             }
         });
-    }
-
-    private void setMenuFilterFragment() {
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        transaction.addToBackStack(null);
-        transaction.add(R.id.fragment_container_menu, menuFilterFragment, "MENU_FILTER_FRAGMENT")
-                .commit();
     }
 
     @Override
@@ -143,93 +132,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
             }
         });
 
-        viewModel.getfilterName().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                if (viewModel.getfilterName().getValue().equals("event")) {
-                    mapboxMap.clear();
-
-                    Query query = firebaseFirestore.collection("events").orderBy("titleEvent", Query.Direction.ASCENDING);
-                    query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                                    Geocoder geocoder = new Geocoder(MapsActivity.this);
-                                    String addressEvent = doc.getDocument().getString("adressEvent");
-                                    String titleEvent = doc.getDocument().getString("titleEvent");
-                                    List<Address> addresses;
-                                    try {
-                                        addresses = geocoder.getFromLocationName(addressEvent, 1);
-                                        if (addresses.size() > 0) {
-                                            double latitude = addresses.get(0).getLatitude();
-                                            double longitude = addresses.get(0).getLongitude();
-                                            mapboxMap.addMarker(new MarkerOptions()
-                                                    .position(new LatLng(latitude, longitude))
-                                                    .title(titleEvent));
-                                        }
-                                    } catch (IOException ex) {
-                                        ex.printStackTrace();
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }
-               /* if (viewModel.getfilterName().getValue().equals("trip")) {
-                    mapboxMap.clear();
-
-                    Query query = firebaseFirestore.collection("trips").orderBy("titleEvent", Query.Direction.ASCENDING);
-                    query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                                    Geocoder geocoder = new Geocoder(MapsActivity.this);
-                                    String adress = doc.getDocument().getString("from");
-                                    String titleEvent = doc.getDocument().getString("titleEvent");
-                                    String idEvent = doc.getDocument().getId();
-                                    List<Address> addresses;
-                                    try {
-                                        addresses = geocoder.getFromLocationName(adress, 1);
-                                        if (addresses.size() > 0) {
-                                            double latitude = addresses.get(0).getLatitude();
-                                            double longitude = addresses.get(0).getLongitude();
-                                            mapboxMap.addMarker(new MarkerOptions()
-                                                    .position(new LatLng(latitude, longitude)));
-                                            // .title(titleEvent));
-                                        }
-                                    } catch (IOException ex) {
-                                        ex.printStackTrace();
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }
-                if (viewModel.getfilterName().getValue().equals("partner")) {
-                    mapboxMap.clear();
-
-                    Query query = firebaseFirestore.collection("places").orderBy("name", Query.Direction.ASCENDING);
-                    query.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
-                            if (!queryDocumentSnapshots.isEmpty()) {
-                                for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
-                                    double lat = doc.getDocument().getDouble("latitude");
-                                    double lng = doc.getDocument().getDouble("longitude");
-                                    String titre = doc.getDocument().getString("name");
-                                    String idPartner = doc.getDocument().getId();
-                                    mapboxMap.addMarker(new MarkerOptions()
-                                            .position(new LatLng(lat, lng))
-                                            .title(titre));
-                                }
-                            }
-                        }
-                    });
-                }*/
-            }
-        });
         mapboxMap.setStyle(getString(R.string.navigation_guidance_day), new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
@@ -250,7 +152,8 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 marker.showInfoWindow(mapboxMap, mapView);
                 onInfoWindowClick(marker);
                 mapboxMap.addOnCameraMoveListener(() -> mapboxMap.getMarkers().forEach(Marker::hideInfoWindow));
-                ImageButton imgBtItinarary = findViewById(R.id.imgBtItinarary);
+                mapboxMap.addOnCameraMoveListener(() -> imgBtItinarary.hide());
+                imgBtItinarary.show();
                 imgBtItinarary.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -258,7 +161,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                                 .directionsRoute(currentRoute)
                                 .build();
                         NavigationLauncher.startNavigation(MapsActivity.this, options);
-
                         enableLocationComponent(mapboxMap.getStyle());
                     }
                 });

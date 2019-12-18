@@ -59,12 +59,13 @@
         android:id="@+id/imgBtItinarary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="100dp"
-        android:layout_marginBottom="16dp"
-        android:backgroundTint="@color/colorWhite"
-        app:layout_constraintBottom_toTopOf="@+id/customBottomBar"
+        android:visibility="gone"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintBottom_toTopOf="@+id/imgBtRecenter"
         app:layout_constraintEnd_toEndOf="parent"
-        mapbox:srcCompat="@drawable/ic_localisation" />
+        mapbox:srcCompat="@drawable/ic_split" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fbAlert"

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Bigsis</string>
+    <string name="app_name">BIGSIS</string>
     <string name="participer">participer</string>
     <string name="rechercher_un_trajet">Rechercher un trajet</string>
     <string name="add">Ajouter</string>
@@ -12,7 +12,7 @@
     <string name="create">Créer</string>
     <string name="search_trip">Rechercher un trajet</string>
     <string name="trips">Trajets</string>
-    <string name="add_a_trip">Créer un trajet</string>
+    <string name="add_a_trip">Proposer un trajet</string>
     <string name="sign_in">Se Connecter</string>
     <string name="sign_up">S\'inscrire</string>
     <string name="signin">Connexion</string>

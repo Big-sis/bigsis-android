@@ -286,17 +286,11 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 break;
             case FINISHED:
                 mSwipeRefreshLayout.setRefreshing(false);
-                showToast("reached_end_data");
                 break;
             case ERROR:
-                showToast("error_ocurred");
                 retry();
                 break;
         }
-    }
-
-    private void showToast(@NonNull String message) {
-        Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
     }
 
     @Override

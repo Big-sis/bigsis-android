@@ -123,7 +123,6 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         imBtSearch = transitionContainer.findViewById(R.id.imBt_search_right_frag);
         tvTitle = transitionContainer.findViewById(R.id.tvTitleToolbar);
         imgBtBack.setVisibility(View.VISIBLE);
-        imBtSearch.setVisibility(View.VISIBLE);
         tvTitle.setText(R.string.contacts);
 
         imBtSearch.setOnClickListener(new View.OnClickListener() {

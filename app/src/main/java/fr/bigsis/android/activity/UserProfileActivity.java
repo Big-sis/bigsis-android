@@ -70,13 +70,6 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
                 startActivity(new Intent(UserProfileActivity.this, MapsActivity.class));
             }
         });
-        btContact = findViewById(R.id.btContact);
-        btContact.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(UserProfileActivity.this, ContactListActivity.class));
-            }
-        });
 
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
@@ -88,9 +81,6 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         firstname = documentSnapshot.getString("firstname");
                         lastname = documentSnapshot.getString("lastname");
-                        transitionContainer = findViewById(R.id.toolbarLayout);
-                        tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
-                        tvUserName.setText(firstname + " " + lastname);
                     }
                 });
         openFragment();
@@ -101,8 +91,18 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
         transitionContainer = findViewById(R.id.toolbarLayout);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
         imBtSettings = transitionContainer.findViewById(R.id.imBt_ic_setting);
+        imgBtContact = transitionContainer.findViewById(R.id.imBt_ic_profile_frag);
         tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
         imBtSettings.setVisibility(View.VISIBLE);
+        imgBtContact.setVisibility(View.VISIBLE);
+
+        imgBtContact.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(UserProfileActivity.this, ContactListActivity.class));
+            }
+        });
+
         imBtSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

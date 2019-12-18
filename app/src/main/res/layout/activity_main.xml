@@ -9,16 +9,15 @@
 
     <ProgressBar
         android:id="@+id/progressBarSign"
-        android:indeterminateDrawable="@drawable/progress"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="50dp"
+        android:indeterminateDrawable="@drawable/progress"
+        app:layout_constraintBottom_toTopOf="@+id/btSignUp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button

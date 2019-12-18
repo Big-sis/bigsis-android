@@ -64,15 +64,15 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
         DocumentSnapshot r = getSnapshots().getSnapshot(position);
         String idEvent = r.getId();
         holder.textViewTitle.setText(model.getTitleEvent());
-        SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-        holder.textViewDateEvent.setText(format.format(model.getDateStart()));
+
         DocumentReference documentReference = mFirestore.collection("events").document(idEvent)
                 .collection("participants")
                 .document(mCurrentUserId);
 
         FirestoreHelper.update("events", idEvent, "participants","imageProfileUrl");
         FirestoreHelper.update("events", idEvent, "staffMembers", "imageProfileUrl");
-
+        SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+        holder.textViewDateEvent.setText(format.format(model.getDateStart()));
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
