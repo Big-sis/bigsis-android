@@ -15,13 +15,19 @@ public class UserEntity {
     private boolean isAdmin;
     private boolean isOnline;
     private String token;
+    private String groupCampus;
+    private String organism;
 
-    public UserEntity(String username, String description, String imageProfileUrl, String firstname, String lastname) {
+    public UserEntity(String username, String description, String imageProfileUrl, String firstname,
+                      String lastname, boolean isAdmin, String groupCampus, String organism) {
         this.username = username;
         this.description = description;
         this.imageProfileUrl = imageProfileUrl;
         this.firstname = firstname;
         this.lastname = lastname;
+        this.isAdmin = isAdmin;
+        this.groupCampus = groupCampus;
+        this.organism = organism;
     }
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname,
@@ -149,5 +155,21 @@ public class UserEntity {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getGroupCampus() {
+        return groupCampus;
+    }
+
+    public void setGroupCampus(String groupCampus) {
+        this.groupCampus = groupCampus;
+    }
+
+    public String getOrganism() {
+        return organism;
+    }
+
+    public void setOrganism(String organism) {
+        this.organism = organism;
     }
 }

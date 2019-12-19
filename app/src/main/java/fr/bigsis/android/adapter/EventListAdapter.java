@@ -107,6 +107,7 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         if (documentSnapshot.exists()) {
                             holder.imageButtonImageEventItem.setVisibility(View.VISIBLE);
+                            holder.btParticipateEvent.setText(R.string.modify);
                         }
                     }
                 });
@@ -129,7 +130,7 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                 v.setFocusable(false);
                 if (i == 0) {
                    holder.btParticipateEvent.setSelected(true);
-                    holder.btParticipateEvent.setText("Ne plus participer");
+                   holder.btParticipateEvent.setText("Ne plus participer");
 
                     mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
@@ -162,6 +163,22 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                             FirestoreHelper.setData("users", mCurrentUserId, "groupChat", idEvent, groupChatEntity);
                         }
                     });
+                    mFirestore.collection("events").document(idEvent).collection("creator").document(mCurrentUserId).get()
+                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if (documentSnapshot.exists()) {
+                                        holder.btParticipateEvent.setText(R.string.modify);
+                                        holder.btParticipateEvent.setSelected(false);
+                                        holder.btParticipateEvent.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                //TODO MODIFY
+                                            }
+                                        });
+                                    }
+                                }
+                            });
                 i++;
                 } else if (i == 1) {
                     holder.btParticipateEvent.setSelected(false);
@@ -169,7 +186,22 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                     FirestoreHelper.deleteFromdb("users", mCurrentUserId, "participateTo", idEvent);
                     FirestoreHelper.deleteFromdb("events", idEvent, "participants", mCurrentUserId);
                     FirestoreHelper.deleteFromdb("users", mCurrentUserId, "groupChat",idEvent);
-
+                    mFirestore.collection("events").document(idEvent).collection("creator").document(mCurrentUserId).get()
+                            .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                @Override
+                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                    if (documentSnapshot.exists()) {
+                                        holder.btParticipateEvent.setText(R.string.modify);
+                                        holder.btParticipateEvent.setSelected(false);
+                                        holder.btParticipateEvent.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View v) {
+                                                //TODO MODIFY
+                                            }
+                                        });
+                                    }
+                                }
+                            });
                     i = 0;
                 }
             }

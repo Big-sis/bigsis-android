@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -14,13 +16,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatEditText;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.common.collect.Maps;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -30,11 +30,13 @@ import fr.bigsis.android.R;
 
 public class SignInActivity extends AppCompatActivity {
 
-    EditText emailBox, passwordBox;
-    Button btSignIn;
+    EditText etMailAdressSignIn;
+    EditText etPasswordSignIn;
+    Button btSignInComplete;
+    ProgressBar progressBarSign;
     TextView tvForgotPassword;
-    ConstraintLayout constraint_layout_sign_in;
-    String firstname;
+    RelativeLayout relativeLayoutSignIn;
+    String groupCampus;
     String userId;
     FirebaseFirestore mFirestore;
     private FirebaseAuth mAuth;
@@ -45,33 +47,36 @@ public class SignInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_in);
 
-        constraint_layout_sign_in = findViewById(R.id.constraint_layout_sign_in);
-        emailBox = findViewById(R.id.etEmail);
-        passwordBox = findViewById(R.id.etPassword);
+        relativeLayoutSignIn = findViewById(R.id.relativeLayoutSignIn);
+        etMailAdressSignIn = findViewById(R.id.etMailAdressSignIn);
+        etPasswordSignIn = findViewById(R.id.etPasswordSignIn);
         mAuth = FirebaseAuth.getInstance();
-        btSignIn = findViewById(R.id.btSignIn);
+        btSignInComplete = findViewById(R.id.btSignInComplete);
+        progressBarSign = findViewById(R.id.progressBarSignIn);
 
         mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-
                 if (firebaseAuth.getCurrentUser() != null) {
                     if (!firebaseAuth.getCurrentUser().isEmailVerified()) {
-                        verifyEmailSignIn();
+                        btSignInComplete.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                verifyEmailSignIn();
+                            }
+                        });
                     } else {
                         registerContinuation();
                     }
                 }
             }
         };
-
-        btSignIn.setOnClickListener(new View.OnClickListener() {
+        btSignInComplete.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startSignIn();
             }
         });
-
         tvForgotPassword = findViewById(R.id.tvForgotPassword);
         tvForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,23 +86,16 @@ public class SignInActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(mAuthListener);
-    }
-
     private void startSignIn() {
-        String email = emailBox.getText().toString();
-        String password = passwordBox.getText().toString();
-
+        String email = etMailAdressSignIn.getText().toString();
+        String password = etPasswordSignIn.getText().toString();
         if (TextUtils.isEmpty(email)) {
-            emailBox.setError(getString(R.string.email_adress));
-            emailBox.requestFocus();
+            etMailAdressSignIn.setError(getString(R.string.email_adress));
+            etMailAdressSignIn.requestFocus();
         }
         if (TextUtils.isEmpty(password)) {
-            passwordBox.setError(getString(R.string.enter_password));
-            passwordBox.requestFocus();
+            etPasswordSignIn.setError(getString(R.string.enter_password));
+            etPasswordSignIn.requestFocus();
         } else {
             mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
@@ -117,8 +115,8 @@ public class SignInActivity extends AppCompatActivity {
                 .setPositiveButton(getString(R.string.yes), null)
                 .setNegativeButton(getString(R.string.no), null)
                 .show();
-        emailBox.setText("");
-        passwordBox.setText("");
+        etMailAdressSignIn.setText("");
+        etPasswordSignIn.setText("");
         Button positiveButton = builder.getButton(AlertDialog.BUTTON_POSITIVE);
         positiveButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -131,8 +129,15 @@ public class SignInActivity extends AppCompatActivity {
                                     .setMessage("Un e-mail de vérification vient de vous etre envoyé")
                                     .setPositiveButton("OK", null)
                                     .show();
+                            Button positiveButton = builder.getButton(AlertDialog.BUTTON_POSITIVE);
+                            positiveButton.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    startActivity(new Intent(SignInActivity.this, SignInActivity.class));
+                                }
+                            });
                         } else {
-                            Snackbar.make(constraint_layout_sign_in, task.getException().getMessage(), Snackbar.LENGTH_SHORT)
+                            Snackbar.make(relativeLayoutSignIn, task.getException().getMessage(), Snackbar.LENGTH_SHORT)
                                     .show();
                         }
                     }
@@ -143,18 +148,22 @@ public class SignInActivity extends AppCompatActivity {
 
     private void registerContinuation() {
         userId = mAuth.getCurrentUser().getUid();
-        Toast.makeText(this, userId, Toast.LENGTH_SHORT).show();
+        String email = etMailAdressSignIn.getText().toString();
+        progressBarSign.setVisibility(View.VISIBLE);
         mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("users")
-                .document(userId).get()
+        mFirestore.collection("USERS").document(userId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        firstname = documentSnapshot.getString("firstname");
-                        if (firstname != null) {
+                        groupCampus = documentSnapshot.getString("groupCampus");
+
+                        if (groupCampus != null) {
                             startActivity(new Intent(SignInActivity.this, MapsActivity.class));
                         } else {
-                            startActivity(new Intent(SignInActivity.this, RegisterContinuationActivity.class));
+                            String organism = documentSnapshot.getString("organism");
+                            Intent intent = new Intent(SignInActivity.this, ChooseGroupActivity.class);
+                            intent.putExtra("ORGANISM", organism);
+                            startActivity(intent);
                         }
                     }
                 });
@@ -192,5 +201,27 @@ public class SignInActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        startActivity(new Intent(SignInActivity.this, MainActivity.class));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthListener);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        progressBarSign.setVisibility(View.GONE);
     }
 }

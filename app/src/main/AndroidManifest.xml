@@ -10,32 +10,36 @@
 
     <application
         android:allowBackup="true"
+        android:configChanges="locale|orientation"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppCompat.Light.NoActionBar"
-        android:configChanges="locale|orientation">
-        <activity android:name=".activity.EventListActivity"></activity>
-        <activity android:name=".activity.ChatActivity" />
-        <activity android:name=".activity.GroupConversationActivity" />
-        <activity android:name=".activity.MapsActivity" />
-        <activity android:name=".activity.ParticipantsListActivity" />
-        <activity android:name=".activity.RegisterContinuationActivity" />
-        <activity android:name=".activity.ContactListActivity" />
-        <activity android:name=".activity.SplashTripCreatedActivity" />
-        <activity android:name=".activity.UserProfileActivity" />
-        <activity android:name=".activity.RegisterActivity" />
-        <activity android:name=".activity.SignInActivity" />
-        <activity android:name=".activity.TripListActivity" />
-        <activity android:name=".helpers.UploadImageHelper"/>
-        <activity android:name=".activity.MainActivity">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <activity android:name=".activity.PolicyCGUActivity"></activity>
+        <activity android:name=".activity.SplashScreenActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activity.ChooseGroupActivity" />
+        <activity android:name=".activity.SignInActivity" />
+        <activity
+            android:name=".activity.SignUpActivity" />
+        <activity android:name=".activity.EventListActivity" />
+        <activity android:name=".activity.ChatActivity" />
+        <activity android:name=".activity.GroupConversationActivity" />
+        <activity android:name=".activity.MapsActivity" />
+        <activity android:name=".activity.ParticipantsListActivity" />
+        <activity android:name=".activity.ContactListActivity" />
+        <activity android:name=".activity.SplashTripCreatedActivity" />
+        <activity android:name=".activity.UserProfileActivity" />
+        <activity android:name=".activity.TripListActivity" />
+        <activity android:name=".helpers.UploadImageHelper" />
+        <activity android:name=".activity.MainActivity" />
+
         <service android:name=".Service.Service">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

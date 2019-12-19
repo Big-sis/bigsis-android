@@ -21,6 +21,8 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import fr.bigsis.android.entity.UserEntity;
+
 public class FirestoreHelper {
 
     public static void addData(String principalCollection, String id, String subCollection, Object object) {
@@ -193,6 +195,29 @@ public class FirestoreHelper {
                         });
                     }
                     }
+            }
+        });
+    }
+
+    public static void setDataUserInCampus(String userID, String idGroup) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("USERS").document(userID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Boolean admin = documentSnapshot.getBoolean("admin");
+                Boolean creator = documentSnapshot.getBoolean("creator");
+                Boolean online = documentSnapshot.getBoolean("admin");
+                String description = documentSnapshot.getString("description");
+                String firstname = documentSnapshot.getString("firstname");
+                String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                String lastname = documentSnapshot.getString("lastname");
+                String organism = documentSnapshot.getString("organism");
+                String username = documentSnapshot.getString("username");
+                String groupCampus = documentSnapshot.getString("groupCampus");
+                UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, admin, groupCampus, organism);
+
+                mFirestore.collection(organism).document("AllCampus").collection("AllCampus").document(idGroup)
+                        .collection("users").document(userID).set(userEntity, SetOptions.merge());
             }
         });
     }

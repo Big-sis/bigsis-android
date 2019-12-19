@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary"
+    tools:context=".fragment.SignUpFragment">
+
+    <RelativeLayout
+        android:id="@+id/relativeLayoutSignUp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:focusableInTouchMode="true">
+
+        <ImageView
+            android:id="@+id/imgLogo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="50dp"
+            app:srcCompat="@drawable/smile_logo" />
+
+        <EditText
+            android:id="@+id/etMailAdressSignUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/imgLogo"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="50dp"
+            android:layout_marginEnd="20dp"
+            android:hint="@string/mail_adress"
+            android:inputType="textEmailAddress" />
+
+        <EditText
+            android:id="@+id/etPasswordSignUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/etMailAdressSignUp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:hint="@string/password"
+            android:inputType="textPassword" />
+
+        <EditText
+            android:id="@+id/etConfirmPasswordSignUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/etPasswordSignUp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:hint="@string/confirm_password"
+            android:inputType="textPassword" />
+
+        <LinearLayout
+            android:id="@+id/linearLayoutCheckCgu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/etConfirmPasswordSignUp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp" >
+            <CheckBox
+                android:id="@+id/checkBoxCgu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="J'ai lu et j'accepte "/>
+            <TextView
+                android:id="@+id/textViewCgu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="les CGU"
+                android:clickable="true" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/linearLayoutCheckPolicy"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/linearLayoutCheckCgu"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp">
+
+            <CheckBox
+                android:id="@+id/checkBoxPolicy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="J'ai lu et j'accepte "/>
+
+            <TextView
+                android:id="@+id/textViewPolicy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="la politique de confidentialité"
+                android:clickable="true"
+                android:paddingBottom="10dp"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btSignUpComplete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/linearLayoutCheckPolicy"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="50dp"
+            android:background="@drawable/rounded_btn_sign_up"
+            android:text="@string/sign_up"
+            android:textColor="@color/colorPrimaryDark" />
+
+        <ProgressBar
+            android:id="@+id/progressBarSignUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btSignUpComplete"
+            android:layout_centerHorizontal="true"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="50dp"
+            android:layout_marginBottom="50dp"
+            android:indeterminateDrawable="@drawable/progress"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+</ScrollView>

@@ -76,23 +76,6 @@ public class ChooseUsersAdapter extends FirestorePagingAdapter<UserEntity, Choos
             param.width = LinearLayout.LayoutParams.MATCH_PARENT;
             holder.itemView.setVisibility(View.VISIBLE);
         }
-      /*  //GO TO PROFILE
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AppCompatActivity activity = (AppCompatActivity) view.getContext();
-                Bundle bundle = new Bundle();
-                bundle.putString("idString", idContact);
-                OtherUserProfileFragment myFragment = new OtherUserProfileFragment();
-                myFragment.setArguments(bundle);
-                activity.getSupportFragmentManager().beginTransaction()
-                        .setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top)
-                        .addToBackStack(null)
-                        .add(R.id.fragment_container_contact, myFragment, "PROFILE_OTHER_USER_FRAGMENT")
-                        .commit();
-
-            }
-        });*/
 
       holder.btSelect.setOnClickListener(new View.OnClickListener() {
           int i = 0;

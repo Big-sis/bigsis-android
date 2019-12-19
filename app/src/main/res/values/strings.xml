@@ -70,4 +70,14 @@
     <string name="information">Informations</string>
     <string name="see_more">... voir plus</string>
     <string name="Finish">Terminer</string>
+    <string name="confirm_password">Confirmer le mot de passe</string>
+    <string name="continue_sign_up">Continuer</string>
+    <string name="modify">Modifier</string>
+    <string name="password_not_identic">Les mots de passe ne sont pas identiques</string>
+    <string name="choose_your_campus">Choisis ton campus</string>
+    <string name="campus_entiore">Campus Entiore</string>
+    <string name="campus_lascrosses">Campus Lascrosses</string>
+    <string name="campus_paris">Campus Paris</string>
+    <string name="required_field">Champs obligatoire</string>
+    <string name="username_exist">Ce nom d\'utilisateur existe déjà</string>
 </resources>
