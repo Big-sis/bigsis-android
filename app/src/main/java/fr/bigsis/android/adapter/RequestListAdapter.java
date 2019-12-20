@@ -80,7 +80,7 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
         });
        // FirestoreHelper.updateUserProfile(idContact, "users", mCurrentUserId, "Request received", idContact);
 
-        FirestoreHelper.update("users", mCurrentUserId, "Request received", "imageProfileUrl");
+       // FirestoreHelper.update("users", mCurrentUserId, "Request received", "imageProfileUrl");
 
         //  FirestoreHelper.updateUserProfile(mCurrentUserId, "trips", idTrip, "participants", mCurrentUserId);
 

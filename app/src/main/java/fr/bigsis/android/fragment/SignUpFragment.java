@@ -29,8 +29,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.MainActivity;
 import fr.bigsis.android.activity.PolicyCGUActivity;
 import fr.bigsis.android.activity.SignInActivity;
+import fr.bigsis.android.activity.SignUpActivity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.viewModel.SignUpViewModel;
 
@@ -158,7 +160,7 @@ public class SignUpFragment extends Fragment {
                                             userEntity.setOrganism(organism);
                                         }
                                         db.collection("USERS").document(user_id).set(userEntity, SetOptions.merge());
-                                        db.collection(organism).document("allUsers").collection("users")
+                                        db.collection(organism).document("AllCampus").collection("AllUsers")
                                                 .document(user_id).set(userEntity, SetOptions.merge()).addOnCompleteListener(new OnCompleteListener<Void>() {
                                             @Override
                                             public void onComplete(@NonNull Task<Void> task) {
@@ -175,7 +177,7 @@ public class SignUpFragment extends Fragment {
                                                             positiveButton.setOnClickListener(new View.OnClickListener() {
                                                                 @Override
                                                                 public void onClick(View v) {
-                                                                    startActivity(new Intent(getActivity(), SignInActivity.class));
+                                                                    startActivity(new Intent(getActivity(), MainActivity.class));
                                                                 }
                                                             });
 

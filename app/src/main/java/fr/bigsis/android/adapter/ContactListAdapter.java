@@ -69,7 +69,7 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
 
         }
         //FirestoreHelper.updateUserProfile(idContact, "users", mCurrentUserId, "Friends", idContact);
-        FirestoreHelper.update("users", mCurrentUserId, "Friends", "imageProfileUrl");
+       // FirestoreHelper.update("users", mCurrentUserId, "Friends", "imageProfileUrl");
 
         //GO TO PROFILE
         holder.itemView.setOnClickListener(new View.OnClickListener() {

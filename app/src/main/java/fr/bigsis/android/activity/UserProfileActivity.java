@@ -70,19 +70,9 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
                 startActivity(new Intent(UserProfileActivity.this, MapsActivity.class));
             }
         });
-
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("users")
-                .document(userId).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        firstname = documentSnapshot.getString("firstname");
-                        lastname = documentSnapshot.getString("lastname");
-                    }
-                });
         openFragment();
     }
 

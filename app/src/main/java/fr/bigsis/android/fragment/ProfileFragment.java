@@ -47,7 +47,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvUserDescFragment;
     private FloatingActionButton fbEdit;
     private String userId, user_name, description_user, imageProfileUrl;
-    private String firstname, lastname;
+    private String firstname, lastname, groupCampus;
     private FirebaseFirestore mFirestore;
     private FirebaseAuth mFirebaseAuth;
     private Uri imageProfileUri;
@@ -72,7 +72,7 @@ public class ProfileFragment extends Fragment {
         userId = mFirebaseAuth.getCurrentUser().getUid();
 
         mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("users")
+        mFirestore.collection("USERS")
                 .document(userId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
@@ -83,18 +83,18 @@ public class ProfileFragment extends Fragment {
                         imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         tvUserNameFragment.setText(firstname + " " + lastname);
                         tvUserDescFragment.setText(description_user);
-                        StorageReference storageRef = FirebaseStorage.getInstance()
-                                .getReferenceFromUrl(imageProfileUrl);
-                        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Uri downloadUrl = uri;
-                                String urlImage = downloadUrl.toString();
-                                Glide.with(getActivity())
-                                        .load(urlImage)
-                                        .into(circleImageView);
-                            }
-                        });
+                            StorageReference storageRef = FirebaseStorage.getInstance()
+                                    .getReferenceFromUrl(imageProfileUrl);
+                            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Uri downloadUrl = uri;
+                                    String urlImage = downloadUrl.toString();
+                                    Glide.with(getActivity())
+                                            .load(urlImage)
+                                            .into(circleImageView);
+                                }
+                            });
                     }
                 });
     }
@@ -182,7 +182,7 @@ public class ProfileFragment extends Fragment {
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         String user_id = mFirebaseAuth.getCurrentUser().getUid();
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
-                        db.collection("users")
+                        db.collection("USERS")
                                 .document(user_id)
                                 .update("imageProfileUrl", link).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
@@ -191,7 +191,7 @@ public class ProfileFragment extends Fragment {
                                         Toast.LENGTH_LONG).show();
                             }
                         });
-                        FirestoreHelper.updateUserProfile(user_id, "users", user_id, "Friends", user_id,"imageProfileUrl");
+                       // FirestoreHelper.updateUserProfile(user_id, "users", user_id, "Friends", user_id,"imageProfileUrl");
                     }
                 });
             }

@@ -139,17 +139,20 @@ public class FirestoreHelper {
                 .delete();
     }
 
-    public static void updateUserProfile(String id, String collection2,
-                                         String idTwo, String subCollecion, String idThree, String field ) {
-        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("users")
-                .document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+    public static void updateUserProfile(String campusName, String id, String collection2,
+                                         String idTwo, String subCollecion,  String field ) {
+            FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+
+        mFirestore.collection("TBS").document("AllCampus").collection("AllCampus")
+                .document(campusName).collection("users").document(id).get()
+      .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 String imageProfileUrlUpdated = documentSnapshot.getString("imageProfileUrl");
-                DocumentReference documentReference = mFirestore.collection(collection2)
-                        .document(idTwo).collection(subCollecion)
-                        .document(idThree);
+                DocumentReference documentReference = mFirestore.collection("TBS")
+                        .document("AllCampus").collection("AllCampus")
+                        .document(campusName).collection(collection2).document(idTwo)
+                        .collection(subCollecion).document(id);
                 documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -157,27 +160,37 @@ public class FirestoreHelper {
                         if(!imageProfileUrlUpdated.equals(imageProfileUrl)){
                             documentReference.update(field,imageProfileUrlUpdated);
                         }
-
                     }
                 });
-
+                mFirestore.collection("TBS")
+                        .document("AllCampus")
+                        .collection(collection2).document(idTwo)
+                        .collection("participants").document(id)
+                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String imageProfileUrl = documentSnapshot.getString(field);
+                        if(!imageProfileUrlUpdated.equals(imageProfileUrl)){
+                            documentReference.update(field,imageProfileUrlUpdated);
+                        }
+                    }
+                });
             }
         });
-
     }
 
-    public static void update(String collection2,
+    public static void compare(String collection2,
                               String idTwo, String subCollecion, String field) {
 
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("users")
+        mFirestore.collection("USERS")
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         String idForimage = document.getId().toString();
-
+                        String campusName = document.getString("groupCampus");
                         mFirestore.collection(collection2).document(idTwo)
                                 .collection(subCollecion)
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -187,7 +200,7 @@ public class FirestoreHelper {
                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                         String id = document.getId().toString();
                                         if(idForimage.equals(id)) {
-                                            updateUserProfile(idForimage, collection2, idTwo,subCollecion,id, field);
+                                            updateUserProfile( campusName, idForimage, collection2, idTwo,subCollecion, field);
                                     }
                                 }
                                     }
@@ -199,14 +212,14 @@ public class FirestoreHelper {
         });
     }
 
-    public static void setDataUserInCampus(String userID, String idGroup) {
+
+    public static void setDataUserInCampus(String userID) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("USERS").document(userID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        mFirestore.collection("USERS").
+                document(userID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 Boolean admin = documentSnapshot.getBoolean("admin");
-                Boolean creator = documentSnapshot.getBoolean("creator");
-                Boolean online = documentSnapshot.getBoolean("admin");
                 String description = documentSnapshot.getString("description");
                 String firstname = documentSnapshot.getString("firstname");
                 String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
@@ -215,9 +228,8 @@ public class FirestoreHelper {
                 String username = documentSnapshot.getString("username");
                 String groupCampus = documentSnapshot.getString("groupCampus");
                 UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, admin, groupCampus, organism);
-
-                mFirestore.collection(organism).document("AllCampus").collection("AllCampus").document(idGroup)
-                        .collection("users").document(userID).set(userEntity, SetOptions.merge());
+                mFirestore.collection(organism).document("AllCampus").collection("AllCampus").document(groupCampus)
+                        .collection("Users").document(userID).set(userEntity, SetOptions.merge());
             }
         });
     }

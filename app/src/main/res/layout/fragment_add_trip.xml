@@ -55,7 +55,19 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/etAddFromDestination" />
-
+        <TextView
+            android:id="@+id/tvGroupCampusTrip"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="50dp"
+            android:drawableEnd="@drawable/ic_open"
+            android:text="@string/select_participants"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvDateTripAdd" />
         <Button
             android:id="@+id/btCreateTrip"
             android:layout_width="wrap_content"
@@ -72,7 +84,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvDateTripAdd" />
+            app:layout_constraintTop_toBottomOf="@+id/tvGroupCampusTrip" />
 
         <TextView
             android:id="@+id/tvDateTripAdd"

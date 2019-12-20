@@ -64,8 +64,8 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         holder.textViewTitle.setText(model.getTitle());
         SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
         holder.textViewDate.setText(format.format(model.getDate().getTime()));
-        FirestoreHelper.update("GroupChat", id, "participants", "imageProfileUrl");
-        FirestoreHelper.update("GroupChat", id, "chat", "imageUSer");
+        //FirestoreHelper.update("GroupChat", id, "participants", "imageProfileUrl");
+        //FirestoreHelper.update("GroupChat", id, "chat", "imageUSer");
 
         RequestOptions myOptions = new RequestOptions()
                 .fitCenter()
@@ -75,7 +75,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                 .apply(myOptions)
                 .load(model.getImageGroup())
                 .into(holder.imgViewGroupe);
-        mFirestore.collection("GroupChat").document(id).collection("participants")
+        mFirestore.collection("GroupChat").document(id).collection("Participants")
                 .whereEqualTo("creator", true).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -98,7 +98,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                         }
                     }
                 });
-        mFirestore.collection("GroupChat").document(id).collection("participants")
+        mFirestore.collection("GroupChat").document(id).collection("Participants")
                 .limit(1).whereEqualTo("creator", false).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

@@ -16,8 +16,10 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -52,12 +54,18 @@ public class RequestFragment extends Fragment {
         RecyclerView mRecyclerRequest = view.findViewById(R.id.rvRequestList);
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
-        mFirestore = FirebaseFirestore.getInstance();
+        //TODO
+        mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String groupCampus = documentSnapshot.getString("groupCampus");
+            }
+        });
 
         Query query = FirebaseFirestore.getInstance()
-                .collection("users")
-                .document(mCurrentUserId)
-                .collection("Request received");
+                .collection("TBS")
+                .document("AllCampus")
+                .collection("AllCampus");
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)

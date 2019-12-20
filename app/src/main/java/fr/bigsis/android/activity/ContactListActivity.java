@@ -79,7 +79,7 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
 
-        db.collection("users")
+        db.collection("USERS")
                 .document(mCurrentUserId)
                 .collection("Request received").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -142,14 +142,12 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
     }
 
     public void openFragment() {
-
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
         transaction.addToBackStack(null);
         transaction.add(R.id.fragment_container_contact, fragmentProfile, "PROFILE_USER_FRAGMENT")
                 .commit();
-
     }
 
     private void setUpAdapterForContacts() {

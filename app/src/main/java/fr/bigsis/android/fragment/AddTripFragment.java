@@ -20,8 +20,10 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.text.SimpleDateFormat;
@@ -35,6 +37,7 @@ import fr.bigsis.android.activity.SplashTripCreatedActivity;
 import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.helpers.FirestoreDBHelper;
 
 public class AddTripFragment extends Fragment {
 
@@ -42,13 +45,12 @@ public class AddTripFragment extends Fragment {
     private EditText etAddFromDestination;
     private EditText etAddToDestination;
     private Button btCreate;
-    private TextView tvDateTrip;
+    private TextView tvDateTrip, tvGroupCampusTrip;
     private Date date;
     private Calendar dateCal;
     private FirebaseAuth mAuth;
     private FirebaseFirestore mFirestore;
     private String userId;
-    private FirebaseAuth.AuthStateListener mAuthListener;
 
     public AddTripFragment() {
     }
@@ -79,6 +81,7 @@ public class AddTripFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_add_trip, container, false);
         etAddFromDestination = view.findViewById(R.id.etAddFromDestination);
         etAddToDestination = view.findViewById(R.id.etAddToDestination);
+        tvGroupCampusTrip = view.findViewById(R.id.tvGroupCampusTrip);
         tvDateTrip = view.findViewById(R.id.tvDateTripAdd);
         btCreate = view.findViewById(R.id.btCreateTrip);
         tvDateTrip.setText(getDateTimeFromTimeStamp(System.currentTimeMillis(), "E dd MMM, HH:mm"));
@@ -94,6 +97,7 @@ public class AddTripFragment extends Fragment {
                 createTrip();
             }
         });
+
         return view;
     }
 
@@ -121,12 +125,14 @@ public class AddTripFragment extends Fragment {
     private void createTrip() {
         userId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("users")
+        mFirestore.collection("USERS")
                 .document(userId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String username = documentSnapshot.getString("username");
+                        String groupCampus = documentSnapshot.getString("groupCampus");
+                        String organism = documentSnapshot.getString("organism");
                         String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         String firstname = documentSnapshot.getString("firstname");
                         String lastname = documentSnapshot.getString("lastname");
@@ -136,9 +142,6 @@ public class AddTripFragment extends Fragment {
                         String toFrom = etAddToDestination.getText().toString();
                         String token = FirebaseInstanceId.getInstance().getToken();
 
-                        String KEY = "eCinHruQlvOrt7tG4MbkaVIvuiyeYzir";
-                        //TODO DELETE MAP
-                        String url = "https://open.mapquestapi.com/staticmap/v5/map?start=" + addFrom + "|via-33AB62&end=" + toFrom + "&routeWidth=5&routeColor=33AB62&type=light&size=170,170&&defaultMarker=marker-sm-33AB62&key=" + KEY;
                         UserEntity userEntity = new UserEntity(username, description,
                                 imageProfileUrl, firstname, lastname, true, isAdmin, false, userId);
 
@@ -151,49 +154,38 @@ public class AddTripFragment extends Fragment {
                             return;
                         }
                         CollectionReference tripReference = FirebaseFirestore.getInstance()
-                                .collection("trips");
-                        CollectionReference userListsRef = mFirestore.collection("users").document(userId).collection("tripList");
-                        TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, url, username);
-                        tripReference.document(addFrom + "to" + toFrom).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                .collection(organism).document("AllCampus").collection("AllCampus").document(organism)
+                                .collection("Trips");
+                        CollectionReference userListsRef = mFirestore.collection(organism)
+                                .document("AllCampus").collection("Users").document(userId)
+                                .collection("TripList");
+
+                        TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, null, username);
+                        tripReference.add(tripEntity).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                             @Override
-                            public void onSuccess(Void aVoid) {
+                            public void onSuccess(DocumentReference documentReference) {
                                 Intent intent = new Intent(getActivity(), SplashTripCreatedActivity.class);
-                                intent.putExtra("Trip", "trip");
+                                intent.putExtra("Trip", "event");
                                 startActivity(intent);
-                                String idtrip = addFrom + "to" + toFrom;
-                                userListsRef.document(idtrip).set(tripEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        mFirestore.collection("trips")
-                                                .document(idtrip)
-                                                .collection("participants")
-                                                .document(userId)
-                                                .set(userEntity);
-                                        String titleTrip = addFrom + " ... " + toFrom;
-                                        String idGroup = idtrip+"chatGroup";
-                                        GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip,  url, date);
-                                        CollectionReference groupChatRef = mFirestore.collection("GroupChat");
-                                        groupChatRef.document(idGroup)
-                                                .set(groupChatEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                groupChatRef.document(idGroup).collection("participants")
-                                                        .document(userId)
-                                                        .set(userEntity);
+                                String tripId = documentReference.getId();
+                                FirestoreDBHelper.setDataInOneCampus(organism, groupCampus, "Trips", tripId, tripEntity);
+                                GroupChatEntity groupChatEntity = new GroupChatEntity(addFrom, null, date);
+                                FirestoreDBHelper.setDataInOneCampus(organism, groupCampus, "ChatGroup", tripId, groupChatEntity);
+                                CollectionReference groupChatRef =mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                                        .document(groupCampus).collection("GroupChat");
+                                groupChatRef.document(tripId).set(tripEntity);
+                                        groupChatRef.document(tripId).collection("Participants")
+                                        .document(userId)
+                                        .set(userEntity);
+                                DocumentReference documentReferenceUser =  mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                                        .document(groupCampus).collection("Users")
+                                        .document(userId);
 
-                                                groupChatRef.document(idGroup).collection("trip")
-                                                        .document(idtrip)
-                                                        .set(tripEntity);
+                                documentReferenceUser.collection("GroupChat")
+                                        .document(tripId)
+                                        .set(groupChatEntity);
 
-                                                mFirestore.collection("users")
-                                                        .document(userId)
-                                                        .collection("groupChat")
-                                                        .document(idGroup)
-                                                        .set(groupChatEntity);
-                                            }
-                                        });
-                                    }
-                                });
+                                documentReferenceUser.collection("Trips").document(tripId).set(tripEntity, SetOptions.merge());
                             }
                         });
                     }

@@ -30,6 +30,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.auth.User;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.constant.Constant;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.viewModel.SignUpViewModel;
@@ -83,19 +84,19 @@ public class StartSignUpFragment extends Fragment {
         btSignUpStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                username = etUserNameSignUp.getText().toString();
+                username = etUserNameSignUp.getText().toString().toLowerCase().trim();
                 if (TextUtils.isEmpty(username)) {
                     etUserNameSignUp.setError(getString(R.string.required_field));
                     etUserNameSignUp.requestFocus();
                     return;
                 }
-                lastname = etNameSignUp.getText().toString();
+                lastname = etNameSignUp.getText().toString().trim();
                 if (TextUtils.isEmpty(lastname)) {
                     etNameSignUp.setError(getString(R.string.required_field));
                     etNameSignUp.requestFocus();
                     return;
                 }
-                firstname = etFirstnameSignUp.getText().toString();
+                firstname = etFirstnameSignUp.getText().toString().trim();
                 if (TextUtils.isEmpty(firstname)) {
                     etFirstnameSignUp.setError(getString(R.string.required_field));
                     etFirstnameSignUp.requestFocus();
@@ -103,13 +104,13 @@ public class StartSignUpFragment extends Fragment {
                 }
                 mFirestore = FirebaseFirestore.getInstance();
                 CollectionReference usersRef = mFirestore.collection("USERS");
-                Query query = usersRef.whereEqualTo("username", username.toLowerCase());
+                Query query = usersRef.whereEqualTo("username", username);
                 query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if(task.isSuccessful()){
                             for(DocumentSnapshot documentSnapshot : task.getResult()){
-                                String user = documentSnapshot.getString("username").toLowerCase();
+                                String user = documentSnapshot.getString("username").toLowerCase().trim();
                                 if(user.equals(username.toLowerCase())){
                                     etUserNameSignUp.setError(getString(R.string.username_exist));
                                     etUserNameSignUp.requestFocus();
@@ -118,8 +119,8 @@ public class StartSignUpFragment extends Fragment {
                             }
                         }
                         if(task.getResult().size() == 0 ){
-                            description = etDescriptionSignUp.getText().toString();
-                            UserEntity userEntity = new UserEntity(username, description, null, firstname, lastname, false, null, null);
+                            description = etDescriptionSignUp.getText().toString().trim();
+                            UserEntity userEntity = new UserEntity(username, description, Constant.URL_DEFAULT_PROFILE_IMAGE, firstname, lastname, false, null, null);
                             viewModel.setUser(userEntity);
                             openFragment();
                             KeyboardHelper.CloseKeyboard(getContext(), view);

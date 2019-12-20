@@ -56,7 +56,7 @@ public class ChooseGroupAdapter extends FirestorePagingAdapter<OrganismEntity, C
         });
         if (item.getIdGroup() == selectedGroup) {
             holder.mTextName.setSelected(true);
-            clickFinish(organism, mCurrentUserId, item.getGroupName(), item.getIdGroup());
+            clickFinish(organism, mCurrentUserId, item.getGroupName());
         } else {
             holder.mTextName.setSelected(false);
         }
@@ -70,13 +70,14 @@ public class ChooseGroupAdapter extends FirestorePagingAdapter<OrganismEntity, C
         return new ChooseGroupViewHolder(view);
     }
 
-    public void clickFinish(String organism, String idUser, String groupName, String idGroup) {
+    public void clickFinish(String organism, String idUser, String groupName) {
         finish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 mFirestore.collection("USERS").document(idUser).update("groupCampus", groupName);
-                FirestoreHelper.setDataUserInCampus(idUser, idGroup);
-                mFirestore.collection(organism).document("allUsers").collection("users")
+                FirestoreHelper.setDataUserInCampus(idUser);
+
+                mFirestore.collection(organism).document("AllCampus").collection("AllUsers")
                         .document(idUser).update("groupCampus", groupName).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {

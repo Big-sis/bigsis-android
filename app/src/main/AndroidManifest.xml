@@ -27,7 +27,8 @@
         <activity android:name=".activity.ChooseGroupActivity" />
         <activity android:name=".activity.SignInActivity" />
         <activity
-            android:name=".activity.SignUpActivity" />
+            android:name=".activity.SignUpActivity"
+            android:noHistory="true"/>
         <activity android:name=".activity.EventListActivity" />
         <activity android:name=".activity.ChatActivity" />
         <activity android:name=".activity.GroupConversationActivity" />

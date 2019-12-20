@@ -69,8 +69,8 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                 .collection("participants")
                 .document(mCurrentUserId);
 
-        FirestoreHelper.update("events", idEvent, "participants","imageProfileUrl");
-        FirestoreHelper.update("events", idEvent, "staffMembers", "imageProfileUrl");
+       // FirestoreHelper.update("events", idEvent, "participants","imageProfileUrl");
+        //FirestoreHelper.update("events", idEvent, "staffMembers", "imageProfileUrl");
         SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
         holder.textViewDateEvent.setText(format.format(model.getDateStart()));
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -141,9 +141,9 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                             String lastname = documentSnapshot.getString("lastname");
                             String descripition = documentSnapshot.getString("description");
                             Boolean isAdmin = documentSnapshot.getBoolean("admin");
-                            UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl, firstname, lastname, false, isAdmin);
-                            FirestoreHelper.setData("events", idEvent, "participants", mCurrentUserId, userEntity);
-                            FirestoreHelper.setData("GroupChat", idEvent, "participants", mCurrentUserId, userEntity);
+                          //  UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl, firstname, lastname, false, isAdmin);
+                          //  FirestoreHelper.setData("events", idEvent, "participants", mCurrentUserId, userEntity);
+                            //FirestoreHelper.setData("GroupChat", idEvent, "participants", mCurrentUserId, userEntity);
 
                         }
                     });

@@ -76,7 +76,7 @@ public class GroupConversationActivity extends BigsisActivity {
     }
 
     private void setUpRecyclerView() {
-        Query query = db.collection("users").document(mCurrentUserId).collection("groupChat");
+        Query query = db.collection("USERS").document(mCurrentUserId).collection("GroupChat");
         FirestoreRecyclerOptions<GroupChatEntity> options = new FirestoreRecyclerOptions.Builder<GroupChatEntity>()
                 .setQuery(query, GroupChatEntity.class)
                 .build();

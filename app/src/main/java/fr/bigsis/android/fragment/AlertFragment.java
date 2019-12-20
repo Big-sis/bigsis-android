@@ -27,8 +27,8 @@ public class AlertFragment extends Fragment {
     private Button btCallFireFighter;
     private Button btAlertStaff;
     private ImageButton imgBtCancel;
-    private String callPolice = "tel:0615556798";
-    private String callFireFighter= "tel:0615556798";
+    private String callPolice = "tel:0684242687";
+    private String callFireFighter= "tel:0684242687";
 
     public AlertFragment() {
     }

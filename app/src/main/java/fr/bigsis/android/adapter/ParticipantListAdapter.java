@@ -70,9 +70,9 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-        DocumentReference documentReferenceRequestSent = mFirestore.collection("users")
+        DocumentReference documentReferenceRequestSent = mFirestore.collection("USERS")
                 .document(mCurrentUserId)
-                .collection("Request sent")
+                .collection("RequestSent")
                 .document(idContact);
 
         // Check if request was sent or not , and keep the button in the right color
@@ -88,7 +88,7 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                 }
             }
         });
-        mFirestore.collection("users")
+        mFirestore.collection("USERS")
                 .document(mCurrentUserId)
                 .collection("Friends")
                 .document(idContact).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -114,9 +114,9 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
             }
         });
 
-        mFirestore.collection("users")
+        mFirestore.collection("USERS")
                 .document(mCurrentUserId)
-                .collection("Request sent")
+                .collection("RequestSent")
                 .document(idContact).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -140,32 +140,40 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                     holder.btRequestFriend.setSelected(true);
                     holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
 
-                    mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             String username = documentSnapshot.getString("username");
                             String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                            String description = documentSnapshot.getString("description");
                             String firstname = documentSnapshot.getString("firstname");
                             String lastname = documentSnapshot.getString("lastname");
-                            UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname, false);
-                            mFirestore.collection("users")
+                            String nameCampus = documentSnapshot.getString("groupCampus");
+                            String organism = documentSnapshot.getString("organism");
+                            Boolean admin = documentSnapshot.getBoolean("admin");
+                            UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, admin, nameCampus, organism);
+                            mFirestore.collection("USERS")
                                     .document(idContact)
-                                    .collection("Request received")
+                                    .collection("RequestReceived")
                                     .document(mCurrentUserId)
                                     .set(userEntity, SetOptions.merge());
                         }
                     });
-                    mFirestore.collection("users").document(idContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    mFirestore.collection("USERS").document(idContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
                             String username = documentSnapshot.getString("username");
                             String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                            String description = documentSnapshot.getString("description");
                             String firstname = documentSnapshot.getString("firstname");
                             String lastname = documentSnapshot.getString("lastname");
-                            UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname, false);
-                            mFirestore.collection("users")
+                            String nameCampus = documentSnapshot.getString("groupCampus");
+                            String organism = documentSnapshot.getString("organism");
+                            Boolean admin = documentSnapshot.getBoolean("admin");
+                            UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, admin, nameCampus, organism);
+                            mFirestore.collection("USERS")
                                     .document(mCurrentUserId)
-                                    .collection("Request sent")
+                                    .collection("RequestSent")
                                     .document(idContact)
                                     .set(userEntity, SetOptions.merge());
                         }
@@ -176,9 +184,9 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
 
                     holder.btRequestFriend.setSelected(false);
                     holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorAccent));
-                    mFirestore.collection("users")
+                    mFirestore.collection("USERS")
                             .document(idContact)
-                            .collection("Request received")
+                            .collection("RequestReceived")
                             .document(mCurrentUserId)
                             .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -189,9 +197,9 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                         }
                     });
 
-                    mFirestore.collection("users")
+                    mFirestore.collection("USERS")
                             .document(mCurrentUserId)
-                            .collection("Request sent")
+                            .collection("RequestSent")
                             .document(idContact)
                             .delete();
                     i = 0;
@@ -211,7 +219,7 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                 btDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mFirestore.collection("users")
+                        mFirestore.collection("USERS")
                                 .document(mCurrentUserId)
                                 .collection("Friends")
                                 .document(idContact)
@@ -222,7 +230,7 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                                         .show();
                             }
                         });
-                        mFirestore.collection("users")
+                        mFirestore.collection("USERS")
                                 .document(idContact)
                                 .collection("Friends")
                                 .document(mCurrentUserId)
