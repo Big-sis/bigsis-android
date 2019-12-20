@@ -16,20 +16,20 @@ public class FirestoreDBHelper {
                 .document(nameCampus).collection(nameCollection).document(idCollection).set(object, SetOptions.merge());
     }
 
-    public static void setParticipantOrCreatorToCollectionInOneCampus (String organism, String nameCampus, String nameCollection,
-                                                                       String idCollection, String participantOrCreator, String idUser,
+    public static void setParticipantToCollectionInOneCampus (String organism, String nameCampus, String nameCollection,
+                                                                       String idCollection, String idUser,
                                                                        Object object) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection(nameCollection).document(idCollection).collection(participantOrCreator)
+                .document(nameCampus).collection(nameCollection).document(idCollection).collection("Participants")
                 .document(idUser).set(object);
     }
 
-    public static void deleteParticipantOrCreatorInOneCampus (String organism, String nameCampus, String nameCollection,
-                                                                       String idCollection, String participantOrCreator, String idUser) {
+    public static void deleteParticipantInOneCampus (String organism, String nameCampus, String nameCollection,
+                                                                       String idCollection, String idUser) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection(nameCollection).document(idCollection).collection(participantOrCreator)
+                .document(nameCampus).collection(nameCollection).document(idCollection).collection("Participants")
                 .document(idUser).delete();
     }
 

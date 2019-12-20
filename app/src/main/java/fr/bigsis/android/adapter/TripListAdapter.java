@@ -2,26 +2,19 @@ package fr.bigsis.android.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
-import android.location.Address;
-import android.location.Geocoder;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
@@ -29,47 +22,47 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
-import fr.bigsis.android.helpers.FirestoreHelper;
 
 public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripListAdapter.TripViewHolder> {
 
-    FirebaseStorage storage;
+    private FirebaseStorage storage = FirebaseStorage.getInstance();
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Context mContext;
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
-    String TAG = "triplist";
-    int i = 0;
+    private int i = 0;
+    private String nameCampus;
+    private String organism;
 
-    public TripListAdapter(@NonNull FirestorePagingOptions<TripEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
+    public TripListAdapter(@NonNull FirestorePagingOptions<TripEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout,
+                           String nameCampus, String organism) {
         super(options);
         mContext = context;
         mSwipeRefreshLayout = swipeRefreshLayout;
+        this.nameCampus = nameCampus;
+        this.organism = organism;
     }
 
     @Override
@@ -80,47 +73,62 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+
+        DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                .document(nameCampus).collection("Trips")
+                .document(idTrip)
+                .collection("Participants")
+                .document(mCurrentUserId);
+        //Check if creator or not and modify button
+        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                .document(nameCampus).collection("Trips").document(idTrip).collection("Creator").document(mCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-
-                String nameCampus = documentSnapshot.getString("groupCampus");
-                String organism = documentSnapshot.getString("organism");
-
-                DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                        .document(nameCampus).collection("Trips")
-                        .document(idTrip)
-                        .collection("Participants")
-                        .document(mCurrentUserId);
-                //Check if user is participating to a trip or not , and keep the button in the right color
-                documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot document = task.getResult();
-                            if (document.exists()) {
-                                i = 1;
-                                holder.btParticipate.setSelected(true);
-                                holder.btParticipate.setText("Ne plus participer");
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        holder.btParticipate.setSelected(true);
+                        holder.btParticipate.setText(R.string.modify);
+                        holder.btParticipate.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                //TODO MODIFY TRIP
+                                Toast.makeText(mContext, "you'll be able to update this, but not now :)", Toast.LENGTH_LONG).show();
                             }
-                        } else {
-                            Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
-                        }
+                        });
                     }
-                });
-
+                }
             }
         });
-       // FirestoreHelper.update("trips", idTrip, "participants", "imageProfileUrl");
+
+        //Check if user is participating to a trip or not , and keep the button in the right color
+
+        documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    Boolean creator = document.getBoolean("creator");
+                    if (document.exists() && !creator) {
+                        i = 1;
+                        holder.btParticipate.setSelected(true);
+                        holder.btParticipate.setText("Ne plus participer");
+                    }
+                } else {
+                    Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        // FirestoreHelper.update("trips", idTrip, "participants", "imageProfileUrl");
 
 
-      //  FirestoreHelper.updateUserProfile(mCurrentUserId, "trips", idTrip, "participants", mCurrentUserId);
+        //  FirestoreHelper.updateUserProfile(mCurrentUserId, "trips", idTrip, "participants", mCurrentUserId);
 
         holder.btParticipate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //partcipate to a trip
-                if (i == 0 ) {
+                if (i == 0) {
                     holder.btParticipate.setSelected(true);
                     holder.btParticipate.setText("Ne plus participer");
 
@@ -137,55 +145,37 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String organism = documentSnapshot.getString("organism");
                             UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
                                     firstname, lastname, isAdmin, false, nameCampus, organism);
-
-                            FirestoreDBHelper.setParticipantOrCreatorToCollectionInOneCampus(organism, nameCampus, "Trips", idTrip, "Participants", mCurrentUserId, userEntity);
-                            FirestoreDBHelper.setParticipantOrCreatorToCollectionInOneCampus(organism, nameCampus, "Trips", idTrip, "Creator", mCurrentUserId, userEntity);
-                           // FirestoreHelper.setData("trips", idTrip, "participants", mCurrentUserId, userEntity);
-                            FirestoreDBHelper.setParticipantOrCreatorToCollectionInOneCampus(organism, nameCampus, "GroupChat", idTrip, "Participants", mCurrentUserId, userEntity);
+                            FirestoreDBHelper.setParticipantToCollectionInOneCampus(organism, nameCampus, "Trips", idTrip, mCurrentUserId, userEntity);
+                            FirestoreDBHelper.setParticipantToCollectionInOneCampus(organism, nameCampus, "ChatGroup", idTrip, mCurrentUserId, userEntity);
                             String from = item.getFrom();
                             String to = item.getTo();
                             Date date = item.getDate();
-                            String image = item.getImage();
                             String createdBy = item.getCreatedBy();
-                            TripEntity tripEntity = new TripEntity(from, to, date, image, createdBy);
+                            TripEntity tripEntity = new TripEntity(from, to, date, createdBy);
                             mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateTo").document(idTrip).set(tripEntity);
-                            //FirestoreHelper.setData("users", mCurrentUserId, "participateTo", idTrip, tripEntity);
                             String titleTrip = from + " ... " + to;
-                            GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, image, date);
-                            FirestoreDBHelper.setData("USERS", mCurrentUserId, "GroupChat", idTrip, groupChatEntity);
-
-                            //  FirestoreHelper.setData("GroupChat", idGroup, "participants", mCurrentUserId, userEntity);
+                            GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, null, date);
+                            FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idTrip, groupChatEntity);
                         }
                     });
-
                     i++;
                     //unparticipate
                 } else if (i == 1 || holder.btParticipate.isSelected()) {
-                    mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            String nameCampus = documentSnapshot.getString("groupCampus");
-                            String organism = documentSnapshot.getString("organism");
-
-                            holder.btParticipate.setSelected(false);
-                            holder.btParticipate.setTextColor(ContextCompat.getColor(mContext, R.color.colorAccent));
-                            holder.btParticipate.setText("Participer");
-
-                            FirestoreDBHelper.deleteParticipantOrCreatorInOneCampus(organism, nameCampus, "Trips", idTrip,"Participants", mCurrentUserId);
-                            FirestoreDBHelper.deleteParticipantOrCreatorInOneCampus(organism, nameCampus, "GroupChat", idTrip,"Participants", mCurrentUserId);
-                            FirestoreDBHelper.deleteFromdb( "USERS", mCurrentUserId, "ParticipateTo", idTrip);
-                            FirestoreDBHelper.deleteFromdb( "USERS", mCurrentUserId, "GroupChat", idTrip);
-                            i = 0;
-                        }
-                    });
-
+                    holder.btParticipate.setSelected(false);
+                    holder.btParticipate.setText("Participer");
+                    FirestoreDBHelper.deleteParticipantInOneCampus(organism, nameCampus, "Trips", idTrip, mCurrentUserId);
+                    FirestoreDBHelper.deleteParticipantInOneCampus(organism, nameCampus, "GroupChat", idTrip, mCurrentUserId);
+                    FirestoreDBHelper.deleteFromdb("USERS", mCurrentUserId, "ParticipateTo", idTrip);
+                    FirestoreDBHelper.deleteFromdb("USERS", mCurrentUserId, "ChatGroup", idTrip);
+                    i = 0;
                 }
             }
         });
       /*  holder.mImvTripImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFirestore.collection("trips").document(idTrip).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    mFirestore.collection(organism).document("AllCampus").collection("AllCampus").document(nameCampus).collection("Trips").document(idTrip).get()
+.addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String to = documentSnapshot.getString("to");
@@ -197,82 +187,74 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 });
             }
         });*/
-        mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String nameCampus = documentSnapshot.getString("groupCampus");
-                String organism = documentSnapshot.getString("organism");
-
-                mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                        .document(nameCampus).collection("Trips").document(idTrip).collection("Participants")
-                        .whereEqualTo("creator", false).get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    for (QueryDocumentSnapshot document : task.getResult()) {
-                                        String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
-                                            storage = FirebaseStorage.getInstance();
-                                            StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
-                                            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                                @Override
-                                                public void onSuccess(Uri uri) {
-                                                    Uri downloadUrl = uri;
-                                                    String urlImage = downloadUrl.toString();
-                                                    Glide.with(holder.profile_image_one.getContext())
-                                                            .load(urlImage)
-                                                            .into(holder.profile_image_one);
-                                                }
-                                            });
-                                        }
-                                    }
-                            }
-                        });
-                mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                        .document(nameCampus).collection("Trips").document(idTrip).collection("Participants")
-                        .get()
-                        .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                            @Override
-                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                if (task.isSuccessful()) {
-                                    int count = 0;
-                                    for (DocumentSnapshot document : task.getResult()) {
-                                        count++;
-                                    }
-                                    holder.mtvMore.setText(String.valueOf("+" + (count - 2)));
-                                    if (count < 2) {
-                                        holder.profile_image_one.setVisibility(View.GONE);
-                                        holder.mtvMore.setText(String.valueOf("..."));
-                                    }
-                                }
-                            }
-                        });
-                mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                        .document(nameCampus).collection("Trips").document(idTrip).collection("Participants")
-                        .whereEqualTo("Creator", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                .document(nameCampus).collection("Trips").document(idTrip).collection("Participants")
+                .whereEqualTo("creator", false).get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
-                                storage = FirebaseStorage.getInstance();
                                 StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
                                 storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                     @Override
                                     public void onSuccess(Uri uri) {
                                         Uri downloadUrl = uri;
                                         String urlImage = downloadUrl.toString();
-                                        Glide.with(holder.profile_image_two.getContext())
+                                        Glide.with(holder.profile_image_one.getContext())
                                                 .load(urlImage)
-                                                .into(holder.profile_image_two);
+                                                .into(holder.profile_image_one);
                                     }
                                 });
                             }
                         }
                     }
                 });
+
+        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                .document(nameCampus).collection("Trips").document(idTrip).collection("Participants")
+                .whereEqualTo("creator", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
+
+                        StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
+                        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Uri downloadUrl = uri;
+                                String urlImage = downloadUrl.toString();
+                                Glide.with(holder.profile_image_two.getContext())
+                                        .load(urlImage)
+                                        .into(holder.profile_image_two);
+                            }
+                        });
+                    }
+                }
             }
         });
+        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                .document(nameCampus).collection("Trips").document(idTrip).collection("Participants")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int count = 0;
+                            for (DocumentSnapshot document : task.getResult()) {
+                                count++;
+                            }
+                            holder.mtvMore.setText("+" + (count - 2));
+                            if (count < 2) {
+                                holder.profile_image_one.setVisibility(View.GONE);
+                                holder.mtvMore.setText("...");
+                            }
+                        }
+                    }
+                });
 
         holder.profile_image_one.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -299,6 +281,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         intent.putExtra("ID_TRIP", idTrip);
         mContext.startActivity(intent);
     }
+
     @NonNull
     @Override
     public TripViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -338,18 +321,18 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         TextView mTextTo;
         @BindView(R.id.tvMore)
         TextView mtvMore;
-       @BindView(R.id.ivTripImage)
-        ImageView imgview;
+        @BindView(R.id.ivTripImage)
+        CircleImageView imgview;
         @BindView(R.id.tvDateTrip)
         TextView mTextDate;
         @BindView(R.id.btParticipate)
         Button btParticipate;
         @BindView(R.id.profile_image_one)
-        ImageView profile_image_one;
+        CircleImageView profile_image_one;
         @BindView(R.id.profile_image_two)
-        ImageView profile_image_two;
+        CircleImageView profile_image_two;
         @BindView(R.id.profile_image_three)
-        ImageView profile_image_three;
+        CircleImageView profile_image_three;
         private View mView;
 
         public TripViewHolder(@NonNull View itemView) {
@@ -362,9 +345,11 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
             mTextFrom.setText(item.getFrom());
             mTextTo.setText(item.getTo());
             SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-
             mTextDate.setText(format.format(item.getDate().getTime()));
-
+            Glide.with(imgview)
+                    .asBitmap()
+                    .load(R.drawable.ic_confusing_directions_filled)
+                    .into(imgview);
         }
     }
 }

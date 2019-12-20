@@ -232,7 +232,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                         .setQuery(query, config, TripEntity.class)
                         .build();
 
-                TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout);
+                TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism);
 
                 mRecycler.setLayoutManager(new LinearLayoutManager(TripListActivity.this));
                 mRecycler.setAdapter(adapter);
