@@ -28,24 +28,24 @@ import fr.bigsis.android.entity.OrganismEntity;
 import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.viewModel.ChooseParticipantViewModel;
 
-public class ChooseGroupAdapter extends FirestorePagingAdapter<OrganismEntity, ChooseGroupAdapter.ChooseGroupViewHolder> {
+public class ChooseParticipantAdapter extends FirestorePagingAdapter<OrganismEntity, ChooseParticipantAdapter.ChooseParticipantHolder> {
     String selectedGroup;
-    Button finish;
     String organism;
     private Context mContext;
     private FirebaseFirestore mFirestore;
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
+    private ChooseParticipantViewModel viewModel;
 
-    public ChooseGroupAdapter(@NonNull FirestorePagingOptions<OrganismEntity> options, Context context, Button finish, String organism) {
+    public ChooseParticipantAdapter(@NonNull FirestorePagingOptions<OrganismEntity> options, Context context, String organism) {
         super(options);
         mContext = context;
-        this.finish = finish;
         this.organism = organism;
+        viewModel = ViewModelProviders.of((FragmentActivity) mContext).get(ChooseParticipantViewModel.class);
     }
 
     @Override
-    protected void onBindViewHolder(@NonNull ChooseGroupViewHolder holder, int position, @NonNull OrganismEntity item) {
+    protected void onBindViewHolder(@NonNull ChooseParticipantHolder holder, int position, @NonNull OrganismEntity item) {
         holder.bind(item);
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
@@ -55,13 +55,14 @@ public class ChooseGroupAdapter extends FirestorePagingAdapter<OrganismEntity, C
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                viewModel.setParticipant(item.getGroupName());
                 selectedGroup = item.getIdGroup();
                 notifyDataSetChanged();
             }
         });
         if (item.getIdGroup() == selectedGroup) {
             holder.mTextName.setSelected(true);
-            clickFinish(organism, mCurrentUserId, item.getGroupName());
+
         } else {
             holder.mTextName.setSelected(false);
         }
@@ -69,41 +70,32 @@ public class ChooseGroupAdapter extends FirestorePagingAdapter<OrganismEntity, C
 
     @NonNull
     @Override
-    public ChooseGroupViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChooseParticipantHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.item_choose_group, parent, false);
-        return new ChooseGroupViewHolder(view);
+        return new ChooseParticipantHolder(view);
     }
 
-    public void clickFinish(String organism, String idUser, String groupName) {
-        finish.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mFirestore.collection("USERS").document(idUser).update("groupCampus", groupName);
-                FirestoreHelper.setDataUserInCampus(idUser);
 
-                mFirestore.collection(organism).document("AllCampus").collection("AllUsers")
-                        .document(idUser).update("groupCampus", groupName).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        mContext.startActivity(new Intent(mContext, MapsActivity.class));
-                    }
-                });
-            }
-        });
-    }
-
-    class ChooseGroupViewHolder extends RecyclerView.ViewHolder {
+    class ChooseParticipantHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.tvNameGroup)
         TextView mTextName;
         private View mView;
-        public ChooseGroupViewHolder(@NonNull View itemView) {
+        public ChooseParticipantHolder(@NonNull View itemView) {
             super(itemView);
             this.mView = itemView;
             ButterKnife.bind(this, itemView);
         }
         public void bind(@NonNull OrganismEntity item) {
             mTextName.setText(item.getGroupName());
+            viewModel.getParticipant().observe((FragmentActivity)mContext, new Observer<String>() {
+                @Override
+                public void onChanged(String s) {
+                    if (viewModel.getParticipant().getValue().equals("Tous les campus")) {
+                        mTextName.setSelected(false);
+                    }
+                }
+            });
         }
     }
 }

@@ -2,6 +2,7 @@ package fr.bigsis.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
@@ -17,6 +19,7 @@ import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.ChooseGroupAdapter;
 import fr.bigsis.android.entity.OrganismEntity;
+import fr.bigsis.android.helpers.FirestoreHelper;
 
 public class ChooseGroupActivity extends AppCompatActivity {
 
@@ -54,5 +57,23 @@ public class ChooseGroupActivity extends AppCompatActivity {
         ChooseGroupAdapter adapterRequest = new ChooseGroupAdapter(options, ChooseGroupActivity.this, btFinish, organism);
         mRecyclerRequest.setLayoutManager(new LinearLayoutManager(ChooseGroupActivity.this));
         mRecyclerRequest.setAdapter(adapterRequest);
+    }
+
+    public void clickFinish(String organism, String idUser, String groupName) {
+        btFinish.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseFirestore.getInstance().collection("USERS").document(idUser).update("groupCampus", groupName);
+                FirestoreHelper.setDataUserInCampus(idUser);
+
+                FirebaseFirestore.getInstance().collection(organism).document("AllCampus").collection("AllUsers")
+                        .document(idUser).update("groupCampus", groupName).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        startActivity(new Intent(ChooseGroupActivity.this, MapsActivity.class));
+                    }
+                });
+            }
+        });
     }
 }

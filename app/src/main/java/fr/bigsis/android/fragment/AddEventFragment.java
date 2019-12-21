@@ -242,17 +242,7 @@ public class AddEventFragment extends Fragment {
                                         FirestoreHelper.setData("events", eventId, "participants", userId, userEntity);
                                     }
                                 });
-                                viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
-                                viewModel.getParticipantList().observe(getActivity(), new Observer<List<UserEntity>>() {
-                                    @Override
-                                    public void onChanged(List<UserEntity> userEntities) {
-                                        for (UserEntity user : userEntities) {
-                                            FirestoreHelper.setData("events", eventId,"participants", user.getUserId(), user);
-                                            FirestoreHelper.setData("users", user.getUserId(),"eventList", eventId, eventEntity);
-                                            FirestoreHelper.setData("GroupChat", eventId,"participants", user.getUserId(), user);
-                                        }
-                                    }
-                                });
+
                                 FirestoreHelper.setData("events", eventId, "staffMembers", userId, userEntity);
                                 viewModel.getStaffList().observe(getActivity(), new Observer<List<UserEntity>>() {
                                     @Override
@@ -265,7 +255,6 @@ public class AddEventFragment extends Fragment {
                                         }
                                     }
                                 });
-                                viewModel.reset();
                                 viewModel.resetStaffMember();
                             }
                         });
@@ -295,7 +284,6 @@ public class AddEventFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
-
     private void openFragmentAddParticipantEvent() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -304,7 +292,6 @@ public class AddEventFragment extends Fragment {
         transaction.add(R.id.fragment_container_event, fragmentParticipantAdd, "CHOOSE_FG")
                 .commit();
     }
-
     private void openFragmentAddStaffEvent() {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();

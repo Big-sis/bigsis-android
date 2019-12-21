@@ -80,4 +80,9 @@
     <string name="campus_paris">Campus Paris</string>
     <string name="required_field">Champs obligatoire</string>
     <string name="username_exist">Ce nom d\'utilisateur existe déjà</string>
+    <string name="edit_my_trip">Modifier mon trajet</string>
+    <string name="delete_trip">Vouslez vous vraiment supprimer ce trajet ?</string>
+    <string name="delete_contact">Voulez-vous vraiment supprimer ce contact?</string>
+    <string name="or">- OU -</string>
+    <string name="all_campus">Tous les campus</string>
 </resources>

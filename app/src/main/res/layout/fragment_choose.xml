@@ -7,16 +7,35 @@
     android:background="@color/colorWhite"
     tools:context=".fragment.ChooseParticipantFragment">
 
+    <TextView
+        android:id="@+id/tvAllCampus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@drawable/custom_button"
+        android:gravity="center"
+        android:padding="10dp"
+        android:textColor="@drawable/text_color_button"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="@string/all_campus" />
+
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvssss"
+        android:id="@+id/rvParticipantGroup"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:background="@color/colorWhite"
         app:layout_constraintBottom_toTopOf="@+id/btFinish"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/tvOr" />
 
     <Button
         android:id="@+id/btFinish"
@@ -35,5 +54,18 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/tvOr"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="18dp"
+        android:text="@string/or"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tvAllCampus" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

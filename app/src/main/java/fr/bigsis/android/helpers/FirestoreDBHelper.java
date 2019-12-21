@@ -8,6 +8,9 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class FirestoreDBHelper {
 
     public static void setDataInOneCampus(String organism, String nameCampus, String nameCollection, String idCollection, Object object) {
@@ -51,4 +54,10 @@ public class FirestoreDBHelper {
                 .delete();
     }
 
+    public static void updateDataInOneCampus(String organism, String nameCampus, String nameCollection, String idCollection,
+                                             Map<String, Object> hashMap) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                .document(nameCampus).collection(nameCollection).document(idCollection).update(hashMap);
+    }
 }

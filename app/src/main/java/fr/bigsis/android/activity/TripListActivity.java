@@ -36,6 +36,7 @@ import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.TripListAdapter;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
+import fr.bigsis.android.fragment.ChooseParticipantFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.fragment.ToolBarFragment;
 import fr.bigsis.android.helpers.KeyboardHelper;
@@ -43,7 +44,8 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 
-public class TripListActivity extends BigsisActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener, ToolBarFragment.OnFragmentInteractionListener {
+public class TripListActivity extends BigsisActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener,
+        ToolBarFragment.OnFragmentInteractionListener, ChooseParticipantFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "TripListActivity";
     SearchMenuFragment fragmentOpen = SearchMenuFragment.newInstance();
@@ -174,9 +176,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                 FragmentTransaction ft = manager.beginTransaction();
                 Fragment addMenu = manager.findFragmentByTag("ADD_MENU_FRAGMENT");
                 Fragment searchMenu = manager.findFragmentByTag("SEARCH_MENU_FRAGMENT");
-                if (addMenu != null) {
-                    ft.remove(addMenu).commitAllowingStateLoss();
-                }
+
                 if (searchMenu != null) {
                     ft.remove(searchMenu).commitAllowingStateLoss();
                 }
@@ -184,7 +184,8 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                     onFragmentInteraction();
                 }
                 if (fragmentAdd.isAdded()) {
-                    onFragmentInteractionAdd();
+                    ft.remove(fragmentAdd).commitAllowingStateLoss();
+                    onBackPressed();
                 }
                 tvTitleToolbar.setText(R.string.trips);
                 KeyboardHelper.CloseKeyboard(TripListActivity.this, view);
@@ -232,7 +233,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                         .setQuery(query, config, TripEntity.class)
                         .build();
 
-                TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism);
+                TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd);
 
                 mRecycler.setLayoutManager(new LinearLayoutManager(TripListActivity.this));
                 mRecycler.setAdapter(adapter);
@@ -251,7 +252,11 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
         } else {
             baseQuery = mItemsCollection.orderBy("date", Query.Direction.DESCENDING);
         }
+    }
 
-
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+            startActivity(new Intent(TripListActivity.this, MapsActivity.class));
     }
 }

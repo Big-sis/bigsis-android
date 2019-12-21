@@ -14,36 +14,11 @@ import fr.bigsis.android.entity.UserEntity;
 
 public class ChooseUsersViewModel extends ViewModel {
 
-    private MutableLiveData<List<UserEntity>> participantListLiveData = new MutableLiveData<List<UserEntity>>();
-    private ArrayList<UserEntity> participantList = new ArrayList<>();
-
     private MutableLiveData<List<UserEntity>> staffListLiveData = new MutableLiveData<List<UserEntity>>();
     private ArrayList<UserEntity> staffList = new ArrayList<>();
 
-    public void init() {
-        participantListLiveData = new MutableLiveData<List<UserEntity>>();
-    }
-
-    public LiveData<List<UserEntity>> getParticipantList(){
-        return participantListLiveData;
-    }
-
     public LiveData<List<UserEntity>> getStaffList(){
         return staffListLiveData;
-    }
-
-    public void addParticipant(UserEntity user){
-        participantList.add(user);
-        participantListLiveData.setValue(participantList);
-    }
-
-    public void removeParticipant(UserEntity user) {
-        participantList.remove(user);
-    }
-
-    public void reset() {
-        participantList.clear();
-        participantListLiveData.setValue(participantList);
     }
 
     public void addStaffMember(UserEntity user){

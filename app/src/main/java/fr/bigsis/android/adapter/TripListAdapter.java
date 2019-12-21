@@ -3,6 +3,7 @@ package fr.bigsis.android.adapter;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
@@ -42,6 +46,7 @@ import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
 
 public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripListAdapter.TripViewHolder> {
@@ -55,14 +60,16 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
     private int i = 0;
     private String nameCampus;
     private String organism;
+    AddTripFragment fragmentAdd;
 
     public TripListAdapter(@NonNull FirestorePagingOptions<TripEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout,
-                           String nameCampus, String organism) {
+                           String nameCampus, String organism, AddTripFragment fragmentAdd) {
         super(options);
         mContext = context;
         mSwipeRefreshLayout = swipeRefreshLayout;
         this.nameCampus = nameCampus;
         this.organism = organism;
+        this.fragmentAdd = fragmentAdd;
     }
 
     @Override
@@ -92,9 +99,27 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                         holder.btParticipate.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                //TODO MODIFY TRIP
-                                Toast.makeText(mContext, "you'll be able to update this, but not now :)", Toast.LENGTH_LONG).show();
-                            }
+                                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+                                Bundle bundle = new Bundle();
+                                bundle.putString("ID_TRIP", idTrip);
+                                bundle.putString("FROM", item.getFrom());
+                                bundle.putString("TO", item.getTo());
+                                bundle.putString("CAMPUS", item.getSharedIn());
+                                bundle.putString("ORGANISM_TRIP", item.getOrganism());
+                                bundle.putString("DATE", format.format(item.getDate().getTime()));
+                                bundle.putString("CREATED_BY", item.getCreatedBy());
+
+                                fragmentAdd = new AddTripFragment();
+                                fragmentAdd.setArguments(bundle);
+
+                                FragmentManager fragmentManager = ((AppCompatActivity)mContext).getSupportFragmentManager();
+                                FragmentTransaction transaction = fragmentManager.beginTransaction();
+                                transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+                                transaction.addToBackStack(null);
+                                transaction.add(R.id.fragment_container, fragmentAdd, "ADD_MENU_FRAGMENT")
+                                        .commit();
+                                            }
+
                         });
                     }
                 }
@@ -151,7 +176,9 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String to = item.getTo();
                             Date date = item.getDate();
                             String createdBy = item.getCreatedBy();
-                            TripEntity tripEntity = new TripEntity(from, to, date, createdBy);
+                            String sharedIn = item.getSharedIn();
+                            String organismTrip = item.getOrganism();
+                            TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip);
                             mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateTo").document(idTrip).set(tripEntity);
                             String titleTrip = from + " ... " + to;
                             GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, null, date);
@@ -281,7 +308,9 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         intent.putExtra("ID_TRIP", idTrip);
         mContext.startActivity(intent);
     }
+    public void openFragment() {
 
+    }
     @NonNull
     @Override
     public TripViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -352,4 +381,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                     .into(imgview);
         }
     }
+
+
 }

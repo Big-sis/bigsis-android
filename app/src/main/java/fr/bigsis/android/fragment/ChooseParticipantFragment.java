@@ -9,9 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -22,15 +25,23 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.List;
 
+import butterknife.ButterKnife;
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.ChooseGroupActivity;
+import fr.bigsis.android.adapter.ChooseGroupAdapter;
+import fr.bigsis.android.adapter.ChooseParticipantAdapter;
 import fr.bigsis.android.adapter.ChooseUsersAdapter;
+import fr.bigsis.android.entity.OrganismEntity;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.viewModel.ChooseParticipantViewModel;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 import fr.bigsis.android.viewModel.SearchContactViewModel;
 
@@ -39,8 +50,13 @@ public class ChooseParticipantFragment extends Fragment {
 
     Button btFinish;
     private OnFragmentInteractionListener mListener;
-    private ChooseUsersViewModel viewModel;
-
+    private ChooseParticipantViewModel viewModel;
+    private FirebaseFirestore mFirestore;
+    private String userId;
+    private FirebaseAuth mAuth;
+    private TextView tvAllCampus;
+    ConstraintLayout transitionContainer;
+    ImageButton imBtCancel, imgBtBack;
     public ChooseParticipantFragment() {
     }
 
@@ -61,44 +77,81 @@ public class ChooseParticipantFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_choose, container, false);
+        ButterKnife.bind(getActivity());
+        viewModel = ViewModelProviders.of(getActivity()).get(ChooseParticipantViewModel.class);
         btFinish = view.findViewById(R.id.btFinish);
-        viewModel = ViewModelProviders.of(this).get(ChooseUsersViewModel.class);
+        tvAllCampus = view.findViewById(R.id.tvAllCampus);
+        transitionContainer = getActivity().findViewById(R.id.toolbarLayout);
+        imBtCancel = transitionContainer.findViewById(R.id.imBt_cancel_frag);
+        imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
+        imBtCancel.setVisibility(View.GONE);
+        imgBtBack.setVisibility(View.VISIBLE);
+        tvAllCampus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewModel.setParticipant(tvAllCampus.getText().toString());
+                tvAllCampus.setSelected(true);
+            }
+        });
+        imgBtBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewModel.setParticipant("");
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                FragmentTransaction ft = manager.beginTransaction();
+                Fragment addFrag = manager.findFragmentByTag("CHOOSE");
+                ft.remove(addFrag).commitAllowingStateLoss();
+                getActivity().onBackPressed();
+                imBtCancel.setVisibility(View.VISIBLE);
+                imgBtBack.setVisibility(View.GONE);
+            }
+        });
+        viewModel.getParticipant().observe(getActivity(), new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                if(viewModel.getParticipant().getValue() != tvAllCampus.getText().toString()){
+                    tvAllCampus.setSelected(false);
+                }
+            }
+        });
 
         btFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
-                viewModel.getParticipantList().observe(getActivity(), new Observer<List<UserEntity>>() {
-                    @Override
-                    public void onChanged(List<UserEntity> userEntities) {
-                    }
-                });
                 FragmentManager manager = getActivity().getSupportFragmentManager();
                 FragmentTransaction ft = manager.beginTransaction();
-                Fragment addFrag = manager.findFragmentByTag("CHOOSE_FG");
+                Fragment addFrag = manager.findFragmentByTag("CHOOSE");
                 ft.remove(addFrag).commitAllowingStateLoss();
                 getActivity().onBackPressed();
+                imBtCancel.setVisibility(View.VISIBLE);
+                imgBtBack.setVisibility(View.GONE);
             }
         });
-        RecyclerView mRecyclerRequest = view.findViewById(R.id.rvssss);
-        Query query = FirebaseFirestore.getInstance()
-                .collection("users");
-
-        PagedList.Config config = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .setPageSize(20)
-                .build();
-
-        FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
-                .setLifecycleOwner(this)
-                .setQuery(query, config, UserEntity.class)
-                .build();
-
-        ChooseUsersAdapter adapterRequest = new ChooseUsersAdapter(options, getContext());
-        mRecyclerRequest.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRecyclerRequest.setAdapter(adapterRequest);
+        mFirestore = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        userId = mAuth.getCurrentUser().getUid();
+        mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String organism = documentSnapshot.getString("organism");
+                RecyclerView mRecyclerRequest = view.findViewById(R.id.rvParticipantGroup);
+                Query query = mFirestore
+                        .collection(organism).document("AllCampus").collection("AllCampus")
+                        .orderBy("groupName", Query.Direction.ASCENDING);
+                PagedList.Config config = new PagedList.Config.Builder()
+                        .setEnablePlaceholders(false)
+                        .setPrefetchDistance(10)
+                        .setPageSize(20)
+                        .build();
+                FirestorePagingOptions<OrganismEntity> options = new FirestorePagingOptions.Builder<OrganismEntity>()
+                        .setLifecycleOwner(getActivity())
+                        .setQuery(query, config, OrganismEntity.class)
+                        .build();
+                ChooseParticipantAdapter adapterRequest = new ChooseParticipantAdapter(options, getContext(), organism);
+                mRecyclerRequest.setLayoutManager(new LinearLayoutManager(getContext()));
+                mRecyclerRequest.setAdapter(adapterRequest);
+            }
+        });
         return view;
     }
 
