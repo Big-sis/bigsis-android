@@ -2,6 +2,7 @@ package fr.bigsis.android.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -11,6 +12,7 @@ public class SplashTripCreatedActivity extends AppCompatActivity {
 
     String event;
     String trip;
+    TextView tvSplash;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,7 +22,13 @@ public class SplashTripCreatedActivity extends AppCompatActivity {
         Bundle extras = iin.getExtras();
         event = extras.getString("Event");
         trip = extras.getString("Trip");
-
+        tvSplash = findViewById(R.id.tvSplash);
+        if (trip != null) {
+            tvSplash.setText(getString(R.string.your_trip_is) + trip);
+        }
+        if (event != null) {
+            tvSplash.setText(getString(R.string.your_event_is) + event);
+        }
         Thread myThread = new Thread() {
             @Override
             public void run() {

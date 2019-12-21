@@ -120,7 +120,7 @@ public class StartSignUpFragment extends Fragment {
                         }
                         if(task.getResult().size() == 0 ){
                             description = etDescriptionSignUp.getText().toString().trim();
-                            UserEntity userEntity = new UserEntity(username, description, Constant.URL_DEFAULT_PROFILE_IMAGE, firstname, lastname, false, null, null);
+                            UserEntity userEntity = new UserEntity(username, description, null, firstname, lastname, false, null, null);
                             viewModel.setUser(userEntity);
                             openFragment();
                             KeyboardHelper.CloseKeyboard(getContext(), view);

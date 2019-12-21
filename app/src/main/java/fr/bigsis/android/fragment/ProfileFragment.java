@@ -83,6 +83,7 @@ public class ProfileFragment extends Fragment {
                         imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         tvUserNameFragment.setText(firstname + " " + lastname);
                         tvUserDescFragment.setText(description_user);
+                        if(!imageProfileUrl.equals("")) {
                             StorageReference storageRef = FirebaseStorage.getInstance()
                                     .getReferenceFromUrl(imageProfileUrl);
                             storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -95,6 +96,7 @@ public class ProfileFragment extends Fragment {
                                             .into(circleImageView);
                                 }
                             });
+                        }
                     }
                 });
     }
@@ -115,6 +117,7 @@ public class ProfileFragment extends Fragment {
             }
         });
         mStroageReference = FirebaseStorage.getInstance().getReference("images");
+
         return view;
     }
 
@@ -182,16 +185,25 @@ public class ProfileFragment extends Fragment {
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                         String user_id = mFirebaseAuth.getCurrentUser().getUid();
                         FirebaseFirestore db = FirebaseFirestore.getInstance();
-                        db.collection("USERS")
-                                .document(user_id)
-                                .update("imageProfileUrl", link).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        db.collection("USERS").document(user_id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                Toast.makeText(getActivity(), "Votre image a bien été modifiée",
-                                        Toast.LENGTH_LONG).show();
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                String oldImage = documentSnapshot.getString("imageProfileUrl");
+                                StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(oldImage);
+                                photoRef.delete();
+                                db.collection("USERS")
+                                        .document(user_id)
+                                        .update("imageProfileUrl", link).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        Toast.makeText(getActivity(), "Votre image a bien été modifiée",
+                                                Toast.LENGTH_LONG).show();
+                                    }
+                                });
+                                FirestoreHelper.updateImage(user_id, link);
                             }
                         });
-                       // FirestoreHelper.updateUserProfile(user_id, "users", user_id, "Friends", user_id,"imageProfileUrl");
+
                     }
                 });
             }

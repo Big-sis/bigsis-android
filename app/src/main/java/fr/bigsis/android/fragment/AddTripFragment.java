@@ -53,6 +53,7 @@ import fr.bigsis.android.entity.GroupChatEntity;
 import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.helpers.AddTripHelper;
+import fr.bigsis.android.helpers.FirestoreDBHelper;
 import fr.bigsis.android.viewModel.ChooseParticipantViewModel;
 
 public class AddTripFragment extends Fragment {
@@ -70,6 +71,8 @@ public class AddTripFragment extends Fragment {
     private ChooseParticipantViewModel viewModel;
     private ConstraintLayout transitionContainer;
     private ImageButton imbtSearch, imBtAdd, imgBtBack, imBtCancel, imgBtDelete;
+    private String createdOrUpdated;
+
 
     public AddTripFragment() {
     }
@@ -168,12 +171,14 @@ public class AddTripFragment extends Fragment {
             btCreate.setText(R.string.modify);
             tvTitleToolbar.setText(R.string.edit_my_trip);
             imgBtDelete.setVisibility(View.VISIBLE);
+            createdOrUpdated = getString(R.string.updated);
         }
 
         btCreate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (updateFrom == null) {
+                    createdOrUpdated = getString(R.string.added);
                     createTrip();
                 } else {
                     updateTrip(organism_trip, updateCampus, updateCampus, id);
@@ -259,6 +264,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                         String groupCampusName = viewModel.getParticipant().getValue();
                         UserEntity userEntity = new UserEntity(username, description,
                                 imageProfileUrl, firstname, lastname, true, isAdmin, groupNameUser, organism);
+
                         if (addFrom.trim().isEmpty() || toFrom.trim().isEmpty()) {
                             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
                             return;
@@ -274,6 +280,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                         TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, username, groupCampusName, organism);
                         GroupChatEntity groupChatEntity = new GroupChatEntity(addFrom, Constant.URL_DEFAULT_TRIP, date);
                         setData(organism, tripEntity, groupChatEntity, userEntity, groupCampusName);
+
                     }
                 });
     }
@@ -364,7 +371,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
             @Override
             public void onSuccess(DocumentReference documentReference) {
                 Intent intent = new Intent(getActivity(), SplashTripCreatedActivity.class);
-                intent.putExtra("Trip", "event");
+                intent.putExtra("Trip", createdOrUpdated);
                 startActivity(intent);
                 String tripId = documentReference.getId();
                 mFirestore.collection(organism).document("AllCampus")
@@ -390,6 +397,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                 userDocumentRef.collection("TripList")
                         .document(tripId)
                         .set(object);
+                FirestoreDBHelper.setData("USERS", userId, "ChatGroup", tripId, objectGroup);
                 if (groupCampusNameVM.equals("Tous les campus")) {
                     mFirestore.collection(organism).document("AllCampus").collection("AllCampus").get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

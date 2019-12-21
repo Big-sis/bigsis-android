@@ -155,7 +155,7 @@ public class SignUpFragment extends Fragment {
                                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                                         String user_id = mFirebaseAuth.getCurrentUser().getUid();
                                         String organism = "";
-                                        if (email.contains("@tbs-education.org") || email.contains("@hotmail.fr") || email.contains("@gmail.com")) {
+                                        if (email.contains("@tbs-education.org") || email.contains("@hotmail.fr") || email.contains("@gmail.com") || email.contains("@bigsis.fr")) {
                                             organism = "TBS";
                                             userEntity.setOrganism(organism);
                                         }

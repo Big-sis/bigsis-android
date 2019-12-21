@@ -48,6 +48,7 @@ import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
+import fr.bigsis.android.helpers.FirestoreHelper;
 
 public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripListAdapter.TripViewHolder> {
 
@@ -80,15 +81,15 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-
         DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
                 .document(nameCampus).collection("Trips")
                 .document(idTrip)
                 .collection("Participants")
                 .document(mCurrentUserId);
         //Check if creator or not and modify button
-        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection("Trips").document(idTrip).collection("Creator").document(mCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
+                .document(idTrip).collection("Creator").document(mCurrentUserId).get()
+                .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
@@ -170,8 +171,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String organism = documentSnapshot.getString("organism");
                             UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
                                     firstname, lastname, isAdmin, false, nameCampus, organism);
-                            FirestoreDBHelper.setParticipantToCollectionInOneCampus(organism, nameCampus, "Trips", idTrip, mCurrentUserId, userEntity);
-                            FirestoreDBHelper.setParticipantToCollectionInOneCampus(organism, nameCampus, "ChatGroup", idTrip, mCurrentUserId, userEntity);
+                            FirestoreDBHelper.setParticipantTo(organism,  "AllTrips", idTrip, mCurrentUserId, userEntity);
+                            FirestoreDBHelper.setParticipantTo(organism, "AllChatGroups", idTrip, mCurrentUserId, userEntity);
                             String from = item.getFrom();
                             String to = item.getTo();
                             Date date = item.getDate();
@@ -179,7 +180,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String sharedIn = item.getSharedIn();
                             String organismTrip = item.getOrganism();
                             TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip);
-                            mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateTo").document(idTrip).set(tripEntity);
                             String titleTrip = from + " ... " + to;
                             GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, null, date);
                             FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idTrip, groupChatEntity);
@@ -190,9 +190,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 } else if (i == 1 || holder.btParticipate.isSelected()) {
                     holder.btParticipate.setSelected(false);
                     holder.btParticipate.setText("Participer");
-                    FirestoreDBHelper.deleteParticipantInOneCampus(organism, nameCampus, "Trips", idTrip, mCurrentUserId);
-                    FirestoreDBHelper.deleteParticipantInOneCampus(organism, nameCampus, "GroupChat", idTrip, mCurrentUserId);
-                    FirestoreDBHelper.deleteFromdb("USERS", mCurrentUserId, "ParticipateTo", idTrip);
+                    FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllTrips", idTrip, mCurrentUserId);
+                    FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllChatGroups", idTrip, mCurrentUserId);
                     FirestoreDBHelper.deleteFromdb("USERS", mCurrentUserId, "ChatGroup", idTrip);
                     i = 0;
                 }
@@ -214,57 +213,62 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 });
             }
         });*/
-        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection("Trips").document(idTrip).collection("Participants")
-                .whereEqualTo("creator", false).get()
+        mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
+               .document(idTrip).collection("Participants")
+                .whereEqualTo("creator", false).limit(1).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
+
                                 String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
-                                StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
-                                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Uri downloadUrl = uri;
-                                        String urlImage = downloadUrl.toString();
-                                        Glide.with(holder.profile_image_one.getContext())
-                                                .load(urlImage)
-                                                .into(holder.profile_image_one);
-                                    }
-                                });
+                                if(imageProfileUrl != null) {
+                                    StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
+                                    storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            Uri downloadUrl = uri;
+                                            String urlImage = downloadUrl.toString();
+                                            Glide.with(holder.profile_image_one.getContext())
+                                                    .load(urlImage)
+                                                    .into(holder.profile_image_one);
+                                        }
+                                    });
+                                }
                             }
                         }
                     }
                 });
 
-        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection("Trips").document(idTrip).collection("Participants")
-                .whereEqualTo("creator", true).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
+                .document(idTrip).collection("Creator")
+               .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
 
-                        StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
-                        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Uri downloadUrl = uri;
-                                String urlImage = downloadUrl.toString();
-                                Glide.with(holder.profile_image_two.getContext())
-                                        .load(urlImage)
-                                        .into(holder.profile_image_two);
-                            }
-                        });
+                        String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
+                        if(imageProfileUrl != null) {
+                            StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
+                            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Uri downloadUrl = uri;
+                                    String urlImage = downloadUrl.toString();
+                                    Glide.with(holder.profile_image_two.getContext())
+                                            .load(urlImage)
+                                            .into(holder.profile_image_two);
+                                }
+                            });
+                        }
                     }
                 }
             }
         });
-        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection("Trips").document(idTrip).collection("Participants")
+        mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
+            .document(idTrip).collection("Participants")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

@@ -73,7 +73,7 @@
         android:layout_marginEnd="21dp"
         android:background="@drawable/custom_button"
         android:minHeight="30dp"
-        android:text="Ajouter"
+        android:text="@string/add"
         android:textAllCaps="false"
         android:textColor="@drawable/text_color_button"
         app:layout_constraintEnd_toEndOf="parent"

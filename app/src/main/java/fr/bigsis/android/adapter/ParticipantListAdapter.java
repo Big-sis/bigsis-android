@@ -83,7 +83,6 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         holder.btRequestFriend.setSelected(true);
-                        holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
                     }
                 }
             }
@@ -124,7 +123,6 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         holder.btRequestFriend.setSelected(true);
-                        holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
                     }
                 } else {
                     Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
@@ -138,8 +136,6 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
             public void onClick(View v) {
                 if (i == 0) {
                     holder.btRequestFriend.setSelected(true);
-                    holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
-
                     mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
                         public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -183,7 +179,6 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                 } else if (i == 1) {
 
                     holder.btRequestFriend.setSelected(false);
-                    holder.btRequestFriend.setTextColor(ContextCompat.getColor(mContext, R.color.colorAccent));
                     mFirestore.collection("USERS")
                             .document(idContact)
                             .collection("RequestReceived")

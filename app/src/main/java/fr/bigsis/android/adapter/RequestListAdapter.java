@@ -91,50 +91,53 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
             public void onClick(View v) {
                 holder.btAccept.setSelected(true);
                 holder.btAccept.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
-                mFirestore.collection("users").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String username = documentSnapshot.getString("username");
                         String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         String firstname = documentSnapshot.getString("firstname");
                         String lastname = documentSnapshot.getString("lastname");
-                        UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname, false);
-                        mFirestore.collection("users")
+                        String description = documentSnapshot.getString("description");
+                        String organism = documentSnapshot.getString("organism");
+                        String groupCampus = documentSnapshot.getString("groupCampus");
+                        Boolean admin = documentSnapshot.getBoolean("admin");
+                        UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, admin,
+                                groupCampus, organism);
+                        mFirestore.collection("USERS")
                                 .document(idContact)
                                 .collection("Friends")
                                 .document(mCurrentUserId)
                                 .set(userEntity, SetOptions.merge());
-                        //TODO extract STRING
-                        Snackbar.make(v, "Invitation acceptée", Snackbar.LENGTH_LONG)
+                        Snackbar.make(v, mContext.getString(R.string.request_accept), Snackbar.LENGTH_LONG)
                                 .show();
                     }
                 });
-
-                mFirestore.collection("users").document(idContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String username = documentSnapshot.getString("username");
-                        String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
-                        String firstname = documentSnapshot.getString("firstname");
-                        String lastname = documentSnapshot.getString("lastname");
-                        UserEntity userEntity = new UserEntity(username, imageProfileUrl, firstname, lastname, false);
-                        mFirestore.collection("users")
+                        String username = item.getUsername();
+                        String imageProfileUrl = item.getImageProfileUrl();
+                        String firstname = item.getFirstname();
+                        String lastname = item.getLastname();
+                        String organism = item.getOrganism();
+                        String campusName = item.getGroupCampus();
+                        String description = item.getDescription();
+                        Boolean isAdmin = item.isAdmin();
+                        UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, isAdmin,
+                                campusName, organism);
+                        mFirestore.collection("USERS")
                                 .document(mCurrentUserId)
                                 .collection("Friends")
                                 .document(idContact)
                                 .set(userEntity, SetOptions.merge());
-                    }
-                });
 
-                mFirestore.collection("users")
-                        .document(idContact)
-                        .collection("Request sent")
+                mFirestore.collection("USERS")
+                        .document(mCurrentUserId)
+                        .collection("RequestSent")
                         .document(idContact)
                         .delete();
 
-                mFirestore.collection("users")
+                mFirestore.collection("USERS")
                         .document(mCurrentUserId)
-                        .collection("Request received")
+                        .collection("RequestReceived")
                         .document(idContact)
                         .delete();
             }
@@ -144,21 +147,20 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
         holder.imgBtRefuse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFirestore.collection("users")
+                mFirestore.collection("USERS")
                         .document(mCurrentUserId)
-                        .collection("Request sent")
+                        .collection("RequestSent")
                         .document(idContact)
                         .delete();
 
-                mFirestore.collection("users")
+                mFirestore.collection("USERS")
                         .document(idContact)
-                        .collection("Request received")
+                        .collection("RequestReceived")
                         .document(mCurrentUserId)
                         .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        //TODO EXTRACT STRING
-                        Snackbar.make(v, "Invitation refusée", Snackbar.LENGTH_LONG)
+                        Snackbar.make(v, mContext.getString(R.string.request_refused), Snackbar.LENGTH_LONG)
                                 .show();
                     }
                 });

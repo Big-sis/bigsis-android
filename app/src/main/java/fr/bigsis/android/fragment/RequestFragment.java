@@ -26,6 +26,7 @@ import com.google.firebase.firestore.Query;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.RequestListAdapter;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.helpers.FirestoreHelper;
 
 
 public class RequestFragment extends Fragment {
@@ -54,6 +55,10 @@ public class RequestFragment extends Fragment {
         RecyclerView mRecyclerRequest = view.findViewById(R.id.rvRequestList);
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
+        FirestoreHelper.compareForParticipants("AllTrips", "Participants");
+        FirestoreHelper.compareForParticipants("AllTrips", "Creator");
+        FirestoreHelper.compareForParticipants("AllChatGroups", "Participants");
+        FirestoreHelper.compareForParticipants("AllChatGroups", "Creator");
         //TODO
         mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override

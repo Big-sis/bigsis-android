@@ -18,21 +18,20 @@ public class FirestoreDBHelper {
         mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
                 .document(nameCampus).collection(nameCollection).document(idCollection).set(object, SetOptions.merge());
     }
-
-    public static void setParticipantToCollectionInOneCampus (String organism, String nameCampus, String nameCollection,
-                                                                       String idCollection, String idUser,
-                                                                       Object object) {
+    public static void setParticipantTo(String organism, String allTripsOrEventsOrGroups, String idDoc, String idUser, Object object) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection(nameCollection).document(idCollection).collection("Participants")
+        mFirestore.collection(organism).document("AllCampus").collection(allTripsOrEventsOrGroups)
+                .document(idDoc).collection("Participants")
                 .document(idUser).set(object);
     }
 
-    public static void deleteParticipantInOneCampus (String organism, String nameCampus, String nameCollection,
+
+
+    public static void deleteParticipantFromDatab (String organism, String allTripsOrEventsOrGroups,
                                                                        String idCollection, String idUser) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection(nameCollection).document(idCollection).collection("Participants")
+        mFirestore.collection(organism).document("AllCampus").collection(allTripsOrEventsOrGroups)
+        .document(idCollection).collection("Participants")
                 .document(idUser).delete();
     }
 

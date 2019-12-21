@@ -85,4 +85,10 @@
     <string name="delete_contact">Voulez-vous vraiment supprimer ce contact?</string>
     <string name="or">- OU -</string>
     <string name="all_campus">Tous les campus</string>
+    <string name="updated">modifié</string>
+    <string name="added">ajouté</string>
+    <string name="your_trip_is">Votre trajet a été</string>
+    <string name="your_event_is">Votre évènement a été</string>
+    <string name="request_accept">Invitation acceptée</string>
+    <string name="request_refused">Invitation refusée</string>
 </resources>

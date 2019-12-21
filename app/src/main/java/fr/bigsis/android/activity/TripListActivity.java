@@ -39,6 +39,7 @@ import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.fragment.ChooseParticipantFragment;
 import fr.bigsis.android.fragment.SearchMenuFragment;
 import fr.bigsis.android.fragment.ToolBarFragment;
+import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
@@ -73,6 +74,8 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
         viewModel = ViewModelProviders.of(this).get(SearchMenuViewModel.class);
 
         ButterKnife.bind(this);
+        FirestoreHelper.compareForParticipants("AllTrips", "Participants");
+        FirestoreHelper.compareForParticipants("AllTrips", "Creator");
 
         mFirestore = FirebaseFirestore.getInstance();
         mItemsCollection = mFirestore.collection("trips");
@@ -257,6 +260,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-            startActivity(new Intent(TripListActivity.this, MapsActivity.class));
+
     }
 }

@@ -141,13 +141,11 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String nameCampus = documentSnapshot.getString("groupCampus");
                 String organism = documentSnapshot.getString("organism");
 
-
-                Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus").collection("AllCampus")
-                        .document(nameCampus)
-                        .collection("Trips").document(idTrip).collection("Participants");
+                Query query = FirebaseFirestore.getInstance().collection(organism)
+                        .document("AllCampus").collection("AllTrips")
+                 .document(idTrip).collection("Participants");
                 PagedList.Config config = new PagedList.Config.Builder()
                         .setEnablePlaceholders(false)
                         .setPrefetchDistance(10)
