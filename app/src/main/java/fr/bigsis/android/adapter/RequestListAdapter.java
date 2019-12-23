@@ -126,13 +126,13 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
 
                 mFirestore.collection("USERS")
                         .document(mCurrentUserId)
-                        .collection("RequestSent")
+                        .collection("RequestReceived")
                         .document(idContact)
                         .delete();
 
                 mFirestore.collection("USERS")
                         .document(idContact)
-                        .collection("RequestReceived")
+                        .collection("RequestSent")
                         .document(mCurrentUserId)
                         .delete();
             }

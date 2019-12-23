@@ -91,4 +91,9 @@
     <string name="your_event_is">Votre évènement a été</string>
     <string name="request_accept">Invitation acceptée</string>
     <string name="request_refused">Invitation refusée</string>
+    <string name="account">Compte</string>
+    <string name="security">Sécurité</string>
+    <string name="log_out">Déconnexion</string>
+    <string name="delete_my_account">Supprimer mon compte</string>
+    <string name="settings">Paramètres</string>
 </resources>

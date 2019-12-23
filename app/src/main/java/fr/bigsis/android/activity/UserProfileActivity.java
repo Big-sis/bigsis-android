@@ -96,9 +96,7 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
         imBtSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                finish();
-                startActivity(new Intent(UserProfileActivity.this, MainActivity.class));
+                startActivity(new Intent(UserProfileActivity.this, SettingsActivity.class));
             }
         });
     }

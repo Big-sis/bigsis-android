@@ -59,7 +59,7 @@ public class OtherUserProfileFragment extends Fragment {
         String idContact = getArguments().getString("idString");
 
         mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("users")
+        mFirestore.collection("USERS")
                 .document(idContact)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -71,17 +71,19 @@ public class OtherUserProfileFragment extends Fragment {
                         imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         tvUserName.setText(firstname + " " + lastname);
                         tvUserDescription.setText(descriptionUser);
-                        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
-                        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                            @Override
-                            public void onSuccess(Uri uri) {
-                                Uri downloadUrl = uri;
-                                String urlImage = downloadUrl.toString();
-                                Glide.with(getActivity())
-                                        .load(urlImage)
-                                        .into(circleImageView);
-                            }
-                        });
+                        if(imageProfileUrl != null) {
+                            StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+                            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                @Override
+                                public void onSuccess(Uri uri) {
+                                    Uri downloadUrl = uri;
+                                    String urlImage = downloadUrl.toString();
+                                    Glide.with(getActivity())
+                                            .load(urlImage)
+                                            .into(circleImageView);
+                                }
+                            });
+                        }
                     }
                 });
         return view;
