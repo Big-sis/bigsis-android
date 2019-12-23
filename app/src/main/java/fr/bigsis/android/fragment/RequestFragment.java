@@ -60,17 +60,12 @@ public class RequestFragment extends Fragment {
         FirestoreHelper.compareForParticipants("AllChatGroups", "Participants");
         FirestoreHelper.compareForParticipants("AllChatGroups", "Creator");
         //TODO
-        mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String groupCampus = documentSnapshot.getString("groupCampus");
-            }
-        });
+
 
         Query query = FirebaseFirestore.getInstance()
-                .collection("TBS")
-                .document("AllCampus")
-                .collection("AllCampus");
+                .collection("USERS")
+                .document(mCurrentUserId)
+                .collection("RequestReceived");
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)

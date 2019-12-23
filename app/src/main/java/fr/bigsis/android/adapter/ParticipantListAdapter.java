@@ -147,7 +147,9 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                             String nameCampus = documentSnapshot.getString("groupCampus");
                             String organism = documentSnapshot.getString("organism");
                             Boolean admin = documentSnapshot.getBoolean("admin");
-                            UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, admin, nameCampus, organism);
+                            String lastnameAndFirstname = lastname +" " +firstname;
+
+                            UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, admin, nameCampus, organism, lastnameAndFirstname);
                             mFirestore.collection("USERS")
                                     .document(idContact)
                                     .collection("RequestReceived")
@@ -166,7 +168,8 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                             String nameCampus = documentSnapshot.getString("groupCampus");
                             String organism = documentSnapshot.getString("organism");
                             Boolean admin = documentSnapshot.getBoolean("admin");
-                            UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, admin, nameCampus, organism);
+                            String lastnameAndFirstname = lastname +" " +firstname;
+                            UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, admin, nameCampus, organism, lastnameAndFirstname);
                             mFirestore.collection("USERS")
                                     .document(mCurrentUserId)
                                     .collection("RequestSent")
@@ -323,19 +326,21 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
                     .override(250, 250);
 
             storage = FirebaseStorage.getInstance();
-            StorageReference storageRef = storage.getReferenceFromUrl(item.getImageProfileUrl());
-            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Uri downloadUrl = uri;
-                    String urlImage = downloadUrl.toString();
-                    Glide.with(mImageProfile.getContext())
-                            .asBitmap()
-                            .apply(myOptions)
-                            .load(urlImage)
-                            .into(mImageProfile);
-                }
-            });
+            if (item.getImageProfileUrl() != null) {
+                StorageReference storageRef = storage.getReferenceFromUrl(item.getImageProfileUrl());
+                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Uri downloadUrl = uri;
+                        String urlImage = downloadUrl.toString();
+                        Glide.with(mImageProfile.getContext())
+                                .asBitmap()
+                                .apply(myOptions)
+                                .load(urlImage)
+                                .into(mImageProfile);
+                    }
+                });
+            }
         }
     }
 }

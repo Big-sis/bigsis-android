@@ -68,8 +68,6 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
             holder.itemView.setVisibility(View.VISIBLE);
 
         }
-        //FirestoreHelper.updateUserProfile(idContact, "users", mCurrentUserId, "Friends", idContact);
-       // FirestoreHelper.update("users", mCurrentUserId, "Friends", "imageProfileUrl");
 
         //GO TO PROFILE
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -103,7 +101,7 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                 btDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mFirestore.collection("users")
+                        mFirestore.collection("USERS")
                                 .document(mCurrentUserId)
                                 .collection("Friends")
                                 .document(idContact)
@@ -115,7 +113,7 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                             }
                         });
 
-                        mFirestore.collection("users")
+                        mFirestore.collection("USERS")
                                 .document(idContact)
                                 .collection("Friends")
                                 .document(mCurrentUserId)
@@ -193,7 +191,9 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                     .fitCenter()
                     .override(250, 250);
             storage = FirebaseStorage.getInstance();
+            if(item.getImageProfileUrl()!= null){
             StorageReference storageRef = storage.getReferenceFromUrl(item.getImageProfileUrl());
+
             storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                 @Override
                 public void onSuccess(Uri uri) {
@@ -206,6 +206,6 @@ public class ContactListAdapter extends FirestorePagingAdapter<UserEntity, Conta
                             .into(mImageProfile);
                 }
             });
-        }
+        }}
     }
 }

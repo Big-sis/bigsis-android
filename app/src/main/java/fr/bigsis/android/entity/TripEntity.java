@@ -14,19 +14,24 @@ public class TripEntity {
     private String to;
     private String sharedIn;
     private String organism;
+    private double latDestination;
+    private double lngDestination;
 
     private String createdBy;
 
     public TripEntity() {
     }
 
-    public TripEntity(String from, String to, Date date, String createdBy, String sharedIn, String organism) {
+    public TripEntity(String from, String to, Date date, String createdBy, String sharedIn, String organism,
+                      double latDestination, double lngDestination ) {
         this.from = from;
         this.to = to;
         this.date = date;
         this.createdBy = createdBy;
         this.sharedIn = sharedIn;
         this.organism = organism;
+        this.latDestination = latDestination;
+        this.lngDestination = lngDestination;
     }
 
     public Map<String, Object> toHashMap() {
@@ -90,5 +95,21 @@ public class TripEntity {
 
     public void setOrganism(String organism) {
         this.organism = organism;
+    }
+
+    public double getLatDestination() {
+        return latDestination;
+    }
+
+    public void setLatDestination(double latDestination) {
+        this.latDestination = latDestination;
+    }
+
+    public double getLngDestination() {
+        return lngDestination;
+    }
+
+    public void setLngDestination(double lngDestination) {
+        this.lngDestination = lngDestination;
     }
 }

@@ -1,10 +1,14 @@
 package fr.bigsis.android.fragment;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.location.Address;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +29,10 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.api.Status;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -36,8 +44,17 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
+import com.mapbox.api.geocoding.v5.models.CarmenFeature;
+import com.mapbox.geojson.Feature;
+import com.mapbox.geojson.FeatureCollection;
+import com.mapbox.geojson.Point;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
+import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -56,11 +73,17 @@ import fr.bigsis.android.helpers.AddTripHelper;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
 import fr.bigsis.android.viewModel.ChooseParticipantViewModel;
 
+import static android.app.Activity.RESULT_CANCELED;
+import static android.app.Activity.RESULT_OK;
+import static androidx.constraintlayout.widget.Constraints.TAG;
+import static fr.bigsis.android.constant.Constant.REQUEST_CODE_FROM_AUTOCOMPLETE;
+import static fr.bigsis.android.constant.Constant.REQUEST_CODE_TO_AUTOCOMPLETE;
+
 public class AddTripFragment extends Fragment {
 
     ChooseParticipantFragment fragmentParticipantAdd = ChooseParticipantFragment.newInstance();
     private OnFragmentInteractionListener mListener;
-    private EditText etAddFromDestination, etAddToDestination;
+    private TextView etAddFromDestination, etAddToDestination;
     private Button btCreate;
     private TextView tvDateTrip, tvGroupCampusTrip, tvTitleToolbar;
     private Date date;
@@ -72,7 +95,8 @@ public class AddTripFragment extends Fragment {
     private ConstraintLayout transitionContainer;
     private ImageButton imbtSearch, imBtAdd, imgBtBack, imBtCancel, imgBtDelete;
     private String createdOrUpdated;
-
+    double latDestination;
+    double lngDestination;
 
     public AddTripFragment() {
     }
@@ -124,6 +148,19 @@ public class AddTripFragment extends Fragment {
         String updateDate = getArguments().getString("DATE");
         String organism_trip = getArguments().getString("ORGANISM_TRIP");
 
+        etAddFromDestination.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                suggestPlaces(REQUEST_CODE_FROM_AUTOCOMPLETE);
+            }
+        });
+
+        etAddToDestination.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                suggestPlaces(REQUEST_CODE_TO_AUTOCOMPLETE);
+            }
+        });
         imBtCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -193,6 +230,33 @@ public class AddTripFragment extends Fragment {
             }
         });
         return view;
+    }
+    public void suggestPlaces(int code){
+        Intent intent = new PlaceAutocomplete.IntentBuilder()
+                .accessToken(Constant.MAPBOX_ACCESS_TOKEN)
+                .placeOptions(PlaceOptions.builder()
+                        .backgroundColor(getResources().getColor(R.color.colorPrimary))
+                        .toolbarColor(getResources().getColor(R.color.colorAccent))
+                        .limit(10)
+                        .country(Locale.FRANCE)
+                        .geocodingTypes()
+                        .build(PlaceOptions.MODE_CARDS))
+                .build(getActivity());
+        startActivityForResult(intent, code);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_FROM_AUTOCOMPLETE) {
+            CarmenFeature feature = PlaceAutocomplete.getPlace(data);
+            etAddFromDestination.setText(feature.text());
+
+        } else if (resultCode == Activity.RESULT_OK && requestCode == REQUEST_CODE_TO_AUTOCOMPLETE) {
+            CarmenFeature feature = PlaceAutocomplete.getPlace(data);
+            etAddToDestination.setText(feature.text());
+            latDestination = ((Point) feature.geometry()).latitude();
+            lngDestination = ((Point) feature.geometry()).longitude();
+        }
     }
 private void showDialogFordelete(String organism_trip, String id, String userId) {
 
@@ -277,7 +341,8 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                             Toast.makeText(getActivity(), "Veuillez sélectionner les groupes", Toast.LENGTH_LONG).show();
                             return;
                         }
-                        TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, username, groupCampusName, organism);
+                        TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, username,
+                                groupCampusName, organism, latDestination, lngDestination);
                         GroupChatEntity groupChatEntity = new GroupChatEntity(addFrom, Constant.URL_DEFAULT_TRIP, date);
                         setData(organism, tripEntity, groupChatEntity, userEntity, groupCampusName);
 
@@ -495,4 +560,5 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
     public interface OnFragmentInteractionListener {
         void onFragmentInteractionAdd();
     }
+
 }

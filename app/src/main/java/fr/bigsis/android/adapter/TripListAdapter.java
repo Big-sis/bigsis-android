@@ -2,6 +2,8 @@ package fr.bigsis.android.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -29,13 +31,17 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.mapbox.mapboxsdk.geometry.LatLng;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -179,7 +185,9 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String createdBy = item.getCreatedBy();
                             String sharedIn = item.getSharedIn();
                             String organismTrip = item.getOrganism();
-                            TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip);
+                            double lat = item.getLatDestination();
+                            double lng = item.getLngDestination();
+                            TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip, lat, lng);
                             String titleTrip = from + " ... " + to;
                             GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, null, date);
                             FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idTrip, groupChatEntity);
@@ -197,22 +205,19 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 }
             }
         });
-      /*  holder.mImvTripImage.setOnClickListener(new View.OnClickListener() {
+       holder.imgview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                    mFirestore.collection(organism).document("AllCampus").collection("AllCampus").document(nameCampus).collection("Trips").document(idTrip).get()
-.addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        String to = documentSnapshot.getString("to");
-                        Uri gmmIntentUri = Uri.parse("google.navigation:q=" + to + "France");
+                double lat = item.getLatDestination();
+                double lng = item.getLngDestination();
+                        Uri gmmIntentUri = Uri.parse("google.navigation:q="  + String.valueOf(lat)
+                                + "," + String.valueOf(lng));
                         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                         mapIntent.setPackage("com.google.android.apps.maps");
                         mContext.startActivity(mapIntent);
                     }
                 });
-            }
-        });*/
+
         mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
                .document(idTrip).collection("Participants")
                 .whereEqualTo("creator", false).limit(1).get()
@@ -314,6 +319,32 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
     }
     public void openFragment() {
 
+    }
+
+
+
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
+
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        LatLng p1 = null;
+
+        try {
+            // May throw an IOException
+            address = coder.getFromLocationName(strAddress, 5);
+            if (address == null) {
+                return null;
+            }
+
+            Address location = address.get(0);
+            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
+
+        } catch (IOException ex) {
+
+            ex.printStackTrace();
+        }
+
+        return p1;
     }
     @NonNull
     @Override

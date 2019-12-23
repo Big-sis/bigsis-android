@@ -214,7 +214,7 @@ public class FirestoreHelper {
                                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                                         String idForUpdateImage = document.getId();
                                                         String imageProfileUrl = document.getString("imageProfileUrl");
-                                                        if (idUser.equals(idForUpdateImage) && (!imageProfileUrlUpdated.equals(imageProfileUrl))) {
+                                                        if (imageProfileUrl != null && idUser.equals(idForUpdateImage) && (!imageProfileUrlUpdated.equals(imageProfileUrl))) {
                                                             collectionReference.document(idForUpdateImage).update("imageProfileUrl", imageProfileUrlUpdated);
                                                         }
                                                     }
@@ -265,7 +265,8 @@ public class FirestoreHelper {
                 String organism = documentSnapshot.getString("organism");
                 String username = documentSnapshot.getString("username");
                 String groupCampus = documentSnapshot.getString("groupCampus");
-                UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, admin, groupCampus, organism);
+                String lastnameAndFirstname = lastname +" " +firstname;
+                UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, admin, groupCampus, organism, lastnameAndFirstname);
                 mFirestore.collection(organism).document("AllCampus").collection("AllCampus").document(groupCampus)
                         .collection("Users").document(userID).set(userEntity, SetOptions.merge());
             }

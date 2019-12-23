@@ -78,19 +78,12 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                         .commit();
             }
         });
-       // FirestoreHelper.updateUserProfile(idContact, "users", mCurrentUserId, "Request received", idContact);
-
-       // FirestoreHelper.update("users", mCurrentUserId, "Request received", "imageProfileUrl");
-
-        //  FirestoreHelper.updateUserProfile(mCurrentUserId, "trips", idTrip, "participants", mCurrentUserId);
-
 
 // ACCEPT REQUEST
         holder.btAccept.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 holder.btAccept.setSelected(true);
-                holder.btAccept.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
                 mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -102,8 +95,9 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                         String organism = documentSnapshot.getString("organism");
                         String groupCampus = documentSnapshot.getString("groupCampus");
                         Boolean admin = documentSnapshot.getBoolean("admin");
+                        String lastnameAndFirstname = lastname +" " +firstname;
                         UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, admin,
-                                groupCampus, organism);
+                                groupCampus, organism, lastnameAndFirstname);
                         mFirestore.collection("USERS")
                                 .document(idContact)
                                 .collection("Friends")
@@ -121,8 +115,9 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                         String campusName = item.getGroupCampus();
                         String description = item.getDescription();
                         Boolean isAdmin = item.isAdmin();
+                        String lastnameAndFirstname = lastname +" " +firstname;
                         UserEntity userEntity = new UserEntity(username,description, imageProfileUrl, firstname, lastname, isAdmin,
-                                campusName, organism);
+                                campusName, organism, lastnameAndFirstname);
                         mFirestore.collection("USERS")
                                 .document(mCurrentUserId)
                                 .collection("Friends")
@@ -136,9 +131,9 @@ public class RequestListAdapter extends FirestorePagingAdapter<UserEntity, Reque
                         .delete();
 
                 mFirestore.collection("USERS")
-                        .document(mCurrentUserId)
-                        .collection("RequestReceived")
                         .document(idContact)
+                        .collection("RequestReceived")
+                        .document(mCurrentUserId)
                         .delete();
             }
         });
