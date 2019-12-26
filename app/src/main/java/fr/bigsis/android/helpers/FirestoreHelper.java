@@ -26,11 +26,12 @@ import fr.bigsis.android.entity.UserEntity;
 
 public class FirestoreHelper {
 
-    public static void addData(String principalCollection, String id, String subCollection, Object object) {
+    public static void addChat(String organism, String idGroup, Object object) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection(principalCollection)
-                .document(id)
-                .collection(subCollection)
+        mFirestore.collection(organism)
+                .document("AllCampus")
+                .collection("AllChatGroups").document(idGroup)
+                .collection("Chats")
                 .add(object);
     }
 
@@ -43,11 +44,12 @@ public class FirestoreHelper {
                 .set(object, SetOptions.merge());
     }
 
-    public static void setStatusUser(String idGroup, String currentId, Boolean isOnline) {
+    public static void setStatusUser(String organism, String idGroup, String currentId, Boolean isOnline) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection("GroupChat")
-                .document(idGroup)
-                .collection("participants")
+        mFirestore.collection(organism)
+                .document("AllCampus")
+                .collection("AllChatGroups").document(idGroup)
+                .collection("Participants")
                 .document(currentId)
                 .update("online", isOnline);
     }

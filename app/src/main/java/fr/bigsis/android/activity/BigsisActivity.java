@@ -42,7 +42,7 @@ public abstract class BigsisActivity extends AppCompatActivity {
                 startActivity(new Intent(this, UserProfileActivity.class));
                 return true;
             case R.id.action_message:
-              //  startActivity(new Intent(this, GroupConversationActivity.class));
+                startActivity(new Intent(this, GroupConversationActivity.class));
                 return true;
             case R.id.action_events:
                // startActivity(new Intent(this, EventListActivity.class));

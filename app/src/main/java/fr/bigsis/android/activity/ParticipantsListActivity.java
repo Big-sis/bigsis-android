@@ -20,6 +20,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
@@ -135,7 +136,6 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
             }
         });
     }
-
     private void setUpAdapterForTrips() {
         FirebaseFirestore.getInstance().collection("USERS").document(mCurrentUser)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -170,25 +170,31 @@ public class ParticipantsListActivity extends BigsisActivity implements OtherUse
     }
 
     private void setUpAdapterForGroupChat() {
-        Query query = FirebaseFirestore.getInstance()
-                .collection("GroupChat").document(idGroup)
-                .collection("participants");
-        PagedList.Config config = new PagedList.Config.Builder()
-                .setEnablePlaceholders(false)
-                .setPrefetchDistance(10)
-                .setPageSize(20)
-                .build();
-        FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
-                .setLifecycleOwner(this)
-                .setQuery(query, config, UserEntity.class)
-                .build();
-        ParticipantListAdapter adapter = new ParticipantListAdapter(options, this, mSwipeRefreshLayout);
-        mRecycler.setLayoutManager(new LinearLayoutManager(this));
-        mRecycler.setAdapter(adapter);
-        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+        FirebaseFirestore.getInstance().collection("USERS").document(mCurrentUser)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onRefresh() {
-                adapter.refresh();
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String organism = documentSnapshot.getString("organism");
+                Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus").collection("AllChatGroups")
+                        .document(idGroup).collection("Participants");
+                PagedList.Config config = new PagedList.Config.Builder()
+                        .setEnablePlaceholders(false)
+                        .setPrefetchDistance(10)
+                        .setPageSize(20)
+                        .build();
+                FirestorePagingOptions<UserEntity> options = new FirestorePagingOptions.Builder<UserEntity>()
+                        .setLifecycleOwner(ParticipantsListActivity.this)
+                        .setQuery(query, config, UserEntity.class)
+                        .build();
+                ParticipantListAdapter adapter = new ParticipantListAdapter(options, ParticipantsListActivity.this, mSwipeRefreshLayout);
+                mRecycler.setLayoutManager(new LinearLayoutManager(ParticipantsListActivity.this));
+                mRecycler.setAdapter(adapter);
+                mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        adapter.refresh();
+                    }
+                });
             }
         });
     }

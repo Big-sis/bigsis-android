@@ -16,13 +16,14 @@ public class ChatEntity {
     private String imageMessage;
     private Date date;
     private String imageUSer;
+    private String organism;
     private boolean isTagged;
 
     public ChatEntity() {
     }
 
     public ChatEntity(String id, String chatRoomId, String senderId, String username, String message,
-                      String imageUSer, Date date, String imageMessage,  Boolean isTagged) {
+                      String imageUSer, Date date, String imageMessage, String organism, Boolean isTagged) {
         this.id = id;
         this.chatRoomId = chatRoomId;
         this.senderId = senderId;
@@ -32,11 +33,9 @@ public class ChatEntity {
         this.date = date;
         this.isTagged = isTagged;
         this.imageMessage = imageMessage;
+        this.organism = organism;
     }
 
-    static SharedPreferences getSharedPreferences(Context ctx) {
-        return PreferenceManager.getDefaultSharedPreferences(ctx);
-    }
 
     public ChatEntity(String id, String senderId, String username, String message, Date date) {
         this.id = id;
@@ -118,12 +117,12 @@ public class ChatEntity {
         this.imageMessage = imageMessage;
     }
 
-    public static void setGroup_ID(Context ctx, String group_ID){
-        SharedPreferences.Editor editor = getSharedPreferences(ctx).edit();
-        editor.putString("Group_ID", group_ID).apply();
+
+    public String getOrganism() {
+        return organism;
     }
 
-    public static String getGroup_ID(Context ctx){
-        return getSharedPreferences(ctx).getString("Group_ID","null");
+    public void setOrganism(String organism) {
+        this.organism = organism;
     }
 }

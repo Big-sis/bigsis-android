@@ -74,6 +74,7 @@ public class ChatActivity extends BigsisActivity {
     public static String CHANNEL_ID = "ID_notif";
     private ChatViewModel viewModel;
     private LinearLayout linearLayout;
+    private String organism;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,13 +90,14 @@ public class ChatActivity extends BigsisActivity {
         Bundle extras = iin.getExtras();
         idGroup = extras.getString("ID_GROUP");
         titleGroup = extras.getString("NAME_GROUP");
+        organism = extras.getString("organism");
         message = findViewById(R.id.message_text);
         send = findViewById(R.id.send_message);
         chats = findViewById(R.id.chats);
         addImage = findViewById(R.id.add_image);
         linearLayout = findViewById(R.id.frameLayoutContainerGroup);
-        ChatEntity.setGroup_ID(ChatActivity.this, idGroup);
-        FirestoreHelper.setStatusUser(idGroup, mCurrentUserId, true);
+
+//        FirestoreHelper.setStatusUser(organismUser, idGroup, mCurrentUserId, true);
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -118,7 +120,8 @@ public class ChatActivity extends BigsisActivity {
             }
         });
 
-        mFirestore.collection("GroupChat").document(idGroup).collection("staffMembers")
+        /*mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+     .document(idGroup).collection("StaffMembers")
                 .document(mCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -129,19 +132,26 @@ public class ChatActivity extends BigsisActivity {
                     }
                 }
             }
+        });*/
+        mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                .document(idGroup).collection("Participants")
+                .document(mCurrentUserId).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    Boolean isAdmin = document.getBoolean("admin");
+                    if (isAdmin){
+                        linearLayout.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
         });
-
         showMessage();
         setToolBar();
        // updateToken();
     }
 
-    private void showEditTextForStaffs(){
-        Intent iin = getIntent();
-        Bundle extras = iin.getExtras();
-        idGroup = extras.getString("ID_GROUP");
-
-    }
     private void setToolBar() {
         transitionContainer = findViewById(R.id.toolbarLayoutChatRoom);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
@@ -181,55 +191,28 @@ public class ChatActivity extends BigsisActivity {
     }*/
 
     private void addMessageToChatRoom() {
-        mFirestore.collection("users").document(mCurrentUserId)
+        mFirestore.collection("USERS").document(mCurrentUserId)
                 .get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String username = documentSnapshot.getString("username");
                         String avatar = documentSnapshot.getString("imageProfileUrl");
+                        String organism = documentSnapshot.getString("organism");
                         String chatMessage = message.getText().toString();
-                        String token = documentSnapshot.getString("token");
+                    //    String token = documentSnapshot.getString("token");
                         message.setText("");
                         String chatId = idGroup + "Chat";
                         SimpleDateFormat dateFormat = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRANCE);
                         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
                         Date dateTime = new Date(System.currentTimeMillis());
                         ChatEntity chat = new ChatEntity(idGroup, chatId, mCurrentUserId, username, chatMessage,
-                                avatar, dateTime,"", false);
+                                avatar, dateTime,"", organism, false);
                         ChatEntity notification = new ChatEntity(idGroup, mCurrentUserId, username, chatMessage,
                                 dateTime);
-                        FirestoreHelper.addData("GroupChat", idGroup,"chat", chat);
-                        FirestoreHelper.updateData("GroupChat", idGroup,"notification",
-                                "IDnotification", notification);
-                        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+                        FirestoreHelper.addChat(organism, idGroup, chat);
 
-                      /*  mFirestore.collection("notification").document("IDnotification")
-                                .set(notification);*/
 
-                        mFirestore.collection("GroupChat")
-                                .document(idGroup).collection("participants")
-                                .whereEqualTo("online", false).get()
-                                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                                        if (task.isSuccessful()) {
-                                            notification.setUsername(username);
-                                            notification.setMessage(chatMessage);
-                                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                                String userId = document.getData().get("token").toString();
-                                                Toast.makeText(ChatActivity.this, userId,Toast.LENGTH_SHORT).show();
-                                                mFirestore.collection("GroupChat")
-                                                        .document(idGroup).collection("participants")
-                                                        .document(userId)
-                                                        .collection("notif")
-                                                .document("notifId").set(notification);
-                                                mFirestore.collection("notification").document(token).set(notification);
-
-                                            }
-                                        }
-                                    }
-                                            });
                                 }
 
                                 });
@@ -240,33 +223,38 @@ public class ChatActivity extends BigsisActivity {
         Intent iin = getIntent();
         Bundle extras = iin.getExtras();
         idGroup = extras.getString("ID_GROUP");
-        Query query = db.collection("GroupChat")
-                .document(idGroup)
-                .collection("chat")
-                .orderBy("date", Query.Direction.ASCENDING);
+        String organism = extras.getString("organism");
 
-        FirestoreRecyclerOptions<ChatEntity> options = new FirestoreRecyclerOptions.Builder<ChatEntity>()
-                .setQuery(query, ChatEntity.class)
-                .build();
-        adapter = new ChatAdapter(options, ChatActivity.this, mCurrentUserId);
-        RecyclerView recyclerView = findViewById(R.id.chats);
-        recyclerView.setHasFixedSize(true);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setAdapter(adapter);
+                        Query query = db.collection(organism)
+                                .document("AllCampus")
+                                .collection("AllChatGroups")
+                                .document(idGroup)
+                                .collection("Chats")
+                                .orderBy("date", Query.Direction.ASCENDING);
 
-        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
-            @Override
-            public void onItemRangeInserted(int positionStart, int itemCount) {
-                super.onItemRangeInserted(positionStart, itemCount);
-                int numberOfMessages = adapter.getItemCount();
-                int lastVisiblePosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
-                if (lastVisiblePosition == -1 ||
-                        (positionStart >= (numberOfMessages - 1) && lastVisiblePosition == (positionStart - 1))) {
-                    recyclerView.scrollToPosition(positionStart);
-                }
-            }
-        });
+                        FirestoreRecyclerOptions<ChatEntity> options = new FirestoreRecyclerOptions.Builder<ChatEntity>()
+                                .setQuery(query, ChatEntity.class)
+                                .build();
+                        adapter = new ChatAdapter(options, ChatActivity.this, mCurrentUserId);
+                        RecyclerView recyclerView = findViewById(R.id.chats);
+                        recyclerView.setHasFixedSize(true);
+                        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
+                        recyclerView.setLayoutManager(linearLayoutManager);
+                        recyclerView.setAdapter(adapter);
+
+                        adapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
+                            @Override
+                            public void onItemRangeInserted(int positionStart, int itemCount) {
+                                super.onItemRangeInserted(positionStart, itemCount);
+                                int numberOfMessages = adapter.getItemCount();
+                                int lastVisiblePosition = linearLayoutManager.findLastCompletelyVisibleItemPosition();
+                                if (lastVisiblePosition == -1 ||
+                                        (positionStart >= (numberOfMessages - 1) && lastVisiblePosition == (positionStart - 1))) {
+                                    recyclerView.scrollToPosition(positionStart);
+                                }
+                            }
+                        });
+
     }
 
     @Override
@@ -279,14 +267,14 @@ public class ChatActivity extends BigsisActivity {
     protected void onStop() {
         super.onStop();
         adapter.stopListening();
-        FirestoreHelper.setStatusUser(idGroup, mCurrentUserId, false);
+      //  FirestoreHelper.setStatusUser(organismUser, idGroup, mCurrentUserId, false);
     }
 
     @Override
     protected void onPause() {
         super.onPause();
         super.onPause();
-        FirestoreHelper.setStatusUser(idGroup, mCurrentUserId, false);
+     //   FirestoreHelper.setStatusUser(organismUser, idGroup, mCurrentUserId, false);
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         boolean screenOn;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
@@ -337,21 +325,22 @@ public class ChatActivity extends BigsisActivity {
                 imgReference.putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        mFirestore.collection("users").document(mCurrentUserId)
+                        mFirestore.collection("USERS").document(mCurrentUserId)
                                 .get()
                                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                                     @Override
                                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                                         String username = documentSnapshot.getString("username");
                                         String avatar = documentSnapshot.getString("imageProfileUrl");
+                                        String organism = documentSnapshot.getString("organism");
                                         message.setText("");
                                         String chatId = idGroup + "Chat";
                                         SimpleDateFormat dateFormat = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRANCE);
                                         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
                                         Date dateTime = new Date(System.currentTimeMillis());
                                         ChatEntity chat = new ChatEntity(idGroup, chatId, mCurrentUserId, username, "",
-                                                avatar, dateTime, link, false);
-                                        FirestoreHelper.addData("GroupChat", idGroup,"chat", chat);
+                                                avatar, dateTime, link,organism, false);
+                                        FirestoreHelper.addChat(organism, idGroup, chat);
 
                                     }
                                 });

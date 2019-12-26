@@ -189,7 +189,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             double lng = item.getLngDestination();
                             TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip, lat, lng);
                             String titleTrip = from + " ... " + to;
-                            GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, null, date);
+                            GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, null, date, null, organism, sharedIn);
                             FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idTrip, groupChatEntity);
                         }
                     });
@@ -226,8 +226,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-
-                                String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
+                                String imageProfileUrl = document.getString("imageProfileUrl");
                                 if(imageProfileUrl != null) {
                                     StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
                                     storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -240,7 +239,11 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                                     .into(holder.profile_image_one);
                                         }
                                     });
-                                }
+                                }  else {
+                                Glide.with(holder.profile_image_one.getContext())
+                                        .load(R.drawable.ic_profile)
+                                        .into(holder.profile_image_one);
+                            }
                             }
                         }
                     }
@@ -253,8 +256,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-
-                        String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
+                        String imageProfileUrl = document.getString("imageProfileUrl");
                         if(imageProfileUrl != null) {
                             StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
                             storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
@@ -267,6 +269,10 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                             .into(holder.profile_image_two);
                                 }
                             });
+                        } else {
+                            Glide.with(holder.profile_image_two.getContext())
+                                    .load(R.drawable.ic_profile)
+                                    .into(holder.profile_image_two);
                         }
                     }
                 }

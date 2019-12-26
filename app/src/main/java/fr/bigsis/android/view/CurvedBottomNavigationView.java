@@ -13,7 +13,7 @@ import androidx.core.content.ContextCompat;
 import fr.bigsis.android.R;
 
 public class CurvedBottomNavigationView extends com.google.android.material.bottomnavigation.BottomNavigationView {
-    private final int CURVE_CIRCLE_RADIUS = 156 / 2;
+    private final int CURVE_CIRCLE_RADIUS = 120 / 2;
     private Path mPath;
     private Paint mPaint;
     private Point mFirstCurveStartPoint = new Point();

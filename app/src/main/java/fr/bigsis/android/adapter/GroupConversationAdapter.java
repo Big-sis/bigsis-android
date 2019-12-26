@@ -25,6 +25,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -64,65 +65,81 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         holder.textViewTitle.setText(model.getTitle());
         SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
         holder.textViewDate.setText(format.format(model.getDate().getTime()));
-        //FirestoreHelper.update("GroupChat", id, "participants", "imageProfileUrl");
-        //FirestoreHelper.update("GroupChat", id, "chat", "imageUSer");
+        String organism = model.getOrganism();
+        String sharedId = model.getSharedIn();
 
         RequestOptions myOptions = new RequestOptions()
                 .fitCenter()
                 .override(250, 250);
-        Glide.with(holder.imgViewGroupe.getContext())
-                .asBitmap()
-                .apply(myOptions)
-                .load(model.getImageGroup())
-                .into(holder.imgViewGroupe);
-        mFirestore.collection("GroupChat").document(id).collection("Participants")
-                .whereEqualTo("creator", true).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        if(model.getImageGroup() != null) {
+            Glide.with(holder.imgViewGroupe.getContext())
+                    .asBitmap()
+                    .apply(myOptions)
+                    .load(model.getImageGroup())
+                    .into(holder.imgViewGroupe);
+        }
+        mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                .document(id).collection("Creator")
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
-                                StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
-                                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Uri downloadUrl = uri;
-                                        String urlImage = downloadUrl.toString();
-                                        Glide.with(holder.profile_image_two.getContext())
-                                                .load(urlImage)
-                                                .into(holder.profile_image_two);
-                                    }
-                                });
+                                String imageProfileUrl = document.getString("imageProfileUrl");
+                                if(imageProfileUrl != null) {
+                                    StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+                                    storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            Uri downloadUrl = uri;
+                                            String urlImage = downloadUrl.toString();
+                                            Glide.with(holder.profile_image_two.getContext())
+                                                    .load(urlImage)
+                                                    .into(holder.profile_image_two);
+                                        }
+                                    });
+                                } else {
+                                    Glide.with(holder.profile_image_two.getContext())
+                                            .load(R.drawable.ic_profile)
+                                            .into(holder.profile_image_two);
+                                }
                             }
                         }
                     }
                 });
-        mFirestore.collection("GroupChat").document(id).collection("Participants")
+        mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                .document(id).collection("Participants")
                 .limit(1).whereEqualTo("creator", false).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                String imageProfileUrl = document.getData().get("imageProfileUrl").toString();
-                                StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
-                                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Uri downloadUrl = uri;
-                                        String urlImage = downloadUrl.toString();
-                                        Glide.with(holder.profile_image_one.getContext())
-                                                .load(urlImage)
-                                                .into(holder.profile_image_one);
-                                    }
-                                });
+                                String imageProfileUrl = document.getString("imageProfileUrl");
+                                if(imageProfileUrl != null) {
+                                    StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+                                    storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            Uri downloadUrl = uri;
+                                            String urlImage = downloadUrl.toString();
+                                            Glide.with(holder.profile_image_two.getContext())
+                                                    .load(urlImage)
+                                                    .into(holder.profile_image_two);
+                                        }
+                                    });
+                                } else {
+                                    Glide.with(holder.profile_image_two.getContext())
+                                            .load(R.drawable.ic_profile)
+                                            .into(holder.profile_image_two);
+                                }
                             }
                         }
                     }
                 });
-        mFirestore.collection("GroupChat").document(id).collection("participants")
-                .get()
+        CollectionReference participantRef = mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                .document(id).collection("Participants");
+        participantRef.get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -169,15 +186,11 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                 btYes.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mFirestore.collection("GroupChat")
-                                .document(id)
-                                .collection("participants")
-                                .document(mCurrentUserId)
-                                .delete();
+                        participantRef.document(mCurrentUserId).delete();
 
-                        mFirestore.collection("users")
+                        mFirestore.collection("USERS")
                                 .document(mCurrentUserId)
-                                .collection("groupChat")
+                                .collection("ChatGroup")
                                 .document(id)
                                 .delete();
                         dialogBuilder.dismiss();
@@ -224,6 +237,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                 intent.putExtra("ID_GROUP", id);
                 intent.putExtra("NAME_GROUP", name);
                 intent.putExtra("userID", mCurrentUserId);
+                intent.putExtra("organism", model.getOrganism());
                 mContext.startActivity(intent);
             }
         });
@@ -285,18 +299,6 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
             imgButtonQuit = itemView.findViewById(R.id.quitGroup);
             imgButtonActivateNotif = itemView.findViewById(R.id.activateNotif);
             linearLayout = itemView.findViewById(R.id.frameLayoutContainerGroup);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    int position = getAdapterPosition();
-                    if (position != RecyclerView.NO_POSITION && listener != null) {
-                        listener.onItemClick(getSnapshots().getSnapshot(position), position);
-                        Toast.makeText(v.getContext(),
-                                "Position: " + position, Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
         }
     }
 }

@@ -159,7 +159,8 @@ public class EventListAdapter extends FirestoreRecyclerAdapter<EventEntity, Even
                             String descriptionEvent = documentSnapshot.getString("descriptionEvent");
                             EventEntity eventEntity = new EventEntity(dateStartEvent, dateEndEvent, titleEvent, descriptionEvent, imageEvent, routeEventImage, adressEvent);
                             FirestoreHelper.setData("users", mCurrentUserId, "participateToEvent", idEvent, eventEntity);
-                            GroupChatEntity groupChatEntity = new GroupChatEntity(model.getTitleEvent(), model.getImage(), model.getDateStart());
+                            //TODO groupChatEntity :
+                            GroupChatEntity groupChatEntity = new GroupChatEntity(model.getTitleEvent(), model.getImage(), model.getDateStart(), null, null, null);
                             FirestoreHelper.setData("users", mCurrentUserId, "groupChat", idEvent, groupChatEntity);
                         }
                     });

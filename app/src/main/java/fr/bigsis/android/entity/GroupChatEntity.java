@@ -8,21 +8,19 @@ public class GroupChatEntity {
     private Date date;
     private String lastMessage;
     private String idGroup;
+    private String organism;
+    private String sharedIn;
 
     public GroupChatEntity() {
     }
 
-    public GroupChatEntity(String title, String imageGroup, Date date, String lastMessage) {
+    public GroupChatEntity(String title, String imageGroup, Date date, String lastMessage, String organism, String sharedIn) {
         this.title = title;
         this.imageGroup = imageGroup;
         this.date = date;
         this.lastMessage = lastMessage;
-    }
-
-    public GroupChatEntity(String title, String imageGroup, Date date) {
-        this.title = title;
-        this.imageGroup = imageGroup;
-        this.date = date;
+        this.organism = organism;
+        this.sharedIn = sharedIn;
     }
 
     public String getTitle() {
@@ -63,5 +61,21 @@ public class GroupChatEntity {
 
     public void setIdGroup(String idGroup) {
         this.idGroup = idGroup;
+    }
+
+    public String getOrganism() {
+        return organism;
+    }
+
+    public void setOrganism(String organism) {
+        this.organism = organism;
+    }
+
+    public String getSharedIn() {
+        return sharedIn;
+    }
+
+    public void setSharedIn(String sharedIn) {
+        this.sharedIn = sharedIn;
     }
 }

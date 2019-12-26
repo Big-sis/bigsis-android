@@ -83,7 +83,7 @@ public class ProfileFragment extends Fragment {
                         imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
                         tvUserNameFragment.setText(firstname + " " + lastname);
                         tvUserDescFragment.setText(description_user);
-                        if(!imageProfileUrl.equals("")) {
+                        if(imageProfileUrl != null) {
                             StorageReference storageRef = FirebaseStorage.getInstance()
                                     .getReferenceFromUrl(imageProfileUrl);
                             storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {

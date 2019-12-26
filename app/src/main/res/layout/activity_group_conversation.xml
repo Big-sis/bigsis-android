@@ -24,11 +24,11 @@
         app:layout_constraintStart_toStartOf="parent"
         android:clickable="true">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:tabMode="scrollable"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="314dp"
+            android:layout_height="432dp"
+            app:tabMode="scrollable" />
 </RelativeLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -6,6 +6,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -27,7 +28,7 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 public class GroupConversationActivity extends BigsisActivity {
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private FloatingActionButton fbtGoToMap;
-    private GroupConversationAdapter adapter;
+     GroupConversationAdapter adapter;
     private ImageButton imBtAlert;
     private TextView tvTitle;
     private String mCurrentUserId;
@@ -38,8 +39,7 @@ public class GroupConversationActivity extends BigsisActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_conversation);
 
-        mAuth = FirebaseAuth.getInstance();
-        mCurrentUserId = mAuth.getCurrentUser().getUid();
+
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setSelectedItemId(R.id.action_message);
@@ -76,17 +76,21 @@ public class GroupConversationActivity extends BigsisActivity {
     }
 
     private void setUpRecyclerView() {
-        Query query = db.collection("USERS").document(mCurrentUserId).collection("GroupChat");
+//TODO REPLACE ADAPTER
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = mAuth.getCurrentUser().getUid();
+        Query query = db.collection("USERS").document(mCurrentUserId).collection("ChatGroup");
         FirestoreRecyclerOptions<GroupChatEntity> options = new FirestoreRecyclerOptions.Builder<GroupChatEntity>()
                 .setQuery(query, GroupChatEntity.class)
                 .build();
-        adapter = new GroupConversationAdapter(options, GroupConversationActivity.this);
         RecyclerView recyclerView = findViewById(R.id.recyclerView);
+
+        adapter = new GroupConversationAdapter(options, GroupConversationActivity.this);
         recyclerView.setHasFixedSize(true);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
 
-       adapter.setOnItemClickListener(new GroupConversationAdapter.OnItemClickListener() {
+       /*adapter.setOnItemClickListener(new GroupConversationAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
                 String id = documentSnapshot.getId();
@@ -94,7 +98,7 @@ public class GroupConversationActivity extends BigsisActivity {
                 intent.putExtra("Id_Group", id);
                 startActivity(intent);
             }
-        });
+        });*/
     }
 
     @Override

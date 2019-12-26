@@ -212,10 +212,10 @@ public class AddEventFragment extends Fragment {
                                 startActivity(intent);
                                 String eventId = documentReference.getId();
                                 FirestoreHelper.setData("events", eventId, "creator", userId, userEntity);
-                                GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart);
+                                //GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart);
                                 CollectionReference groupChatRef = mFirestore.collection("GroupChat");
                                 groupChatRef.document(eventId)
-                                        .set(groupChatEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        .set("groupChatEntity").addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         groupChatRef.document(eventId).collection("participants")
@@ -233,7 +233,7 @@ public class AddEventFragment extends Fragment {
                                                 .document(userId)
                                                 .collection("groupChat")
                                                 .document(eventId)
-                                                .set(groupChatEntity);
+                                                .set("groupChatEntity");
                                     }
                                 });
                                 userListsRef.document(eventId).set(eventEntity).addOnSuccessListener(new OnSuccessListener<Void>() {

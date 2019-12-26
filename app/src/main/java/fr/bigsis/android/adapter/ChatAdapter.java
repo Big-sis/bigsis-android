@@ -31,6 +31,7 @@ import com.bumptech.glide.request.transition.Transition;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.SetOptions;
@@ -67,35 +68,44 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
     protected void onBindViewHolder(@NonNull ChatHolder holder, int position, @NonNull ChatEntity model) {
         String username = model.getUsername();
         String idGroup = model.getId();
+        String organism = model.getOrganism();
         DocumentSnapshot r = getSnapshots().getSnapshot(position);
         String idMessage = r.getId();
         viewModel.setIdMessage(idMessage);
         mFirestore = FirebaseFirestore.getInstance();
-        //FirestoreHelper.update("GroupChat", id, "participants");
+        FirestoreHelper.compareForParticipants("AllChatGroups", "Participants");
 
         if(!model.getMessage().equals("")) {
             holder.message.setText(model.getMessage());
         }
+        DocumentReference documentReference = mFirestore.collection(organism)
+                .document("AllCampus")
+                .collection("AllChatGroups")
+                .document(idGroup);
 
         SimpleDateFormat format = new SimpleDateFormat("HH:mm", Locale.FRENCH);
         holder.tvDateMessage.setText(username + " " + format.format(model.getDate().getTime()));
         String imageProfileUrl = model.getImageUSer();
-        StorageReference storageRefImageProfile = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
-        storageRefImageProfile.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Uri downloadUrl = uri;
-                String urlImage = downloadUrl.toString();
-                Glide.with(holder.imgViewUser.getContext())
-                        .load(urlImage)
-                        .into(holder.imgViewUser);
-            }
-        });
+        if(imageProfileUrl != null) {
+            StorageReference storageRefImageProfile = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+            storageRefImageProfile.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Uri downloadUrl = uri;
+                    String urlImage = downloadUrl.toString();
+                    Glide.with(holder.imgViewUser.getContext())
+                            .load(urlImage)
+                            .into(holder.imgViewUser);
+                }
+            });
+        }
 
         //SHOW BUTTONS FOR ADMIN
-        mFirestore.collection("GroupChat")
+        mFirestore.collection(organism)
+                .document("AllCampus")
+                .collection("AllChatGroups")
                 .document(idGroup)
-                .collection("participants")
+                .collection("Participants")
                 .document(userId)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -154,12 +164,18 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
                 getSnapshots().getSnapshot(position).getReference().delete();
                 holder.linearLayout.setVisibility(View.GONE);
 
-                if (model.isTagged() == true) {
-                    mFirestore.collection("GroupChat")
+                if (model.isTagged()) {
+                    mFirestore.collection(organism)
+                            .document("AllCampus")
+                            .collection("AllChatGroups")
                             .document(idGroup)
-                            .collection("messageTagged")
+                            .collection("MessageTagged")
                             .document(idMessage)
                             .delete();
+                }
+                if(model.getImageMessage() != null) {
+                    StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(model.getImageMessage());
+                    photoRef.delete();
                 }
             }
         });
@@ -200,16 +216,14 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
         holder.tvTag.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFirestore.collection("GroupChat")
-                        .document(idGroup)
-                        .collection("chat")
+                documentReference
+                        .collection("Chats")
                         .document(idMessage)
                         .update("tagged", true).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        mFirestore.collection("GroupChat")
-                                .document(idGroup)
-                                .collection("messageTagged")
+                        documentReference
+                                .collection("MessageTagged")
                                 .document(idMessage)
                                 .set(model, SetOptions.merge());
                         holder.linearLayout.setVisibility(View.GONE);
@@ -217,9 +231,8 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
                 });
             }
         });
-        mFirestore.collection("GroupChat")
-                .document(idGroup)
-                .collection("chat")
+
+        documentReference.collection("Chats")
                 .document(idMessage)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -245,16 +258,14 @@ public class ChatAdapter extends FirestoreRecyclerAdapter<ChatEntity, ChatAdapte
                 btYes.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mFirestore.collection("GroupChat")
-                                .document(idGroup)
-                                .collection("chat")
+                        documentReference
+                                .collection("Chats")
                                 .document(idMessage)
                                 .update("tagged", false).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                mFirestore.collection("GroupChat")
-                                        .document(idGroup)
-                                        .collection("messageTagged")
+                                documentReference
+                                        .collection("MessageTagged")
                                         .document(idMessage)
                                         .delete();
                             }
