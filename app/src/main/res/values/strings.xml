@@ -60,7 +60,7 @@
     <string name="events">Évènements</string>
     <string name="create_event">Créer un évènement</string>
     <string name="add_title">Ajouter un titre</string>
-    <string name="address">Adresse</string>
+    <string name="address"><u>Adresse</u></string>
     <string name="select_participants">Sélectionner participants</string>
     <string name="select_staff_members">Sélectionner membres du staff</string>
     <string name="description">Description</string>
@@ -81,7 +81,7 @@
     <string name="required_field">Champs obligatoire</string>
     <string name="username_exist">Ce nom d\'utilisateur existe déjà</string>
     <string name="edit_my_trip">Modifier mon trajet</string>
-    <string name="delete_trip">Vouslez vous vraiment supprimer ce trajet ?</string>
+    <string name="delete_trip">Voulez vous vraiment supprimer ce trajet ?</string>
     <string name="delete_contact">Voulez-vous vraiment supprimer ce contact?</string>
     <string name="or">- OU -</string>
     <string name="all_campus">Tous les campus</string>
@@ -96,4 +96,6 @@
     <string name="log_out">Déconnexion</string>
     <string name="delete_my_account">Supprimer mon compte</string>
     <string name="settings">Paramètres</string>
+    <string name="modify_event">Modifier l\'évènement</string>
+    <string name="delete_event">Voulez vous vraiment supprimer cet évènement ?</string>
 </resources>

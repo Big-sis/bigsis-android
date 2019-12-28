@@ -7,6 +7,7 @@ public class Constant {
     public static final String URL_DEFAULT_TRIP = "gs://bigsis-777.appspot.com/defaultImages/icone trajet séléctionné.png";
     public static final int REQUEST_CODE_FROM_AUTOCOMPLETE = 1;
     public static final int REQUEST_CODE_TO_AUTOCOMPLETE = 2;
+    public static final int REQUEST_CODE_ADRESS_AUTOCOMPLETE = 1;
 
 
 }

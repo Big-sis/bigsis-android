@@ -2,6 +2,7 @@ package fr.bigsis.android.adapter;
 
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,10 +20,14 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -31,6 +36,7 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
+import fr.bigsis.android.fragment.OtherUserProfileFragment;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
 public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, ChooseStaffAdapter.ChooseStaffViewHolder> {
@@ -40,10 +46,16 @@ public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, Choos
     private String mCurrentUserId;
     private ChooseUsersViewModel chooseUsersViewModel;
     private FirebaseAuth mAuth;
+    private String nameCampus;
+    private String organism;
+    private String id;
 
-    public ChooseStaffAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context) {
+    public ChooseStaffAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, String nameCampus, String organism, String id) {
         super(options);
         mContext = context;
+        this.nameCampus = nameCampus;
+        this.organism = organism;
+        this.id = id;
         chooseUsersViewModel = ViewModelProviders.of((FragmentActivity) context).get(ChooseUsersViewModel.class);
     }
 
@@ -61,7 +73,8 @@ public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, Choos
             param.width = LinearLayout.LayoutParams.MATCH_PARENT;
             holder.itemView.setVisibility(View.VISIBLE);
         }
-      /*  //GO TO PROFILE
+        /*
+        //GO TO PROFILE
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,6 +91,24 @@ public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, Choos
 
             }
         });*/
+      if(organism != null) {
+          CollectionReference documentReference = mFirestore.collection(organism).document("AllCampus").collection("AllEvents")
+                  .document(id)
+                  .collection("StaffMembers");
+          documentReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+              @Override
+              public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                  if (task.isSuccessful()) {
+                      for (QueryDocumentSnapshot document : task.getResult()) {
+                          String idDoc = document.getId();
+                          if (idContact.equals(idDoc)) {
+                              holder.btSelect.setSelected(true);
+                          }
+                      }
+                  }
+              }
+          });
+      }
 
         holder.btSelect.setOnClickListener(new View.OnClickListener() {
             int i = 0;
@@ -85,49 +116,40 @@ public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, Choos
             public void onClick(View v) {
                 if (i == 0) {
                     holder.btSelect.setSelected(true);
-                    holder.btSelect.setTextColor(ContextCompat.getColor(mContext, R.color.colorWhite));
+                    String username = item.getUsername();
+                    String imageProfileUrl = item.getImageProfileUrl();
+                    String firstname = item.getFirstname();
+                    String lastname = item.getLastname();
+                    String description = item.getDescription();
+                    Boolean isAdmin = item.isAdmin();
+                    String groupNameUser = item.getGroupCampus();
+                    String organism = item.getOrganism();
+                    UserEntity userEntity = new UserEntity(username, description,
+                            imageProfileUrl, firstname, lastname, groupNameUser, organism, idContact, isAdmin);
+                    chooseUsersViewModel.addStaffMember(userEntity);
 
-                    mFirestore.collection("users")
-                            .document(idContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            String username = documentSnapshot.getString("username");
-                            String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
-                            String firstname = documentSnapshot.getString("firstname");
-                            String lastname = documentSnapshot.getString("lastname");
-                            String description = documentSnapshot.getString("description");
-                            Boolean isAdmin = documentSnapshot.getBoolean("admin");
-                            UserEntity userEntity = new UserEntity(username, description, imageProfileUrl,
-                                    firstname, lastname, false, isAdmin, false, idContact);
-                            chooseUsersViewModel.addStaffMember(userEntity);
-                        }
-                    });
                     i++;
                     //unrequest
                 } else if (i == 1) {
                     holder.btSelect.setSelected(false);
-                    holder.btSelect.setTextColor(ContextCompat.getColor(mContext, R.color.colorPrimary));
-                    mFirestore.collection("users")
-                            .document(idContact).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            String username = documentSnapshot.getString("username");
-                            String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
-                            String firstname = documentSnapshot.getString("firstname");
-                            String lastname = documentSnapshot.getString("lastname");
-                            String description = documentSnapshot.getString("description");
-                            Boolean isAdmin = documentSnapshot.getBoolean("admin");
-                            UserEntity userEntity = new UserEntity(username, description, imageProfileUrl,
-                                    firstname, lastname, false, isAdmin, false, idContact);
-                            chooseUsersViewModel.removeStaffMember(userEntity);
-                        }
-                    });
+                    String username = item.getUsername();
+                    String imageProfileUrl = item.getImageProfileUrl();
+                    String firstname = item.getFirstname();
+                    String lastname = item.getLastname();
+                    String description = item.getDescription();
+                    Boolean isAdmin = item.isAdmin();
+                    String groupNameUser = item.getGroupCampus();
+                    String organism = item.getOrganism();
+                    UserEntity userEntity = new UserEntity(username, description,
+                            imageProfileUrl, firstname, lastname, groupNameUser, organism, idContact, isAdmin);
+                    chooseUsersViewModel.removeStaffMember(userEntity);
+
                     i = 0;
                 }
-
             }
         });
     }
+
     @NonNull
     @Override
     public ChooseStaffViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -160,20 +182,22 @@ public class ChooseStaffAdapter extends FirestorePagingAdapter<UserEntity, Choos
             RequestOptions myOptions = new RequestOptions()
                     .fitCenter()
                     .override(250, 250);
-            storage = FirebaseStorage.getInstance();
-            StorageReference storageRef = storage.getReferenceFromUrl(item.getImageProfileUrl());
-            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Uri downloadUrl = uri;
-                    String urlImage = downloadUrl.toString();
-                    Glide.with(mImageProfile.getContext())
-                            .asBitmap()
-                            .apply(myOptions)
-                            .load(urlImage)
-                            .into(mImageProfile);
-                }
-            });
+            if (item.getImageProfileUrl() != null) {
+                storage = FirebaseStorage.getInstance();
+                StorageReference storageRef = storage.getReferenceFromUrl(item.getImageProfileUrl());
+                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Uri downloadUrl = uri;
+                        String urlImage = downloadUrl.toString();
+                        Glide.with(mImageProfile.getContext())
+                                .asBitmap()
+                                .apply(myOptions)
+                                .load(urlImage)
+                                .into(mImageProfile);
+                    }
+                });
+            }
         }
     }
 }

@@ -11,16 +11,22 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.EventListAdapter;
 import fr.bigsis.android.entity.EventEntity;
@@ -32,23 +38,26 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
 public class EventListActivity extends BigsisActivity implements AddEventFragment.OnFragmentInteractionListener,
-        ChooseParticipantFragment.OnFragmentInteractionListener, ChooseStaffFragment.OnFragmentInteractionListener {
+        ChooseStaffFragment.OnFragmentInteractionListener, ChooseParticipantFragment.OnFragmentInteractionListener{
 
     FirebaseFirestore mFirestore;
     AddEventFragment fragmentAdd = AddEventFragment.newInstance();
     ChooseParticipantFragment chooseUsersFragment = ChooseParticipantFragment.newInstance();
-    EventListAdapter adapter;
     private FloatingActionButton buttonMap;
     private ChooseUsersViewModel viewModel;
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
     private ImageButton imBt_ic_back_frag;
+    @BindView(R.id.swipe_refresh_layout_event)
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_list);
+        ButterKnife.bind(this);
 
         mFirestore = FirebaseFirestore.getInstance();
         viewModel = ViewModelProviders.of(this).get(ChooseUsersViewModel.class);
@@ -81,7 +90,7 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
     }
 
     private void setToolBar() {
-        transitionContainer = findViewById(R.id.toolbarLayoutEvent);
+        transitionContainer = findViewById(R.id.toolbarLayout);
         transitionContainer.setBackground(getDrawable(R.drawable.gradient));
         imBtAdd = transitionContainer.findViewById(R.id.imBt_add_frag);
         imBt_ic_back_frag = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
@@ -123,7 +132,6 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
         });
     }
 
-
     private void openFragmentAddEvent() {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction transaction = fragmentManager.beginTransaction();
@@ -134,15 +142,39 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
     }
 
     private void setUpRecyclerView() {
-        Query query = db.collection("events");
-        FirestoreRecyclerOptions<EventEntity> options = new FirestoreRecyclerOptions.Builder<EventEntity>()
-                .setQuery(query, EventEntity.class)
-                .build();
-        adapter = new EventListAdapter(options, EventListActivity.this);
-        RecyclerView recyclerView = findViewById(R.id.rv_list_event);
-        recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
+
+        mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String nameCampus = documentSnapshot.getString("groupCampus");
+                String organism = documentSnapshot.getString("organism");
+
+                PagedList.Config config = new PagedList.Config.Builder()
+                        .setEnablePlaceholders(false)
+                        .setPrefetchDistance(10)
+                        .setPageSize(20)
+                        .build();
+
+                Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus")
+                        .collection("AllCampus").document(nameCampus)
+                        .collection("Events").orderBy("dateStart");
+                FirestorePagingOptions<EventEntity> options = new FirestorePagingOptions.Builder<EventEntity>()
+                        .setLifecycleOwner(EventListActivity.this)
+                        .setQuery(query, config, EventEntity.class)
+                        .build();
+
+                EventListAdapter adapter = new EventListAdapter(options, EventListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd);
+                RecyclerView mRecycler = findViewById(R.id.rv_list_event);
+                mRecycler.setLayoutManager(new LinearLayoutManager(EventListActivity.this));
+                mRecycler.setAdapter(adapter);
+                mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        adapter.refresh();
+                    }
+                });
+            }
+        });
     }
 
     @Override
@@ -154,15 +186,4 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        adapter.startListening();
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        adapter.stopListening();
-    }
 }

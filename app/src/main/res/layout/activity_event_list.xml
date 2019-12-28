@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.EventListActivity">
+    tools:context=".activity.EventListActivity"
+    android:windowSoftInputMode="adjustPan">
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fbMapEvent"
@@ -27,7 +28,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
-
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout_event"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/constraintLayout2">
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_list_event"
         android:layout_width="0dp"
@@ -41,7 +51,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/constraintLayout2" />
-
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
     <RelativeLayout
         android:id="@+id/constraintLayout2"
         android:layout_width="match_parent"
@@ -51,7 +61,7 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <include
-            android:id="@+id/toolbarLayoutEvent"
+            android:id="@+id/toolbarLayout"
             layout="@layout/fragment_tool_bar" />
     </RelativeLayout>
     <FrameLayout

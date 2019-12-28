@@ -22,6 +22,7 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
 
 public class FirestoreHelper {
@@ -35,11 +36,8 @@ public class FirestoreHelper {
                 .add(object);
     }
 
-    public static void setData(String principalCollection, String id, String subCollection, String idTwo, Object object) {
-        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection(principalCollection)
-                .document(id)
-                .collection(subCollection)
+    public static void setEvent(CollectionReference collectionReference, String eventId, String subCollection, String idTwo, Object object) {
+        collectionReference.document(eventId).collection(subCollection)
                 .document(idTwo)
                 .set(object, SetOptions.merge());
     }
@@ -63,29 +61,35 @@ public class FirestoreHelper {
                 .set(object);
     }
 
-    public static void getImageProfile(String principalCollection, String id, String subCollection,
-                                       Boolean isCreator, String fieldfForImage, Context context,
+    public static void getImageProfile(String organism, String id, Context context,
                                        ImageView imageView) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection(principalCollection).document(id).collection(subCollection)
-                .limit(1).whereEqualTo("creator", isCreator).get()
+        mFirestore.collection(organism).document("AllCampus").collection("AllEvents")
+                .document(id).collection("Participants")
+                .whereEqualTo("creator", false).limit(1).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<QuerySnapshot> task) {
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                String imageProfileUrl = document.getData().get(fieldfForImage).toString();
-                                StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
-                                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                    @Override
-                                    public void onSuccess(Uri uri) {
-                                        Uri downloadUrl = uri;
-                                        String urlImage = downloadUrl.toString();
-                                        Glide.with(context)
-                                                .load(urlImage)
-                                                .into(imageView);
-                                    }
-                                });
+                                String imageProfileUrl = document.getString("imageProfileUrl");
+                                if(imageProfileUrl != null) {
+                                    StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+                                    storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                        @Override
+                                        public void onSuccess(Uri uri) {
+                                            Uri downloadUrl = uri;
+                                            String urlImage = downloadUrl.toString();
+                                            Glide.with(context)
+                                                    .load(urlImage)
+                                                    .into(imageView);
+                                        }
+                                    });
+                                }  else {
+                                    Glide.with(context)
+                                            .load(R.drawable.ic_profile)
+                                            .into(imageView);
+                                }
                             }
                         }
                     }
@@ -109,10 +113,11 @@ public class FirestoreHelper {
         });
     }
 
-    public static void getCountOfParticipants(String principalCollection, String id, String subCollection,
+    public static void getCountOfParticipants(String organism, String id,
                                               TextView textview, ImageView imageView) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
-        mFirestore.collection(principalCollection).document(id).collection(subCollection)
+        mFirestore.collection(organism).document("AllCampus").collection("AllEvents")
+                .document(id).collection("Participants")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override

@@ -193,7 +193,7 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
                                 .setLifecycleOwner(ContactListActivity.this)
                                 .setQuery(query, config, UserEntity.class)
                                 .build();
-                        ParticipantListAdapter adapter = new ParticipantListAdapter(options, ContactListActivity.this, mSwipeRefreshLayout);
+                        ParticipantListAdapter adapter = new ParticipantListAdapter(options, ContactListActivity.this, mSwipeRefreshLayout, transitionContainer);
                         mRecyclerContact.setLayoutManager(new LinearLayoutManager(ContactListActivity.this));
                         mRecyclerContact.setAdapter(adapter);
                         adapter.notifyDataSetChanged();

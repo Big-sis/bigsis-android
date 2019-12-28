@@ -14,6 +14,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -66,6 +68,9 @@ public class UploadImageHelper extends AppCompatActivity {
 
             Intent i = getIntent();
             String id = i.getStringExtra("ID_EVENT_PHOTO");
+            String oldImage = i.getStringExtra("EVENT_PHOTO");
+            String campusName = i.getStringExtra("campusName");
+            String organism = i.getStringExtra("organism");
             final StorageReference imgReference = mStroageReference.child(System.currentTimeMillis()
                     + "." + getFileExtension(imageProfileUri));
 
@@ -74,14 +79,48 @@ public class UploadImageHelper extends AppCompatActivity {
                 imgReference.putFile(imageProfileUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                        FirebaseFirestore db = FirebaseFirestore.getInstance();
-                        db.collection("events")
-                                .document(id).update("image", link).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                startActivity(new Intent(UploadImageHelper.this, EventListActivity.class));
-                            }
-                        });
+                        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+
+                        if (campusName.equals("Tous les campus")) {
+                            mFirestore.collection(organism).document("AllCampus").collection("AllCampus").get()
+                                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                    String groupName = document.getData().get("groupName").toString();
+                                                    mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                                                            .document(groupName).collection("Events").document(id)
+                                                            .update("image", link).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                        @Override
+                                                        public void onComplete(@NonNull Task<Void> task) {
+                                                            if(oldImage != null) {
+                                                                StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(oldImage);
+                                                                photoRef.delete();
+                                                            }
+                                                            startActivity(new Intent(UploadImageHelper.this, EventListActivity.class));
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    });
+                        } else {
+
+                            mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                                    .document(campusName).collection("Events").document(id)
+                                    .update("image", link).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (oldImage != null) {
+                                        StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(oldImage);
+                                        photoRef.delete();
+                                    }
+                                    startActivity(new Intent(UploadImageHelper.this, EventListActivity.class));
+                                }
+
+                            });
+                        }
                     }
                 });
             }

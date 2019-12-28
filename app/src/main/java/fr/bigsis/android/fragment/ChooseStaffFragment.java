@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -17,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,7 +37,8 @@ public class ChooseStaffFragment extends Fragment {
     private ChooseUsersViewModel viewModel;
     private OnFragmentInteractionListener mListener;
     Button btFinishStaff;
-
+    ConstraintLayout transitionContainer;
+    ImageButton imBtCancel, imgBtBack;
     public ChooseStaffFragment() {
         // Required empty public constructor
     }
@@ -63,7 +66,32 @@ public class ChooseStaffFragment extends Fragment {
 
         btFinishStaff = view.findViewById(R.id.btFinishStaff);
         viewModel = ViewModelProviders.of(this).get(ChooseUsersViewModel.class);
+        transitionContainer = getActivity().findViewById(R.id.toolbarLayout);
+        imBtCancel = transitionContainer.findViewById(R.id.imBt_cancel_frag);
+        imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
+        imBtCancel.setVisibility(View.GONE);
+        imgBtBack.setVisibility(View.VISIBLE);
+        Bundle arguments = getArguments();
+        String idEvent = arguments.getString("ID");
+        String campus = arguments.getString("campus");
+        String organism = arguments.getString("organism");
 
+        imgBtBack.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewModel.resetStaffMember();
+                FragmentManager manager = getActivity().getSupportFragmentManager();
+                FragmentTransaction ft = manager.beginTransaction();
+                Fragment addFrag = manager.findFragmentByTag("CHOOSE_STAFF");
+                if(addFrag != null) {
+                    ft.remove(addFrag).commitAllowingStateLoss();
+                }
+                getActivity().onBackPressed();
+
+                imBtCancel.setVisibility(View.VISIBLE);
+                imgBtBack.setVisibility(View.GONE);
+            }
+        });
         btFinishStaff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -86,7 +114,7 @@ public class ChooseStaffFragment extends Fragment {
         RecyclerView mRecyclerRequest = view.findViewById(R.id.rvStaff);
 
         Query query = FirebaseFirestore.getInstance()
-                .collection("users");
+                .collection("USERS");
 
         PagedList.Config config = new PagedList.Config.Builder()
                 .setEnablePlaceholders(false)
@@ -99,7 +127,7 @@ public class ChooseStaffFragment extends Fragment {
                 .setQuery(query, config, UserEntity.class)
                 .build();
 
-        ChooseStaffAdapter adapterRequest = new ChooseStaffAdapter(options, getContext());
+        ChooseStaffAdapter adapterRequest = new ChooseStaffAdapter(options, getContext(), campus, organism, idEvent);
         mRecyclerRequest.setLayoutManager(new LinearLayoutManager(getContext()));
         mRecyclerRequest.setAdapter(adapterRequest);
 

@@ -100,8 +100,10 @@ public class ChooseParticipantFragment extends Fragment {
                 FragmentManager manager = getActivity().getSupportFragmentManager();
                 FragmentTransaction ft = manager.beginTransaction();
                 Fragment addFrag = manager.findFragmentByTag("CHOOSE");
-                ft.remove(addFrag).commitAllowingStateLoss();
-                getActivity().onBackPressed();
+
+                    ft.remove(addFrag).commitAllowingStateLoss();
+                    getActivity().onBackPressed();
+
                 imBtCancel.setVisibility(View.VISIBLE);
                 imgBtBack.setVisibility(View.GONE);
             }

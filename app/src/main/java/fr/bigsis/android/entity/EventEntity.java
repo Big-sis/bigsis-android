@@ -11,13 +11,18 @@ public class EventEntity {
     private String addressEvent;
     private String image;
     private String description;
+    private String sharedIn;
+    private String organism;
+    private double latDestination;
+    private double lngDestination;
     private String createdBy;
 
     public EventEntity() {
     }
 
     public EventEntity(Date dateStart, Date dateEnd, String titleEvent, String addressEvent,
-                       String image, String description, String createdBy) {
+                       String image, String description, String createdBy,String sharedIn, String organism,
+                       double latDestination, double lngDestination) {
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
         this.titleEvent = titleEvent;
@@ -25,6 +30,11 @@ public class EventEntity {
         this.description = description;
         this.createdBy = createdBy;
         this.addressEvent = addressEvent;
+        this.sharedIn = sharedIn;
+        this.organism = organism;
+        this.addressEvent = addressEvent;
+        this.latDestination = latDestination;
+        this.lngDestination = lngDestination;
     }
 
     public Date getDateStart() {
@@ -89,5 +99,37 @@ public class EventEntity {
 
     public void setAddressEvent(String addressEvent) {
         this.addressEvent = addressEvent;
+    }
+
+    public String getSharedIn() {
+        return sharedIn;
+    }
+
+    public void setSharedIn(String sharedIn) {
+        this.sharedIn = sharedIn;
+    }
+
+    public String getOrganism() {
+        return organism;
+    }
+
+    public void setOrganism(String organism) {
+        this.organism = organism;
+    }
+
+    public double getLatDestination() {
+        return latDestination;
+    }
+
+    public void setLatDestination(double latDestination) {
+        this.latDestination = latDestination;
+    }
+
+    public double getLngDestination() {
+        return lngDestination;
+    }
+
+    public void setLngDestination(double lngDestination) {
+        this.lngDestination = lngDestination;
     }
 }

@@ -1,6 +1,8 @@
 package fr.bigsis.android.activity;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
@@ -11,6 +13,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Locale;
+
 import fr.bigsis.android.R;
 
 public class SplashScreenActivity extends AppCompatActivity {
@@ -19,6 +23,7 @@ public class SplashScreenActivity extends AppCompatActivity {
     String userId;
     FirebaseFirestore mFirestore;
     private Thread splashTread;
+     Locale myLocale;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

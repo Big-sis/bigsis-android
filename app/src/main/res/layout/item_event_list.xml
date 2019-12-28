@@ -46,7 +46,7 @@
             android:layout_alignBottom="@id/eventImage"
             android:backgroundTint="@android:color/transparent"
             android:src="@drawable/ic_add_image_event"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
 
     </RelativeLayout>

@@ -31,7 +31,8 @@
         <activity
             android:name=".activity.SignUpActivity"
             android:noHistory="true" />
-        <activity android:name=".activity.EventListActivity" />
+        <activity android:name=".activity.EventListActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".activity.ChatActivity" />
         <activity android:name=".activity.GroupConversationActivity" />
         <activity android:name=".activity.MapsActivity" />
@@ -39,7 +40,8 @@
         <activity android:name=".activity.ContactListActivity" />
         <activity android:name=".activity.SplashTripCreatedActivity" />
         <activity android:name=".activity.UserProfileActivity" />
-        <activity android:name=".activity.TripListActivity" />
+        <activity android:name=".activity.TripListActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".helpers.UploadImageHelper" />
         <activity android:name=".activity.MainActivity" />
 

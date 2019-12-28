@@ -53,11 +53,13 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
     private String mCurrentUserId;
     private FirebaseAuth mAuth;
     FirebaseStorage storage;
+    ConstraintLayout transitionContainer;
 
-    public ParticipantListAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout) {
+    public ParticipantListAdapter(@NonNull FirestorePagingOptions<UserEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout, ConstraintLayout transitionContainer) {
         super(options);
         mContext = context;
         mSwipeRefreshLayout = swipeRefreshLayout;
+        this.transitionContainer = transitionContainer;
     }
 
     @Override
@@ -251,6 +253,7 @@ public class ParticipantListAdapter extends FirestorePagingAdapter<UserEntity, P
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                transitionContainer.setVisibility(View.GONE);
                 AppCompatActivity activity = (AppCompatActivity) view.getContext();
                 Bundle bundle = new Bundle();
                 bundle.putString("idString", idContact);

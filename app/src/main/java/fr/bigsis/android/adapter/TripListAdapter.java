@@ -132,9 +132,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 }
             }
         });
-
         //Check if user is participating to a trip or not , and keep the button in the right color
-
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -151,10 +149,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 }
             }
         });
-        // FirestoreHelper.update("trips", idTrip, "participants", "imageProfileUrl");
-
-
-        //  FirestoreHelper.updateUserProfile(mCurrentUserId, "trips", idTrip, "participants", mCurrentUserId);
 
         holder.btParticipate.setOnClickListener(new View.OnClickListener() {
             @Override

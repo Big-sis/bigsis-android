@@ -5,16 +5,12 @@ import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.location.Address;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -29,10 +25,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
-import com.google.android.gms.common.api.Status;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -45,16 +37,11 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
-import com.mapbox.geojson.Feature;
-import com.mapbox.geojson.FeatureCollection;
 import com.mapbox.geojson.Point;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.PlaceAutocomplete;
 import com.mapbox.mapboxsdk.plugins.places.autocomplete.model.PlaceOptions;
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -73,9 +60,6 @@ import fr.bigsis.android.helpers.AddTripHelper;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
 import fr.bigsis.android.viewModel.ChooseParticipantViewModel;
 
-import static android.app.Activity.RESULT_CANCELED;
-import static android.app.Activity.RESULT_OK;
-import static androidx.constraintlayout.widget.Constraints.TAG;
 import static fr.bigsis.android.constant.Constant.REQUEST_CODE_FROM_AUTOCOMPLETE;
 import static fr.bigsis.android.constant.Constant.REQUEST_CODE_TO_AUTOCOMPLETE;
 
@@ -435,9 +419,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
         tripReference.add(object).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
             public void onSuccess(DocumentReference documentReference) {
-                Intent intent = new Intent(getActivity(), SplashTripCreatedActivity.class);
-                intent.putExtra("Trip", createdOrUpdated);
-                startActivity(intent);
+
                 String tripId = documentReference.getId();
                 mFirestore.collection(organism).document("AllCampus")
                         .collection("AllChatGroups").document(tripId).set(objectGroup);
@@ -471,14 +453,17 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                                     if (task.isSuccessful()) {
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             String groupName = document.getData().get("groupName").toString();
-                                            AddTripHelper.setDataInCampus(organism, groupName, object, objectGroup, objectUser, tripId, userId);
+                                            AddTripHelper.setDataTripInCampus(organism, groupName, object, objectGroup, objectUser, tripId, userId);
                                         }
                                     }
                                 }
                             });
                 } else {
-                    AddTripHelper.setDataInCampus(organism, groupCampusName, object, objectGroup, objectUser, tripId, userId);
+                    AddTripHelper.setDataTripInCampus(organism, groupCampusName, object, objectGroup, objectUser, tripId, userId);
                 }
+                Intent intent = new Intent(getActivity(), SplashTripCreatedActivity.class);
+                intent.putExtra("Trip", createdOrUpdated);
+                startActivity(intent);
             }
         });
     }
@@ -505,7 +490,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                 userDocumentRef.collection("TripList")
                         .document(tripId)
                         .update(hashMapTrip);
-                if (groupCampusNameVM.equals("Tous les campus")) {
+                if (groupCampusNameVM.equals("Tous les campus") || groupCampusName.equals("Tous les campus")) {
                     mFirestore.collection(organism).document("AllCampus").collection("AllCampus").get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
@@ -521,6 +506,9 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                 } else {
                     AddTripHelper.updateDataInCampus(organism, groupCampusName, tripId, hashMapTrip, hashMapGroup, userId);
                 }
+                Intent intent = new Intent(getActivity(), SplashTripCreatedActivity.class);
+                intent.putExtra("Trip", createdOrUpdated);
+                startActivity(intent);
             }
         });
     }

@@ -230,7 +230,8 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                         .build();
 
                 Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus")
-                        .collection("AllCampus").document(nameCampus).collection("Trips");
+                        .collection("AllCampus").document(nameCampus)
+                        .collection("Trips").orderBy("date");
                 FirestorePagingOptions<TripEntity> options = new FirestorePagingOptions.Builder<TripEntity>()
                         .setLifecycleOwner(TripListActivity.this)
                         .setQuery(query, config, TripEntity.class)

@@ -47,14 +47,18 @@ public class UserEntity {
         this.userId = userId;
     }
 
-    public UserEntity(String username, String imageProfileUrl,
-                      String firstname, String lastname,
-                      boolean isOnline ) {
+    public UserEntity(String username, String description, String imageProfileUrl, String firstname,
+                      String lastname,  String groupCampus, String organism, String userId, boolean isAdmin) {
         this.username = username;
         this.imageProfileUrl = imageProfileUrl;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.isOnline = isOnline;
+        this.description = description;
+        this.isAdmin = isAdmin;
+        this.groupCampus = groupCampus;
+        this.description = description;
+        this.organism = organism;
+        this.userId = userId;
     }
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname,
