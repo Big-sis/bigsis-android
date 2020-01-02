@@ -1,44 +1,68 @@
 package fr.bigsis.android.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
-
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.transition.TransitionManager;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatDelegate;
+
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.util.Locale;
+
 import fr.bigsis.android.R;
+import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 
-import static android.view.View.GONE;
+import static fr.bigsis.android.helpers.FirestoreHelper.deleteUserFromOrganism;
 
 public class SettingsActivity extends BigsisActivity {
 
-    TextView tvProfile, tvPassword, tvLogOut, tvDeleteAccount;
+    TextView tvPolicy, tvCGU, tvLogOut, tvDeleteAccount;
     FloatingActionButton fbtGoToMapUpdate;
     FirebaseAuth mAuth;
     String userId;
     FirebaseFirestore mFirestore;
+    RelativeLayout relativeLayoutLanguage, relariveLayoutCampus, relariveLayoutCGU, relativeLayoutPolicy;
+    private Locale myLocale;
+    private Locale current;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        tvProfile = findViewById(R.id.tvProfile);
-        tvPassword = findViewById(R.id.tvPassword);
+
         tvLogOut = findViewById(R.id.tvLogOut);
         tvDeleteAccount = findViewById(R.id.tvDeleteAccount);
+        tvCGU = findViewById(R.id.tvCGU);
+        tvPolicy = findViewById(R.id.tvPolicy);
+        relariveLayoutCampus = findViewById(R.id.relariveLayoutCampus);
+        relativeLayoutLanguage = findViewById(R.id.relativeLayoutLanguage);
+        relariveLayoutCGU = findViewById(R.id.relariveLayoutCGU);
+        relativeLayoutPolicy = findViewById(R.id.relativeLayoutPolicy);
+        tvPolicy.getPaint().setUnderlineText(true);
+        tvCGU.getPaint().setUnderlineText(true);
+
+
         setToolBar();
 
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
@@ -64,21 +88,25 @@ public class SettingsActivity extends BigsisActivity {
             }
         });
         mAuth = FirebaseAuth.getInstance();
+        final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         userId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-        tvProfile.setOnClickListener(new View.OnClickListener() {
+        relariveLayoutCGU.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO UPDATE PROFILE
-                Toast.makeText(SettingsActivity.this, "You'll be able to update your informations but not now :D", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(SettingsActivity.this, PolicyCGUActivity.class);
+                intent.putExtra("CGU", "cgu");
+                startActivity(intent);
             }
         });
 
-        tvPassword.setOnClickListener(new View.OnClickListener() {
+        relativeLayoutPolicy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO UPDATE PROFILE
-                Toast.makeText(SettingsActivity.this, "You'll be able to update your password but not now :D", Toast.LENGTH_LONG).show();
+                Intent intent = new Intent(SettingsActivity.this, PolicyCGUActivity.class);
+                intent.putExtra("POLICY", "policy");
+                startActivity(intent);
             }
         });
 
@@ -94,8 +122,100 @@ public class SettingsActivity extends BigsisActivity {
         tvDeleteAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO UPDATE PROFILE
-                Toast.makeText(SettingsActivity.this, "You'll be able to update your password but not now :D", Toast.LENGTH_LONG).show();
+                AlertDialog dialogBuilder = new AlertDialog.Builder(SettingsActivity.this).create();
+                LayoutInflater inflater = LayoutInflater.from(SettingsActivity.this);
+                View dialogView = inflater.inflate(R.layout.style_alert_dialog, null);
+                Button btNo = dialogView.findViewById(R.id.btNo);
+                TextView tvTitleDialog = dialogView.findViewById(R.id.tvTitleDialog);
+                Button btDelete = dialogView.findViewById(R.id.btDeleteFriend);
+                tvTitleDialog.setText(R.string.want_to_delete_account);
+
+                btDelete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mFirestore.collection("USERS")
+                                .document(userId)
+                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                String organism = documentSnapshot.getString("organism");
+                                String groupCampus = documentSnapshot.getString("groupCampus");
+                                FirestoreHelper.deleteUserFromCampus(organism, groupCampus, userId);
+                                FirestoreHelper.deleteUserFromDbUsers(userId, "ChatGroup");
+                                FirestoreHelper.deleteUserFromDbUsers(userId, "EventList");
+                                FirestoreHelper.deleteUserFromDbUsers(userId, "Friends");
+                                FirestoreHelper.deleteUserFromDbUsers(userId, "RequestSent");
+                                FirestoreHelper.deleteUserFromDbUsers(userId, "StaffOf");
+                                FirestoreHelper.deleteUserFromDbUsers(userId, "TripList");
+                                FirestoreHelper.deleteUserFromDbUsers(userId, "RequestReceived");
+                                FirestoreHelper.deleteUser(userId);
+                                FirestoreHelper.deleteUserFromAll(organism, userId);
+                                deleteUserFromOrganism(organism, userId);
+                                FirestoreHelper.deleteImageFromStorage(userId);
+                            }
+                        });
+                        user.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                startActivity(new Intent(SettingsActivity.this, MainActivity.class));
+                            }
+                        });
+                        dialogBuilder.dismiss();
+                    }
+                });
+                btNo.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        dialogBuilder.dismiss();
+                    }
+                });
+                dialogBuilder.setView(dialogView);
+                dialogBuilder.show();
+
+            }
+        });
+        relativeLayoutLanguage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AlertDialog dialogBuilder = new AlertDialog.Builder(SettingsActivity.this).create();
+                LayoutInflater inflater = LayoutInflater.from(SettingsActivity.this);
+                View dialogView = inflater.inflate(R.layout.style_dialog_language, null);
+                Button btValidate = dialogView.findViewById(R.id.btValidate);
+                RadioButton radio_french = dialogView.findViewById(R.id.radio_french);
+                RadioButton radio_english = dialogView.findViewById(R.id.radio_english);
+                SharedPreferences prefs = getSharedPreferences("CommonPrefs",
+                        Activity.MODE_PRIVATE);
+                String language = prefs.getString("Language", "");
+                System.out.println(language);
+
+                current = getResources().getConfiguration().locale;
+                System.out.println(current.getLanguage());
+                if (current.getLanguage().equals("fr")) {
+
+                    radio_french.setChecked(true);
+                } else if (current.getLanguage().equals("en")) {
+
+                    radio_english.setChecked(true);
+                }
+                if (!language.equals(current.getLanguage())) {
+                    saveLocale(language);
+                    loadLocale();
+                }
+                btValidate.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(radio_french.isChecked()){
+                            changeLang("fr");
+                            saveLocale("fr");
+                        } else if (radio_english.isChecked()){
+                            changeLang("en");
+                            saveLocale("en");
+                        }
+                        dialogBuilder.dismiss();
+                    }
+                });
+                dialogBuilder.setView(dialogView);
+                dialogBuilder.show();
             }
         });
     }
@@ -118,4 +238,36 @@ public class SettingsActivity extends BigsisActivity {
     }
 
 
+
+    public void loadLocale() {
+        String langPref = "Language";
+        SharedPreferences prefs = this.getSharedPreferences("CommonPrefs",
+                Activity.MODE_PRIVATE);
+        String language = prefs.getString(langPref, "");
+        changeLang(language);
+    }
+
+    public void changeLang(String lang) {
+        if (lang.equalsIgnoreCase(""))
+            return;
+        myLocale = new Locale(lang);
+        saveLocale(lang);
+        Locale.setDefault(myLocale);
+        android.content.res.Configuration config = new android.content.res.Configuration();
+        config.locale = myLocale;
+        this.getBaseContext().getResources().updateConfiguration(config, this.getBaseContext().getResources().getDisplayMetrics());
+        this.recreate();
+
+    }
+
+    public void saveLocale(String lang) {
+        String langPref = "Language";
+        SharedPreferences prefs = this.getSharedPreferences("CommonPrefs",
+                Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(langPref, lang);
+        editor.commit();
+    }
 }
+
+

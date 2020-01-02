@@ -24,7 +24,9 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.MapsActivity;
+import fr.bigsis.android.activity.UserProfileActivity;
 import fr.bigsis.android.entity.OrganismEntity;
+import fr.bigsis.android.fragment.ProfileFragment;
 import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.viewModel.ChooseParticipantViewModel;
 
@@ -86,7 +88,7 @@ public class ChooseGroupAdapter extends FirestorePagingAdapter<OrganismEntity, C
                         .document(idUser).update("groupCampus", groupName).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        mContext.startActivity(new Intent(mContext, MapsActivity.class));
+                        mContext.startActivity(new Intent(mContext, UserProfileActivity.class));
                     }
                 });
             }

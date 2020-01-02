@@ -42,6 +42,29 @@ public class FirestoreHelper {
                 .set(object, SetOptions.merge());
     }
 
+    public static void deleteUserFromCampus(String organism, String campusUser, String idUser) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection(organism)
+                .document("AllCampus")
+                .collection("AllCampus").document(campusUser)
+                .collection("Users")
+                .document(idUser).delete();
+    }
+
+    public static void deleteUser(String idUser) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+
+        DocumentReference docRefUser = mFirestore.collection("USERS").document(idUser);
+
+        deleteCollectionFromDoc(docRefUser, "ChatGroup");
+        deleteCollectionFromDoc(docRefUser, "EventList");
+        deleteCollectionFromDoc(docRefUser, "Friends");
+        deleteCollectionFromDoc(docRefUser, "RequestSent");
+        deleteCollectionFromDoc(docRefUser, "StaffOf");
+        deleteCollectionFromDoc(docRefUser, "TripList");
+        deleteCollectionFromDoc(docRefUser, "RequestReceived");
+        docRefUser.delete();
+    }
     public static void setStatusUser(String organism, String idGroup, String currentId, Boolean isOnline) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection(organism)
@@ -191,7 +214,96 @@ public class FirestoreHelper {
             }
         });
     }
+    public static void deleteImageFromStorage (String idUserTodelete) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("USERS").document(idUserTodelete).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String image = documentSnapshot.getString("imageProfileUrl");
+                if (image != null) {
+                    StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(image);
+                    photoRef.delete();
+                }
+            }
+        });
+    }
+    public static void deleteUserFromDbUsers (String idUserTodelete, String subCollectionUsers) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("USERS").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
 
+                        String idUser = document.getId();
+                        mFirestore.collection("USERS").document(idUser).collection(subCollectionUsers)
+                                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        String idFriend = document.getId();
+                                        if(idFriend.equals(idUserTodelete)) {
+                                            mFirestore.collection("USERS").document(idUser).collection("Friends")
+                                            .document(idFriend).delete();
+                                        }
+                                    }
+                                }
+                            }
+                            });
+                    }
+                }
+            }
+        });
+    }
+
+    public static void deleteUserFromOrganism(String organism, String idUserTodelete) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection(organism).document("AllCampus").collection("AllUsers")
+                .document(idUserTodelete).delete();
+    }
+    public static void deleteUserFromAll(String organism, String idUserTodelete) {
+        compareForDelete(organism, idUserTodelete, "AllTrips", "Creator");
+        compareForDelete(organism, idUserTodelete, "AllTrips", "Participants");
+        compareForDelete(organism, idUserTodelete, "AllEvents", "Creator");
+        compareForDelete(organism, idUserTodelete, "AllEvents", "Participants");
+        compareForDelete(organism, idUserTodelete, "AllEvents", "StaffMembers");
+        compareForDelete(organism, idUserTodelete, "AllChatGroups", "StaffMembers");
+        compareForDelete(organism, idUserTodelete, "AllChatGroups", "Participants");
+        compareForDelete(organism, idUserTodelete, "AllChatGroups", "Creator");
+
+    }
+    public static void compareForDelete (String organism, String idUserTodelete, String subcollectionName, String subcollectionForDelete) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection(organism).document("AllCampus").collection(subcollectionName).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String idSubcollection = document.getId();
+                        mFirestore.collection(organism).document("AllCampus")
+                                .collection(subcollectionName).document(idSubcollection).collection(subcollectionForDelete).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                        String id = document.getId();
+                                        if(id.equals(idUserTodelete)) {
+                                            mFirestore.collection(organism).document("AllCampus")
+                                                    .collection(subcollectionName).document(idSubcollection).collection(subcollectionForDelete)
+                                                    .document(idUserTodelete).delete();
+                                        }
+                                    }
+                                }
+                            }
+                            });
+
+
+                    }
+                }
+            }
+            });
+    }
     public static void compareForParticipants(String tripOrGroupOrEvent, String participantOrCreator) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection("USERS")
@@ -276,6 +388,20 @@ public class FirestoreHelper {
                 UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, admin, groupCampus, organism, lastnameAndFirstname);
                 mFirestore.collection(organism).document("AllCampus").collection("AllCampus").document(groupCampus)
                         .collection("Users").document(userID).set(userEntity, SetOptions.merge());
+            }
+        });
+    }
+
+    private static void deleteCollectionFromDoc(DocumentReference docRef, String collection) {
+        docRef.collection(collection).get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String id = document.getId();
+                        docRef.collection(collection).document(id).delete();
+                    }
+                }
             }
         });
     }

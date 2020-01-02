@@ -21,7 +21,7 @@
         android:layout_marginTop="50dp"
         android:gravity="center"
         android:layout_centerHorizontal="true"
-        android:text="Faisons connaissance"
+        android:text="@string/meet"
         android:textStyle="bold"
         android:textColor="@color/colorWhite"
         android:textSize="30sp"/>

@@ -64,7 +64,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         String name = r.getString("title");
         holder.textViewTitle.setText(model.getTitle());
         SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-        holder.textViewDate.setText(format.format(model.getDate().getTime()));
+//        holder.textViewDate.setText(format.format(model.getDate().getTime()));
         String organism = model.getOrganism();
         String sharedId = model.getSharedIn();
 
@@ -286,7 +286,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         ImageButton imgButtonQuit;
         ImageButton imgButtonActivateNotif;
 
-        GroupChatHolder(View itemView) {
+        public GroupChatHolder(View itemView) {
             super(itemView);
             textViewTitle = itemView.findViewById(R.id.tvTitleGroupChat);
             textViewDate = itemView.findViewById(R.id.tvDateGroupChat);

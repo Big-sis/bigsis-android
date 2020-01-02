@@ -63,6 +63,7 @@ import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.helpers.AddTripHelper;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
 import fr.bigsis.android.helpers.FirestoreHelper;
+import fr.bigsis.android.helpers.UpdateHelper;
 import fr.bigsis.android.viewModel.ChooseParticipantViewModel;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
@@ -119,6 +120,7 @@ public class AddEventFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_add_event, container, false);
         mAuth = FirebaseAuth.getInstance();
+        userId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
         chooseParticipantViewModel = ViewModelProviders.of(getActivity()).get(ChooseParticipantViewModel.class);
         viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
@@ -161,6 +163,7 @@ public class AddEventFragment extends Fragment {
             tvTitleToolbar.setText(R.string.modify_event);
             imgBtDeleteEvent.setVisibility(View.VISIBLE);
             createdOrUpdated = getString(R.string.updated);
+            tvParticipantFragment.setVisibility(View.GONE);
         }
         imBtCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -363,8 +366,7 @@ public class AddEventFragment extends Fragment {
     private void setData(String organism, Object object, Object objectGroup, UserEntity objectUser, String groupCampusName) {
         CollectionReference eventRef = mFirestore
                 .collection(organism).document("AllCampus").collection("AllEvents");
-        CollectionReference userListsRef = mFirestore.collection("USERS").document(userId)
-                .collection("EventList");
+
         DocumentReference userDocumentRef = mFirestore.collection("USERS").document(userId);
         eventRef.add(object).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -385,9 +387,7 @@ public class AddEventFragment extends Fragment {
                 userDocumentRef.collection("ChatGroup")
                         .document(eventId)
                         .set(objectGroup);
-                userDocumentRef.collection("EventList")
-                        .document(eventId)
-                        .set(object);
+
                 FirestoreDBHelper.setData("USERS", userId, "ChatGroup", eventId, objectGroup);
                 viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
                 viewModel.getStaffList().observe(getActivity(), new Observer<List<UserEntity>>() {
@@ -398,12 +398,13 @@ public class AddEventFragment extends Fragment {
                             eventRef.document(eventId).collection("Participants").document(user.getUserId()).set(user, SetOptions.merge());
                             DocumentReference userListsRef = mFirestore.collection("USERS").document(user.getUserId());
                             userListsRef.collection("ChatGroup").document(eventId).set(objectGroup);
-                            userListsRef.collection("EventList").document(eventId).set(object);
                             setEvent(groupChatRef, eventId,"Participants", user.getUserId(), user);
                             setEvent(groupChatRef, eventId,"StaffMembers", user.getUserId(), user);
                         }
                     }
                 });
+                String title = getArguments().getString("TITLE");
+
                 viewModel.resetStaffMember();
                 if (groupCampusNameVM.equals("Tous les campus")) {
                     mFirestore.collection(organism).document("AllCampus").collection("AllCampus").get()
@@ -421,6 +422,7 @@ public class AddEventFragment extends Fragment {
                 } else {
                     AddTripHelper.setDataEventInCampus(organism, groupCampusName, object, objectGroup, objectUser, eventId, userId);
                 }
+
                 Intent intent = new Intent(getActivity(), SplashTripCreatedActivity.class);
                 intent.putExtra("Event", createdOrUpdated);
                 startActivity(intent);
@@ -522,8 +524,8 @@ public class AddEventFragment extends Fragment {
                                     return;
                                 }
                                 if (!groupCampusNameVM.equals("") && !groupCampusNameVM.equals(sharedIn)) {
-                                    AddTripHelper.deleteEventFromDB(organism, id_event, userId);
                                     setData(organism, hashMapEvent, hashMapGroup, userEntity, groupCampusNameVM);
+                                    AddTripHelper.deleteEventFromDB(organism, id_event, userId);
                                 } else {
                                     updateDataEvent(organism, groupCampusName, hashMapEvent, hashMapGroup, id_event);
                                 }
@@ -552,9 +554,7 @@ public class AddEventFragment extends Fragment {
                 userDocumentRef.collection("ChatGroup")
                         .document(eventId)
                         .update(hashMapGroup);
-                userDocumentRef.collection("EventList")
-                        .document(eventId)
-                        .update(hashMapEvent);
+
                 if (groupCampusNameVM.equals("Tous les campus") || groupCampusName.equals("Tous les campus")) {
                     mFirestore.collection(organism).document("AllCampus").collection("AllCampus").get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -591,7 +591,7 @@ public class AddEventFragment extends Fragment {
         btYes.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                AddTripHelper.deleteFromDB(organism_trip, id, userId);
+                AddTripHelper.deleteEventFromDB(organism_trip, id, userId);
                 dialogBuilder.dismiss();
                 startActivity(new Intent(getActivity(), EventListActivity.class));
             }

@@ -116,7 +116,7 @@ public class SignUpFragment extends Fragment {
         String email = etEmail.getText().toString();
         String password = etPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
-     /*  if(!email.contains("@tbs-education.org")) {
+     /*  if(!email.contains("@tbs-education")) {
             Snackbar.make(relativeLayoutSignUp, "Vous devez vous inscrire avec l'adresse e-mail de votre campus", Snackbar.LENGTH_LONG)
                     .show();
         }*/
@@ -155,7 +155,7 @@ public class SignUpFragment extends Fragment {
                                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                                         String user_id = mFirebaseAuth.getCurrentUser().getUid();
                                         String organism = "";
-                                        if (email.contains("@tbs-education.org") || email.contains("@hotmail.fr") || email.contains("@gmail.com") || email.contains("@bigsis.fr")) {
+                                        if (email.contains("@tbs-education") || email.contains("@hotmail.fr") || email.contains("@gmail.com") || email.contains("@bigsis.fr")) {
                                             organism = "TBS";
                                             userEntity.setOrganism(organism);
                                         }
@@ -170,6 +170,7 @@ public class SignUpFragment extends Fragment {
                                                         if (task.isSuccessful()) {
                                                             progressBarSign.setVisibility(View.GONE);
                                                             AlertDialog builder = new AlertDialog.Builder(getActivity(), R.style.AlertDialogStyle)
+                                                                    //TODO EXTARCT STRING
                                                                     .setMessage("Un e-mail de vérification vient de vous etre envoyé")
                                                                     .setPositiveButton(getString(R.string.ok), null)
                                                                     .show();

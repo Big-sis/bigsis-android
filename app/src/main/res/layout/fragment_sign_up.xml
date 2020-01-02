@@ -14,15 +14,20 @@
         android:background="@color/colorPrimary"
         android:focusableInTouchMode="true">
 
-        <ImageView
+        <TextView
             android:id="@+id/imgLogo"
+            android:text="@string/last_step"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="50dp"
-            app:srcCompat="@drawable/smile_logo" />
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            android:textStyle="bold"
+            android:textColor="@color/colorWhite"
+            android:textSize="30sp"/>
 
         <EditText
             android:id="@+id/etMailAdressSignUp"
@@ -73,12 +78,12 @@
                 android:id="@+id/checkBoxCgu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="J'ai lu et j'accepte "/>
+                android:text="@string/acccept_cgu"/>
             <TextView
                 android:id="@+id/textViewCgu"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="les CGU"
+                android:text="@string/les_cgu"
                 android:clickable="true" />
         </LinearLayout>
 
@@ -96,13 +101,13 @@
                 android:id="@+id/checkBoxPolicy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="J'ai lu et j'accepte "/>
+                android:text="@string/acccept_cgu"/>
 
             <TextView
                 android:id="@+id/textViewPolicy"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="la politique de confidentialité"
+                android:text="@string/policy"
                 android:clickable="true"
                 android:paddingBottom="10dp"/>
         </LinearLayout>

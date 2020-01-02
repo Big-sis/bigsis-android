@@ -193,6 +193,7 @@ public class AddTripFragment extends Fragment {
             tvTitleToolbar.setText(R.string.edit_my_trip);
             imgBtDelete.setVisibility(View.VISIBLE);
             createdOrUpdated = getString(R.string.updated);
+            tvGroupCampusTrip.setVisibility(View.GONE);
         }
 
         btCreate.setOnClickListener(new View.OnClickListener() {
@@ -413,8 +414,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
     private void setData(String organism, Object object, Object objectGroup, Object objectUser, String groupCampusName) {
         CollectionReference tripReference = mFirestore
                 .collection(organism).document("AllCampus").collection("AllTrips");
-        CollectionReference userListsRef = mFirestore.collection("USERS").document(userId)
-                .collection("TripList");
+
         DocumentReference userDocumentRef = mFirestore.collection("USERS").document(userId);
         tripReference.add(object).addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
             @Override
@@ -441,9 +441,6 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                         .document(tripId)
                         .set(objectGroup);
 
-                userDocumentRef.collection("TripList")
-                        .document(tripId)
-                        .set(object);
                 FirestoreDBHelper.setData("USERS", userId, "ChatGroup", tripId, objectGroup);
                 if (groupCampusNameVM.equals("Tous les campus")) {
                     mFirestore.collection(organism).document("AllCampus").collection("AllCampus").get()
@@ -472,8 +469,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
         DocumentReference tripReference = mFirestore
                 .collection(organism).document("AllCampus").collection("AllTrips")
                 .document(tripId);
-        CollectionReference userListsRef = mFirestore.collection("USERS").document(userId)
-                .collection("TripList");
+
         DocumentReference userDocumentRef = mFirestore.collection("USERS").document(userId);
         tripReference.update(hashMapTrip).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -487,9 +483,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                 userDocumentRef.collection("ChatGroup")
                         .document(tripId)
                         .update(hashMapGroup);
-                userDocumentRef.collection("TripList")
-                        .document(tripId)
-                        .update(hashMapTrip);
+
                 if (groupCampusNameVM.equals("Tous les campus") || groupCampusName.equals("Tous les campus")) {
                     mFirestore.collection(organism).document("AllCampus").collection("AllCampus").get()
                             .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {

@@ -93,9 +93,23 @@
     <string name="request_refused">Invitation refusée</string>
     <string name="account">Compte</string>
     <string name="security">Sécurité</string>
-    <string name="log_out">Déconnexion</string>
-    <string name="delete_my_account">Supprimer mon compte</string>
+    <string name="log_out">Se déconnecter</string>
+    <string name="delete_my_account">Se désinscrire</string>
     <string name="settings">Paramètres</string>
     <string name="modify_event">Modifier l\'évènement</string>
     <string name="delete_event">Voulez vous vraiment supprimer cet évènement ?</string>
+    <string name="last_step">Dernière étape</string>
+    <string name="meet">Faisons connaissance</string>
+    <string name="Langage">Langue</string>
+    <string name="campus">Campus</string>
+    <string name="show">Voir</string>
+    <string name="acccept_cgu">J\'ai lu et j\'accepte</string>
+    <string name="les_cgu">les CGU</string>
+    <string name="policy">la politique de confidentialité</string>
+    <string name="cgue">CGU</string>
+    <string name="policy_conf">Politique de confidentialité</string>
+    <string name="want_to_delete_account">Voulez-vous vraiment supprimer votre compte?</string>
+    <string name="validate">Valider</string>
+    <string name="english">English</string>
+    <string name="french">Français</string>
 </resources>
