@@ -76,6 +76,7 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
     private String nameCampus;
     private String organism;
     AddEventFragment fragmentAdd;
+    private Locale current;
 
     public EventListAdapter(@NonNull FirestorePagingOptions<EventEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout,
                            String nameCampus, String organism, AddEventFragment fragmentAdd) {
@@ -402,7 +403,6 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
         FloatingActionButton infoEventButton;
         @BindView(R.id.relativeLayoutEventText)
         RelativeLayout relativeLayoutEventText;
-
         private View mView;
 
         public EventHolder(@NonNull View itemView) {
@@ -413,8 +413,14 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
 
         public void bind(@NonNull EventEntity item) {
             textViewTitle.setText(item.getTitleEvent());
-            SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-            textViewDateEvent.setText(format.format(item.getDateStart().getTime()));
+            current = mContext.getResources().getConfiguration().locale;
+            if (current.getLanguage().equals("fr")) {
+                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+                textViewDateEvent.setText(format.format(item.getDateStart().getTime()));
+            } else if (current.getLanguage().equals("en")) {
+                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.ENGLISH);
+                textViewDateEvent.setText(format.format(item.getDateStart().getTime()));
+            }
 
             tvDesctiptionEvent.setText(item.getDescription());
             if(item.getImage() != null) {

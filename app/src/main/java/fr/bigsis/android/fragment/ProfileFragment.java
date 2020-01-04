@@ -47,7 +47,7 @@ public class ProfileFragment extends Fragment {
     private TextView tvUserDescFragment;
     private FloatingActionButton fbEdit;
     private String userId, user_name, description_user, imageProfileUrl;
-    private String firstname, lastname, groupCampus;
+    private String username, lastname, groupCampus;
     private FirebaseFirestore mFirestore;
     private FirebaseAuth mFirebaseAuth;
     private Uri imageProfileUri;
@@ -77,11 +77,11 @@ public class ProfileFragment extends Fragment {
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        firstname = documentSnapshot.getString("firstname");
                         lastname = documentSnapshot.getString("lastname");
+                        username = documentSnapshot.getString("username");
                         description_user = documentSnapshot.getString("description");
                         imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
-                        tvUserNameFragment.setText(firstname + " " + lastname);
+                        tvUserNameFragment.setText(username);
                         tvUserDescFragment.setText(description_user);
                         if(imageProfileUrl != null) {
                             StorageReference storageRef = FirebaseStorage.getInstance()

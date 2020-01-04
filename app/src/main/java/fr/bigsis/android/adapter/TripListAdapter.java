@@ -68,6 +68,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
     private String nameCampus;
     private String organism;
     AddTripFragment fragmentAdd;
+    private Locale current;
 
     public TripListAdapter(@NonNull FirestorePagingOptions<TripEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout,
                            String nameCampus, String organism, AddTripFragment fragmentAdd) {
@@ -321,8 +322,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
 
     }
 
-
-
     public LatLng getLocationFromAddress(Context context, String strAddress) {
 
         Geocoder coder = new Geocoder(context);
@@ -408,6 +407,15 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         public void bind(@NonNull TripEntity item) {
             mTextFrom.setText(item.getFrom());
             mTextTo.setText(item.getTo());
+
+            current = mContext.getResources().getConfiguration().locale;
+            if (current.getLanguage().equals("fr")) {
+                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+                mTextDate.setText(format.format(item.getDate().getTime()));
+            } else if (current.getLanguage().equals("en")) {
+                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.ENGLISH);
+                mTextDate.setText(format.format(item.getDate().getTime()));
+            }
             SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
             mTextDate.setText(format.format(item.getDate().getTime()));
             Glide.with(imgview)

@@ -20,87 +20,104 @@
 
     <ScrollView
         android:id="@+id/scrollview"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/constraintLayout2">
+        android:layout_below="@+id/constraintLayout2"
+        android:layout_marginTop="20dp">
+
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:focusableInTouchMode="true"
-            >
+            android:focusableInTouchMode="true">
 
-            <EditText
-                android:id="@+id/etUserNameSignUp"
+            <ImageView
+                android:id="@+id/ivLogo"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="50dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="50dp"
-                android:hint="@string/username"
+                app:srcCompat="@drawable/oc_smile_grey" />
+
+            <EditText
+                android:id="@+id/etUsernameUpdate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/ivLogo"
+                android:layout_centerHorizontal="true"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="40dp"
+                android:layout_marginEnd="50dp"
+                android:hint="Nom utilisateur"
                 android:inputType="textEmailAddress"
                 android:padding="5dp" />
 
             <EditText
-                android:id="@+id/etNameSignUp"
+                android:id="@+id/etNameUpdate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/etUserNameSignUp"
+                android:layout_below="@+id/etUsernameUpdate"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="50dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="50dp"
-                android:hint="@string/lastname"
+                android:hint="Nom"
                 android:inputType="textPersonName|textCapSentences"
                 android:padding="5dp" />
 
             <EditText
-                android:id="@+id/etFirstnameSignUp"
+                android:id="@+id/etFirstnameUpdate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/etNameSignUp"
+                android:layout_below="@+id/etNameUpdate"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="50dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="50dp"
-                android:hint="@string/firstname"
+                android:hint="Prénom"
                 android:inputType="textPersonName|textCapSentences"
                 android:padding="5dp" />
 
             <EditText
-                android:id="@+id/etDescriptionSignUp"
+                android:id="@+id/etDescriptionUpdate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/etFirstnameSignUp"
+                android:layout_below="@+id/etFirstnameUpdate"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="50dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="50dp"
-                android:paddingStart="10dp"
                 android:gravity="start"
                 android:hint="@string/description"
                 android:inputType="textMultiLine|textCapSentences"
                 android:lines="6"
+                android:paddingStart="10dp"
                 android:paddingTop="10dp" />
 
             <Button
-                android:id="@+id/btSignUpContinuation"
+                android:id="@+id/btUpdate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/etDescriptionSignUp"
+                android:layout_below="@+id/etDescriptionUpdate"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="50dp"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
                 android:layout_marginEnd="50dp"
-                android:background="@drawable/rounded_btn_sign_up"
-                android:text="@string/continue_sign_up"
-                android:textColor="@color/colorPrimaryDark" />
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/rounded_style"
+                android:backgroundTint="@color/colorPrimary"
+                android:minHeight="30dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="Modifier"
+                android:textColor="@color/colorWhite" />
 
             <ProgressBar
-                android:id="@+id/progressBarSignUp"
+                android:id="@+id/progressBarUpdate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/btSignUpContinuation"
+                android:layout_below="@+id/btUpdate"
                 android:layout_centerHorizontal="true"
                 android:layout_marginStart="50dp"
                 android:layout_marginTop="20dp"
@@ -115,7 +132,6 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/scrollview"
         android:layout_marginTop="40dp"
         android:layout_alignParentBottom="true">
 
@@ -124,7 +140,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            app:itemIconSize="35sp"
             />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

@@ -74,7 +74,26 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
         userId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
         openFragment();
+
+
+        mAuth = FirebaseAuth.getInstance();
+        userId = mAuth.getCurrentUser().getUid();
+
+        mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("USERS")
+                .document(userId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        firstname = documentSnapshot.getString("firstname");
+                        lastname = documentSnapshot.getString("lastname");
+                        transitionContainer = findViewById(R.id.toolbarLayout);
+                        tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
+                        tvUserName.setText(firstname + " " + lastname);
+                    }
+                });
     }
+
 
     private void setToolBar() {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
@@ -85,7 +104,6 @@ public class UserProfileActivity extends BigsisActivity implements ToolBarFragme
         tvUserName = transitionContainer.findViewById(R.id.tvTitleToolbar);
         imBtSettings.setVisibility(View.VISIBLE);
         imgBtContact.setVisibility(View.VISIBLE);
-
         imgBtContact.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

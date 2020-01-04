@@ -1,7 +1,9 @@
 package fr.bigsis.android.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,6 +49,8 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
     private OnLongClickListener mListener;
     private FirebaseFirestore mFirestore;
     private Context mContext;
+    private Locale myLocale;
+    private Locale current;
 
 
     public GroupConversationAdapter(@NonNull FirestoreRecyclerOptions<GroupChatEntity> options, Context mContext) {
@@ -63,8 +67,19 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         String id = r.getId();
         String name = r.getString("title");
         holder.textViewTitle.setText(model.getTitle());
-        SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-//        holder.textViewDate.setText(format.format(model.getDate().getTime()));
+
+        SharedPreferences prefs = mContext.getSharedPreferences("CommonPrefs",
+                Activity.MODE_PRIVATE);
+        String language = prefs.getString("Language", "");
+        current = mContext.getResources().getConfiguration().locale;
+        if (current.getLanguage().equals("fr")) {
+            SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+            holder.textViewDate.setText(format.format(model.getDate().getTime()));
+        } else if (current.getLanguage().equals("en")) {
+            SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.ENGLISH);
+            holder.textViewDate.setText(format.format(model.getDate().getTime()));
+        }
+
         String organism = model.getOrganism();
         String sharedId = model.getSharedIn();
 

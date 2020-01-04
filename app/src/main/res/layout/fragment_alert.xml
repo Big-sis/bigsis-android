@@ -49,9 +49,11 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint_layout_menu"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="80dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
         android:background="@drawable/rounded_menu_layout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/constraint_layout"
@@ -78,7 +80,7 @@
             android:id="@+id/btCallFireFighter"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:background="@drawable/custom_button"
             android:minHeight="20dp"
@@ -105,7 +107,7 @@
             android:layout_width="0dp"
             android:layout_height="1dp"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
             android:alpha="0.5"
             android:background="@color/colorAccent"
@@ -118,19 +120,58 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginEnd="32dp"
             android:text="@string/pompier_18"
             app:layout_constraintEnd_toStartOf="@+id/btCallFireFighter"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/view" />
 
+        <View
+            android:id="@+id/view2"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:alpha="0.5"
+            android:background="@color/colorAccent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvCallFireFighter" />
+
+        <TextView
+            android:id="@+id/tvCallEmergency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="32dp"
+            android:text="@string/emergency"
+            app:layout_constraintEnd_toStartOf="@+id/btCallEmergency"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view2" />
+
+        <Button
+            android:id="@+id/btCallEmergency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/custom_button"
+            android:minHeight="20dp"
+            android:text="@string/call"
+            android:textAllCaps="false"
+            android:textColor="@color/colorAccent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/view2" />
+
         <Button
             android:id="@+id/btAlert"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:layout_marginBottom="32dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/bt_alert_design"
             android:gravity="center"
             android:minHeight="30dp"
@@ -141,7 +182,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvCallFireFighter" />
+            app:layout_constraintTop_toBottomOf="@+id/tvCallEmergency" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

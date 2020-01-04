@@ -25,10 +25,12 @@ public class AlertFragment extends Fragment {
     private OnFragmentInteractionListener mListener;
     private Button btCallPolice;
     private Button btCallFireFighter;
+    private Button btCallEmergency;
     private Button btAlertStaff;
     private ImageButton imgBtCancel;
-    private String callPolice = "tel:0684242687";
-    private String callFireFighter= "tel:0684242687";
+    private String callPolice = "tel:17";
+    private String callFireFighter= "tel:18";
+    private String callEmergency= "tel:112";
 
     public AlertFragment() {
     }
@@ -52,6 +54,7 @@ public class AlertFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_alert, container, false);
         btAlertStaff = view.findViewById(R.id.btAlert);
         btCallFireFighter = view.findViewById(R.id.btCallFireFighter);
+        btCallEmergency = view.findViewById(R.id.btCallEmergency);
         btCallPolice = view.findViewById(R.id.btCallPolice);
         imgBtCancel = view.findViewById(R.id.imgBtCancelAlert);
 
@@ -73,9 +76,44 @@ public class AlertFragment extends Fragment {
                 showAlertDialog(callFireFighter);
             }
         });
+
+        btCallEmergency.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAlertDialog(callEmergency);
+            }
+        });
+
+        btAlertStaff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showAlertDialogForStaff();
+            }
+        });
         return view;
     }
-
+    private void showAlertDialogForStaff() {
+        AlertDialog dialogBuilder = new AlertDialog.Builder(getContext()).create();
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        View dialogView = inflater.inflate(R.layout.style_dialog_call_alert, null);
+        Button btNo = dialogView.findViewById(R.id.btCancelAlert);
+        Button btAlert = dialogView.findViewById(R.id.btActivateAlert);
+        btAlert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+             //TODO ALERT
+                dialogBuilder.dismiss();
+            }
+        });
+        btNo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialogBuilder.dismiss();
+            }
+        });
+        dialogBuilder.setView(dialogView);
+        dialogBuilder.show();
+    }
     private void showAlertDialog(String number) {
         AlertDialog dialogBuilder = new AlertDialog.Builder(getContext()).create();
         LayoutInflater inflater = LayoutInflater.from(getContext());

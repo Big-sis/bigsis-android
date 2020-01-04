@@ -16,7 +16,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-        <activity android:name=".activity.UpdateProfileActivity"></activity>
+        <activity android:name=".activity.UpdateProfileActivity"
+            android:windowSoftInputMode="adjustPan"/>
         <activity android:name=".activity.SettingsActivity" />
         <activity android:name=".activity.PolicyCGUActivity" />
         <activity android:name=".activity.SplashScreenActivity">

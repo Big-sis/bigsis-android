@@ -118,7 +118,6 @@ public class UploadImageHelper extends AppCompatActivity {
                                     }
                                     startActivity(new Intent(UploadImageHelper.this, EventListActivity.class));
                                 }
-
                             });
                         }
                     }

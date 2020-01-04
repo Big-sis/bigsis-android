@@ -40,7 +40,7 @@ public class SettingsActivity extends BigsisActivity {
     FirebaseAuth mAuth;
     String userId;
     FirebaseFirestore mFirestore;
-    RelativeLayout relativeLayoutLanguage, relariveLayoutCampus, relariveLayoutCGU, relativeLayoutPolicy;
+    RelativeLayout relativeLayoutLanguage, relariveLayoutCampus, relariveLayoutCGU, relativeLayoutPolicy, relativeLayoutProfile;
     private Locale myLocale;
     private Locale current;
 
@@ -59,6 +59,7 @@ public class SettingsActivity extends BigsisActivity {
         relativeLayoutLanguage = findViewById(R.id.relativeLayoutLanguage);
         relariveLayoutCGU = findViewById(R.id.relariveLayoutCGU);
         relativeLayoutPolicy = findViewById(R.id.relativeLayoutPolicy);
+        relativeLayoutProfile = findViewById(R.id.relativeLayoutProfile);
         tvPolicy.getPaint().setUnderlineText(true);
         tvCGU.getPaint().setUnderlineText(true);
 
@@ -97,6 +98,15 @@ public class SettingsActivity extends BigsisActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(SettingsActivity.this, PolicyCGUActivity.class);
                 intent.putExtra("CGU", "cgu");
+                startActivity(intent);
+            }
+        });
+
+        relativeLayoutProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SettingsActivity.this, UpdateProfileActivity.class);
+
                 startActivity(intent);
             }
         });
@@ -186,15 +196,10 @@ public class SettingsActivity extends BigsisActivity {
                 SharedPreferences prefs = getSharedPreferences("CommonPrefs",
                         Activity.MODE_PRIVATE);
                 String language = prefs.getString("Language", "");
-                System.out.println(language);
-
                 current = getResources().getConfiguration().locale;
-                System.out.println(current.getLanguage());
                 if (current.getLanguage().equals("fr")) {
-
                     radio_french.setChecked(true);
                 } else if (current.getLanguage().equals("en")) {
-
                     radio_english.setChecked(true);
                 }
                 if (!language.equals(current.getLanguage())) {

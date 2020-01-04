@@ -117,11 +117,49 @@
 
 
     <RelativeLayout
-        android:id="@+id/relariveLayoutCGU"
+        android:id="@+id/relativeLayoutProfile"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
         android:layout_below="@+id/view2">
+
+        <TextView
+            android:id="@+id/tvProfileUpdate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/update_profile"
+            android:textColor="@color/colorPrimaryDark"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:layout_marginStart="10dp"
+            android:layout_alignParentStart="true"/>
+
+
+        <ImageView
+            android:id="@+id/imageViewArrow5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_open"
+            android:layout_marginEnd="10dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentEnd="true"
+            />
+    </RelativeLayout>
+    <View
+        android:id="@+id/view6"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/relativeLayoutProfile"
+        android:layout_marginTop="10dp"
+        android:alpha="0.5"
+        android:background="@color/colorAccent" />
+
+    <RelativeLayout
+        android:id="@+id/relariveLayoutCGU"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_below="@+id/view6">
 
         <TextView
             android:id="@+id/tvShowCGU"

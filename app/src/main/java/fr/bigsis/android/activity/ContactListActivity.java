@@ -183,7 +183,7 @@ public class ContactListActivity extends BigsisActivity implements SearchContact
                     }
                     if(!s.equals("")) {
                         Query query = FirebaseFirestore.getInstance()
-                                .collection("USERS").orderBy("username").startAt(s.toString().toLowerCase()).endAt(s.toString().toLowerCase() + "\uf8ff");
+                        .collection("USERS").orderBy("username").startAt(s.toString().toLowerCase()).endAt(s.toString().toLowerCase() + "\uf8ff");
                         PagedList.Config config = new PagedList.Config.Builder()
                                 .setEnablePlaceholders(false)
                                 .setPrefetchDistance(10)
