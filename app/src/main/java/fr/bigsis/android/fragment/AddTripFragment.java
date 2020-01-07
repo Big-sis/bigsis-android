@@ -335,7 +335,7 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                             return;
                         }
                         TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, username,
-                                groupCampusName, organism, latDestination, lngDestination);
+                                groupCampusName, organism, latDestination, lngDestination, date.toString());
                         GroupChatEntity groupChatEntity = new GroupChatEntity(addFrom, null, date, null, organism, groupCampusName);
                         setData(organism, tripEntity, groupChatEntity, userEntity, groupCampusName);
                     }

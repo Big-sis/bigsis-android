@@ -69,9 +69,6 @@ public class ItineraryFragment extends Fragment {
 
             }
         });
-   if(latDestination != 0) {
-
-   }
         return view;
     }
 

@@ -182,7 +182,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String organismTrip = item.getOrganism();
                             double lat = item.getLatDestination();
                             double lng = item.getLngDestination();
-                            TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip, lat, lng);
+                            TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip, lat, lng, date.toString());
                             String titleTrip = from + " ... " + to;
                             GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, null, date, null, organism, sharedIn);
                             FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idTrip, groupChatEntity);

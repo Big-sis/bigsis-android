@@ -87,7 +87,12 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
         ButterKnife.bind(this);
         FirestoreHelper.compareForParticipants("AllTrips", "Participants");
         FirestoreHelper.compareForParticipants("AllTrips", "Creator");
-
+        transitionContainer = findViewById(R.id.toolbarLayout);
+        transitionContainer.setBackground(getDrawable(R.drawable.gradient));
+        imbtSearch = transitionContainer.findViewById(R.id.imBt_search_frag);
+        imBtAdd = transitionContainer.findViewById(R.id.imBt_add_frag);
+        imBtCancel = transitionContainer.findViewById(R.id.imBt_cancel_frag);
+        tvTitleToolbar = transitionContainer.findViewById(R.id.tvTitleToolbar);
         mFirestore = FirebaseFirestore.getInstance();
         mItemsCollection = mFirestore.collection("trips");
         btMap = findViewById(R.id.imageBtMap);
@@ -135,12 +140,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     }
 
     private void setToolBar() {
-        transitionContainer = findViewById(R.id.toolbarLayout);
-        transitionContainer.setBackground(getDrawable(R.drawable.gradient));
-        imbtSearch = transitionContainer.findViewById(R.id.imBt_search_frag);
-        imBtAdd = transitionContainer.findViewById(R.id.imBt_add_frag);
-        imBtCancel = transitionContainer.findViewById(R.id.imBt_cancel_frag);
-        tvTitleToolbar = transitionContainer.findViewById(R.id.tvTitleToolbar);
+
         tvTitleToolbar.setText(R.string.trips);
         imbtSearch.setVisibility(View.VISIBLE);
         imBtAdd.setVisibility(View.VISIBLE);
@@ -227,10 +227,20 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String nameCampus = documentSnapshot.getString("groupCampus");
                         String organism = documentSnapshot.getString("organism");
-                        String myFormat = "E dd MMM"; //In which you need put here
-                        Query query = FirebaseFirestore.getInstance()
-                                .collection("AllTrips")
-                                .whereLessThan("date", viewModel.getDateTrip().getValue());
+
+//In which you need put here
+                        SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM", Locale.ENGLISH);
+                        String dateViewModel = dateFormat.format(date);
+
+                        Query query = FirebaseFirestore.getInstance().collection(organism)
+                                .document("AllCampus")
+                                .collection("AllCampus")
+                                .document(nameCampus)
+                                .collection("Trips")
+                                .orderBy("dateToString")
+                                .startAt(dateViewModel)
+                                .endAt(dateViewModel + "\uf8ff");
+                              //  .whereGreaterThan("dateToString", dateViewModel);
 
                         PagedList.Config config = new PagedList.Config.Builder()
                                 .setEnablePlaceholders(false)
@@ -244,6 +254,15 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                         TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd);
                         mRecycler.setLayoutManager(new LinearLayoutManager(TripListActivity.this));
                         mRecycler.setAdapter(adapter);
+                        FragmentManager manager = getSupportFragmentManager();
+                        FragmentTransaction ft = manager.beginTransaction();
+                        Fragment searchMenu = manager.findFragmentByTag("SEARCH_MENU_FRAGMENT");
+                        if(searchMenu != null) {
+                            ft.remove(searchMenu).commitAllowingStateLoss();
+                        }
+                        imBtCancel.setVisibility(View.GONE);
+                        imbtSearch.setVisibility(View.VISIBLE);
+                        imBtAdd.setVisibility(View.VISIBLE);
                         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                             @Override
                             public void onRefresh() {
@@ -254,45 +273,42 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                 });
             }
         });
+            mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    String nameCampus = documentSnapshot.getString("groupCampus");
+                    String organism = documentSnapshot.getString("organism");
+                    PagedList.Config config = new PagedList.Config.Builder()
+                            .setEnablePlaceholders(false)
+                            .setPrefetchDistance(10)
+                            .setPageSize(20)
+                            .build();
+                    deleteTrip(organism, nameCampus);
+                    Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus")
+                            .collection("AllCampus").document(nameCampus)
+                            .collection("Trips").orderBy("date");
+                    FirestorePagingOptions<TripEntity> options = new FirestorePagingOptions.Builder<TripEntity>()
+                            .setLifecycleOwner(TripListActivity.this)
+                            .setQuery(query, config, TripEntity.class)
+                            .build();
 
-        mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                String nameCampus = documentSnapshot.getString("groupCampus");
-                String organism = documentSnapshot.getString("organism");
-                PagedList.Config config = new PagedList.Config.Builder()
-                        .setEnablePlaceholders(false)
-                        .setPrefetchDistance(10)
-                        .setPageSize(20)
-                        .build();
-                deleteTrip(organism, nameCampus);
-                Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus")
-                        .collection("AllCampus").document(nameCampus)
-                        .collection("Trips").orderBy("date");
-                FirestorePagingOptions<TripEntity> options = new FirestorePagingOptions.Builder<TripEntity>()
-                        .setLifecycleOwner(TripListActivity.this)
-                        .setQuery(query, config, TripEntity.class)
-                        .build();
+                    TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd);
 
-                TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd);
-
-                mRecycler.setLayoutManager(new LinearLayoutManager(TripListActivity.this));
-                mRecycler.setAdapter(adapter);
-                mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        adapter.refresh();
-                    }
-                });
-            }
-        });
-
+                    mRecycler.setLayoutManager(new LinearLayoutManager(TripListActivity.this));
+                    mRecycler.setAdapter(adapter);
+                    mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                        @Override
+                        public void onRefresh() {
+                            adapter.refresh();
+                        }
+                    });
+                }
+            });
 }
 
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
     }
 }

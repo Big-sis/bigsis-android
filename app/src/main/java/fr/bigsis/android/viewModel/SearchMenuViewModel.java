@@ -23,6 +23,7 @@ public class SearchMenuViewModel extends ViewModel {
         arrival = new MutableLiveData<>();
     }
 
+
     public MutableLiveData<Date> getDateTrip() {
         return this.dateTrip;
     }
