@@ -52,6 +52,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.EventListActivity;
@@ -344,7 +345,28 @@ public class AddEventFragment extends Fragment {
                             Toast.makeText(getActivity(), "Veuillez sélectionner les staff", Toast.LENGTH_LONG).show();
                             return;
                         }
+                        Date today = new Date();
+                        long diffStart = dateStart.getTime() - today.getTime();
+                        diffStart = TimeUnit.DAYS.convert(diffStart, TimeUnit.MILLISECONDS);
+                        if (dateStart == null) {
+                            Toast.makeText(getActivity(), R.string.enter_date_trip, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        if(diffStart < 0) {
+                            Toast.makeText(getActivity(), R.string.enter_upcoming_date, Toast.LENGTH_LONG).show();
+                            return;
+                        }
 
+                        long diffEnd = dateEnd.getTime() - today.getTime();
+                        diffEnd = TimeUnit.DAYS.convert(diffEnd, TimeUnit.MILLISECONDS);
+                        if (dateEnd == null) {
+                            Toast.makeText(getActivity(), R.string.enter_date_trip, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        if(diffEnd < 0) {
+                            Toast.makeText(getActivity(), R.string.enter_upcoming_date, Toast.LENGTH_LONG).show();
+                            return;
+                        }
                         if (title.trim().isEmpty() || address.trim().isEmpty()) {
                             Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
                             return;
@@ -422,7 +444,6 @@ public class AddEventFragment extends Fragment {
                 } else {
                     AddTripHelper.setDataEventInCampus(organism, groupCampusName, object, objectGroup, objectUser, eventId, userId);
                 }
-
                 Intent intent = new Intent(getActivity(), SplashTripCreatedActivity.class);
                 intent.putExtra("Event", createdOrUpdated);
                 startActivity(intent);

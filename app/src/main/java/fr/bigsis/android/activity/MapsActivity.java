@@ -1,13 +1,20 @@
 package fr.bigsis.android.activity;
 
+import android.content.Context;
+import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Icon;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,6 +25,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.common.collect.Maps;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,6 +38,7 @@ import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -39,8 +48,13 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.maps.Style;
+import com.mapbox.mapboxsdk.plugins.annotation.Symbol;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolManager;
+import com.mapbox.mapboxsdk.plugins.annotation.SymbolOptions;
+import com.mapbox.mapboxsdk.style.layers.PropertyFactory;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.mapboxsdk.utils.BitmapUtils;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
@@ -52,21 +66,28 @@ import java.util.List;
 import fr.bigsis.android.R;
 import fr.bigsis.android.constant.Constant;
 import fr.bigsis.android.fragment.AlertFragment;
+import fr.bigsis.android.fragment.ItineraryFragment;
 import fr.bigsis.android.fragment.MenuFilterFragment;
 import fr.bigsis.android.helpers.MapHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
+import fr.bigsis.android.viewModel.AlertLocateViewModel;
+import fr.bigsis.android.viewModel.ItineraryViewModel;
 import fr.bigsis.android.viewModel.MenuFilterViewModel;
+import fr.bigsis.android.viewModel.SearchMenuViewModel;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.mapbox.mapboxsdk.style.layers.Property.ICON_ROTATION_ALIGNMENT_VIEWPORT;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
+import static fr.bigsis.android.helpers.MapHelper.openItineraryFragment;
 
 public class MapsActivity extends BigsisActivity implements MenuFilterFragment.OnFragmentInteractionListener,
-        OnMapReadyCallback, PermissionsListener, MapboxMap.OnInfoWindowClickListener,
-        AlertFragment.OnFragmentInteractionListener {
+        OnMapReadyCallback, PermissionsListener, MapboxMap.OnInfoWindowClickListener,  MapboxMap.OnMapClickListener,
+        AlertFragment.OnFragmentInteractionListener, ItineraryFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "DirectionsActivity";
     LocationComponent locationComponent;
@@ -80,6 +101,14 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     private FloatingActionButton fbAlertGreen;
     private FloatingActionButton fbAlertRed;
     FloatingActionButton imgBtItinarary;
+    private AlertLocateViewModel alertLocateViewModel;
+    TextView tvOpenItinerary;
+    private static final String SOURCE_ID = "SOURCE_ID";
+    private static final String ICON_ID = "ICON_ID";
+    private static final String LAYER_ID = "LAYER_ID";
+    ItineraryViewModel itineraryViewModel;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,9 +121,12 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         fbAlertGreen = findViewById(R.id.fbAlert);
         fbAlertRed = findViewById(R.id.fbAlertRed);
         AlertFragment alertFragment = AlertFragment.newInstance();
+        ItineraryFragment itineraryFragment = ItineraryFragment.newInstance();
         fbAlertRed.hide();
         firebaseFirestore = FirebaseFirestore.getInstance();
         imgBtItinarary = findViewById(R.id.imgBtItinarary);
+        tvOpenItinerary = findViewById(R.id.tvOpenItinerary);
+        openItineraryFragment(tvOpenItinerary, MapsActivity.this);
         MapHelper.setOnCLickButton(fbAlertGreen, fbAlertRed, MapsActivity.this, this);
         if (alertFragment.isAdded()) {
             fbAlertRed.show();
@@ -110,6 +142,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 return selectItem(item, curvedBottomNavigationView);
             }
         });
+
     }
 
     @Override
@@ -121,24 +154,108 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
             public void onEvent(@javax.annotation.Nullable QuerySnapshot queryDocumentSnapshots, @javax.annotation.Nullable FirebaseFirestoreException e) {
                 if (!queryDocumentSnapshots.isEmpty()) {
                     for (DocumentChange doc : queryDocumentSnapshots.getDocumentChanges()) {
+                        IconFactory iconFactory = IconFactory.getInstance(MapsActivity.this);
+                        com.mapbox.mapboxsdk.annotations.Icon  icon = iconFactory.fromResource(R.drawable.mapbox_logo_icon);
+
                         double lat = doc.getDocument().getDouble("latitude");
                         double lng = doc.getDocument().getDouble("longitude");
                         String titre = doc.getDocument().getString("name");
                         mapboxMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(lat, lng))
-                                .title(titre));
+                                .snippet("hiii")
+                                .icon(icon));
+
+
+
                     }
                 }
             }
         });
 
+
+        mapboxMap.setStyle(new Style.Builder().withImage("test-icon",  getResources().getDrawable(R.drawable.ic_message))
+
+                // Add the SymbolLayer icon image to the map style
+
+
+                // Adding a GeoJson source for the SymbolLayer icons.
+
+
+                // Adding the actual SymbolLayer to the map style. An offset is added that the bottom of the red
+                // marker icon gets fixed to the coordinate, rather than the middle of the icon being fixed to
+                // the coordinate point. This is offset is not always needed and is dependent on the image
+                // that you use for the SymbolLayer icon.
+                .withLayer(new SymbolLayer(LAYER_ID, SOURCE_ID)
+                        .withProperties(PropertyFactory.iconImage("test-icon"),
+                                iconAllowOverlap(true),
+                                iconIgnorePlacement(true),
+                                iconOffset(new Float[] {0f, -9f}))
+                ), new Style.OnStyleLoaded() {
+            @Override
+            public void onStyleLoaded(@NonNull Style style) {
+
+                // Map is set up and the style has loaded. Now you can add additional data or make other map adjustments.
+
+
+            }
+        });
+
+
+
         mapboxMap.setStyle(getString(R.string.navigation_guidance_day), new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
-                enableLocationComponent(style);
+
                 //addDestinationIconSymbolLayer(style);
+                // create symbol manager object
+               // style.addImage("SMALL_MONSTER_ICON", MapsActivity.this, R.drawable.ic_message));
+                enableLocationComponent(style);
+
+
+                style.addImageAsync("SMALL_MONSTER_ICON", BitmapUtils.getBitmapFromDrawable(
+                        getResources().getDrawable(R.drawable.ic_message)));
+                SymbolManager symbolManager = new SymbolManager(mapView, mapboxMap, style);
+
+// add click listeners if desired
+                Symbol symbol = symbolManager.create(new SymbolOptions()
+                        .withLatLng(new LatLng(43.604604, 1.445432))
+
+                        .withIconImage("SMALL_MONSTER_ICON")
+
+                        .withIconSize(2.0f));
+
+
+
+// set non-data-driven properties, such as:
+                symbolManager.setIconAllowOverlap(true);
+                symbolManager.setIconTranslate(new Float[]{-4f,5f});
+                symbolManager.setIconRotationAlignment(ICON_ROTATION_ALIGNMENT_VIEWPORT);
             }
         });
+
+        itineraryViewModel = ViewModelProviders.of(MapsActivity.this).get(ItineraryViewModel.class);
+        itineraryViewModel.getLatitudeItinerary().observe(MapsActivity.this, new Observer<Double>() {
+            @Override
+            public void onChanged(Double aDouble) {
+                Point destinationPoint = Point.fromLngLat(itineraryViewModel.getLongitudeItinerary().getValue(),
+                itineraryViewModel.getLatitudeItinerary().getValue());
+                Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
+                        locationComponent.getLastKnownLocation().getLatitude());
+                getRoute(originPoint, destinationPoint);
+                imgBtItinarary.show();
+                imgBtItinarary.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                                .directionsRoute(currentRoute)
+                                .build();
+                        NavigationLauncher.startNavigation(MapsActivity.this, options);
+                        enableLocationComponent(mapboxMap.getStyle());
+                    }
+                });
+            }
+        });
+
         imgBtRecenter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -171,11 +288,16 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
 
     @Override
     public boolean onInfoWindowClick(@NonNull Marker marker) {
-        String snippest = marker.getSnippet();
+
+
+
+
+       /* String snippest = marker.getSnippet();
         mapboxMap.addMarker(new MarkerOptions()
+                .icon(icon)
                 .position(marker.getPosition())
                 .title(marker.getTitle()));
-        Log.d(TAG, "onMarkerClick: " + snippest);
+        Log.d(TAG, "onMarkerClick: " + snippest);*/
         return true;
     }
 
@@ -199,6 +321,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
                 locationComponent.getLastKnownLocation().getLatitude());
         getRoute(originPoint, destinationPoint);
+
         return true;
     }
 
@@ -221,7 +344,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                         }
                         currentRoute = response.body().routes().get(0);
                         mapboxMap.addOnCameraMoveListener(() -> navigationMapRoute.removeRoute());
-
                         // Draw the route on the map
                         if (navigationMapRoute != null) {
                             navigationMapRoute.removeRoute();
@@ -230,7 +352,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                         }
                         navigationMapRoute.addRoute(currentRoute);
                     }
-
                     @Override
                     public void onFailure(Call<DirectionsResponse> call, Throwable t) {
                     }
@@ -240,17 +361,29 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     @SuppressWarnings({"MissingPermission"})
     private void enableLocationComponent(@NonNull Style loadedMapStyle) {
         // Check if permissions are enabled and if not request
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
-            // Activate the MapboxMap LocationComponent to show user location
-            // Adding in LocationComponentOptions is also an optional parameter
-            locationComponent = mapboxMap.getLocationComponent();
-            locationComponent.activateLocationComponent(this, loadedMapStyle);
-            locationComponent.setLocationComponentEnabled(true);
-            // Set the component's camera mode
-            locationComponent.setCameraMode(CameraMode.TRACKING);
-        } else {
-            permissionsManager = new PermissionsManager(this);
-            permissionsManager.requestLocationPermissions(this);
+        if (locationEnabled()) {
+            if (PermissionsManager.areLocationPermissionsGranted(this)) {
+                Bitmap icon = BitmapFactory.decodeResource(MapsActivity.this.getResources(), R.drawable.ic_marker_position);
+                loadedMapStyle.addImage("position marker", icon);
+                // Activate the MapboxMap LocationComponent to show user location
+                // Adding in LocationComponentOptions is also an optional parameter
+                locationComponent = mapboxMap.getLocationComponent();
+                locationComponent.activateLocationComponent(this, loadedMapStyle);
+                locationComponent.setLocationComponentEnabled(true);
+                // Set the component's camera mode
+                locationComponent.setCameraMode(CameraMode.TRACKING);
+                alertLocateViewModel = ViewModelProviders.of(MapsActivity.this).get(AlertLocateViewModel.class);
+
+                double latitudeAlert = locationComponent.getLastKnownLocation().getLatitude();
+                double longitudeAlert = locationComponent.getLastKnownLocation().getLongitude();
+                alertLocateViewModel.setLatitudeAlert(latitudeAlert);
+                alertLocateViewModel.setLongitudeAlert(longitudeAlert);
+
+
+            } else {
+                permissionsManager = new PermissionsManager(this);
+                permissionsManager.requestLocationPermissions(this);
+            }
         }
     }
 
@@ -319,5 +452,20 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     @Override
     public void onFragmentInteraction() {
         onBackPressed();
+    }
+    private boolean locationEnabled() {
+
+        LocationManager lm = (LocationManager) MapsActivity.this.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            return lm != null && lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        tvOpenItinerary.setVisibility(View.VISIBLE);
     }
 }

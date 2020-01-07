@@ -22,6 +22,9 @@ import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.util.Calendar;
+import java.util.Date;
+
 import fr.bigsis.android.R;
 import fr.bigsis.android.entity.UserEntity;
 
@@ -404,5 +407,143 @@ public class FirestoreHelper {
                 }
             }
         });
+    }
+
+    public static void verifyIfAdmin(String userId) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Boolean admin = documentSnapshot.getBoolean("admin");
+                String description = documentSnapshot.getString("description");
+                String firstname = documentSnapshot.getString("firstname");
+                String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                String lastname = documentSnapshot.getString("lastname");
+                String organism = documentSnapshot.getString("organism");
+                String username = documentSnapshot.getString("username");
+                String groupCampus = documentSnapshot.getString("groupCampus");
+                String lastnameAndFirstname = lastname +" " +firstname;
+                UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, admin, groupCampus, organism, lastnameAndFirstname);
+
+                if(admin) {
+                    mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                            .document(groupCampus).collection("StaffMembers").document(userId)
+                            .set(userEntity);
+                }
+            }
+        });
+    }
+
+    private void deleteAlertAfterTime(String userId) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                Boolean admin = documentSnapshot.getBoolean("admin");
+                String description = documentSnapshot.getString("description");
+                String firstname = documentSnapshot.getString("firstname");
+                String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                String lastname = documentSnapshot.getString("lastname");
+                String organism = documentSnapshot.getString("organism");
+                String username = documentSnapshot.getString("username");
+                String groupCampus = documentSnapshot.getString("groupCampus");
+                String lastnameAndFirstname = lastname +" " +firstname;
+                UserEntity userEntity = new UserEntity(username, description, imageProfileUrl, firstname, lastname, admin, groupCampus, organism, lastnameAndFirstname);
+
+                if(admin) {
+                    mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                            .document(groupCampus).collection("StaffMembers").document(userId)
+                            .set(userEntity);
+                }
+            }
+        });
+    }
+
+    public static void deleteTrip(String organism, String campusName) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Calendar calendar = Calendar.getInstance();
+                        Date today = calendar.getTime();
+                        Date dateTrip = document.getDate("date");
+                        if(dateTrip.before(today)) {
+                            String id = document.getId();
+                            DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
+                                    .collection("AllTrips").document(id);
+                            documentReference.collection("Participants").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idParticipant = document.getId();
+                                            documentReference.collection("Participants").document(idParticipant).delete();
+                                        }
+                                        }
+                                }
+                            });
+                            documentReference.collection("Creator").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idCreator = document.getId();
+                                            documentReference.collection("Creator").document(idCreator).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            documentReference.delete();
+                        }
+                    }
+                }
+            }
+        });
+
+        mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                .document(campusName).collection("Trips").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        Calendar calendar = Calendar.getInstance();
+                        Date today = calendar.getTime();
+                        Date dateTrip = document.getDate("date");
+                        if (dateTrip.before(today)) {
+                            String id = document.getId();
+                            DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
+                                    .collection("AllCampus").document(campusName).collection("Trips").document(id);
+                            documentReference.collection("Participants").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idParticipant = document.getId();
+                                            documentReference.collection("Participants").document(idParticipant).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            documentReference.collection("Creator").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idCreator = document.getId();
+                                            documentReference.collection("Creator").document(idCreator).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            documentReference.delete();
+                        }
+                    }
+                }
+            }
+        });
+
     }
 }

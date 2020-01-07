@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".activity.MapsActivity">
 
-    <fr.bigsis.android.view.CurvedBottomNavigationView
+     <fr.bigsis.android.view.CurvedBottomNavigationView
         android:id="@+id/customBottomBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -94,5 +94,22 @@
         app:layout_constraintTop_toTopOf="@+id/customBottomBar"
         app:maxImageSize="50dp"
         app:srcCompat="@drawable/ic_alert_map" />
+    <TextView
+        android:id="@+id/tvOpenItinerary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/button_advice_design"
+        android:text="Où allez-vous ?"
+        android:layout_marginStart="18dp"
+        android:layout_marginEnd="18dp"
+        android:paddingStart="18dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:textSize="18sp"
+        android:textStyle="italic"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

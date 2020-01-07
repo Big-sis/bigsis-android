@@ -17,6 +17,8 @@ import java.util.Locale;
 
 import fr.bigsis.android.R;
 
+import static fr.bigsis.android.helpers.FirestoreHelper.verifyIfAdmin;
+
 public class SplashScreenActivity extends AppCompatActivity {
     protected int _splashTime = 2000;
     FirebaseAuth mFirebaseAuth;
@@ -60,6 +62,7 @@ public class SplashScreenActivity extends AppCompatActivity {
                                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                                 String groupCampus = documentSnapshot.getString("groupCampus");
                                                 if (groupCampus != null) {
+                                                    verifyIfAdmin(userId);
                                                     startActivity(new Intent(SplashScreenActivity.this, MapsActivity.class));
                                                     finish();
                                                 } else {

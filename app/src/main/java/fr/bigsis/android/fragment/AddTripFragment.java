@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.SplashTripCreatedActivity;
@@ -315,22 +316,28 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                                 imageProfileUrl, firstname, lastname, true, isAdmin, groupNameUser, organism);
 
                         if (addFrom.trim().isEmpty() || toFrom.trim().isEmpty()) {
-                            Toast.makeText(getActivity(), "Veuillez remplir tous les champs", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), R.string.all_fields, Toast.LENGTH_LONG).show();
                             return;
                         }
+                        Date today = new Date();
+                        long diff = date.getTime() - today.getTime();
+                        diff = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
                         if (date == null) {
-                            Toast.makeText(getActivity(), "Veuillez indiquer la date et l'heure du trajet", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), R.string.enter_date_trip, Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        if(diff < 0) {
+                            Toast.makeText(getActivity(), R.string.enter_upcoming_date, Toast.LENGTH_LONG).show();
                             return;
                         }
                         if (viewModel.getParticipant().getValue().equals("")) {
-                            Toast.makeText(getActivity(), "Veuillez sélectionner les groupes", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getActivity(), R.string.select_groups, Toast.LENGTH_LONG).show();
                             return;
                         }
                         TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, username,
                                 groupCampusName, organism, latDestination, lngDestination);
                         GroupChatEntity groupChatEntity = new GroupChatEntity(addFrom, null, date, null, organism, groupCampusName);
                         setData(organism, tripEntity, groupChatEntity, userEntity, groupCampusName);
-
                     }
                 });
     }
@@ -369,6 +376,14 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
 
                 Map<String, Object> hashMapGroup = new HashMap<>();
                 hashMapGroup.put("title", addFrom);
+                Date today = new Date();
+                long diff = date.getTime() - today.getTime();
+                diff = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+
+                if(diff < 0) {
+                    Toast.makeText(getActivity(), R.string.enter_upcoming_date, Toast.LENGTH_LONG).show();
+                    return;
+                }
                 if (date != null) {
                     hashMapGroup.put("date", date);
                 }else {
@@ -542,5 +557,4 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
     public interface OnFragmentInteractionListener {
         void onFragmentInteractionAdd();
     }
-
 }

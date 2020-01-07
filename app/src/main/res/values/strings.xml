@@ -114,4 +114,15 @@
     <string name="french">Français</string>
     <string name="update_profile">Modifier le profil</string>
     <string name="emergency">Urgence (112)</string>
+    <string name="enter_date_trip">Veuillez indiquer la date et l\'heure du trajet</string>
+    <string name="all_fields">Veuillez remplir tous les champs</string>
+    <string name="enter_upcoming_date">Veuillez indiquer une date valide</string>
+    <string name="select_groups">Veuillez sélectionner les groupes</string>
+    <string name="alrt_in_progress">Alerte en cours ...</string>
+    <string name="goTrip">Partir :</string>
+    <string name="today">Aujourd\'hui</string>
+    <string name="le">Le</string>
+    <string name="fromItinerary">De</string>
+    <string name="my_location">Ma position</string>
+    <string name="itinerary">Itinéraire</string>
 </resources>

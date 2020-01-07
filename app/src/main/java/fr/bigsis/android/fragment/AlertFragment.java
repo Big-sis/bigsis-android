@@ -15,13 +15,26 @@ import android.widget.ImageButton;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
+
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.Calendar;
+import java.util.Date;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.entity.AlertEntity;
+import fr.bigsis.android.viewModel.AlertLocateViewModel;
 
 public class AlertFragment extends Fragment {
 
 
     private final int REQUEST_PHONE_CALL = 1;
+    Date dateToday;
+    Date dateAlert;
     private OnFragmentInteractionListener mListener;
     private Button btCallPolice;
     private Button btCallFireFighter;
@@ -29,8 +42,12 @@ public class AlertFragment extends Fragment {
     private Button btAlertStaff;
     private ImageButton imgBtCancel;
     private String callPolice = "tel:17";
-    private String callFireFighter= "tel:18";
-    private String callEmergency= "tel:112";
+    private String callFireFighter = "tel:18";
+    private String callEmergency = "tel:112";
+    private AlertLocateViewModel alertLocateViewModel;
+    private FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+    private FirebaseAuth mAuth;
+    private String mCurrentUserId;
 
     public AlertFragment() {
     }
@@ -57,7 +74,8 @@ public class AlertFragment extends Fragment {
         btCallEmergency = view.findViewById(R.id.btCallEmergency);
         btCallPolice = view.findViewById(R.id.btCallPolice);
         imgBtCancel = view.findViewById(R.id.imgBtCancelAlert);
-
+        mAuth = FirebaseAuth.getInstance();
+        mCurrentUserId = mAuth.getCurrentUser().getUid();
         imgBtCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -90,8 +108,10 @@ public class AlertFragment extends Fragment {
                 showAlertDialogForStaff();
             }
         });
+        verifyIfAlert();
         return view;
     }
+
     private void showAlertDialogForStaff() {
         AlertDialog dialogBuilder = new AlertDialog.Builder(getContext()).create();
         LayoutInflater inflater = LayoutInflater.from(getContext());
@@ -101,7 +121,31 @@ public class AlertFragment extends Fragment {
         btAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-             //TODO ALERT
+
+                mFirestore.collection("USERS").document(mCurrentUserId).get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                alertLocateViewModel = ViewModelProviders.of(getActivity()).get(AlertLocateViewModel.class);
+                                double latitudeAlert = alertLocateViewModel.getLatitudeAlert().getValue();
+                                double longitude = alertLocateViewModel.getLongitudeAlert().getValue();
+                                String organism = documentSnapshot.getString("organism");
+                                String groupCampus = documentSnapshot.getString("groupCampus");
+                                String lastname = documentSnapshot.getString("lastname");
+                                String firstname = documentSnapshot.getString("firstname");
+                                String imageProfile = documentSnapshot.getString("imageProfileUrl");
+                                Calendar calendar = Calendar.getInstance();
+                                Calendar calendar1 = Calendar.getInstance();
+                                calendar1.add(Calendar.MINUTE, 30);
+                                Date dateAlert = calendar.getTime();
+                                Date dateEndAlert = calendar1.getTime();
+
+                                AlertEntity alertEntity = new AlertEntity(latitudeAlert, longitude, imageProfile, lastname, firstname, dateAlert, dateEndAlert);
+                                mFirestore.collection(organism).document("AllCampus")
+                                        .collection("AllCampus").document(groupCampus)
+                                        .collection("Alert").document(mCurrentUserId).set(alertEntity);
+                            }
+                        });
                 dialogBuilder.dismiss();
             }
         });
@@ -114,6 +158,33 @@ public class AlertFragment extends Fragment {
         dialogBuilder.setView(dialogView);
         dialogBuilder.show();
     }
+
+    private void verifyIfAlert() {
+        mFirestore.collection("USERS").document(mCurrentUserId).get()
+                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+
+                        String organism = documentSnapshot.getString("organism");
+                        String groupCampus = documentSnapshot.getString("groupCampus");
+                        Calendar calendar = Calendar.getInstance();
+                        Date dateAlert = calendar.getTime();
+
+                        mFirestore.collection(organism).document("AllCampus")
+                                .collection("AllCampus").document(groupCampus)
+                                .collection("Alert").document(mCurrentUserId)
+                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                if (documentSnapshot.exists()) {
+                                    btAlertStaff.setText(R.string.alrt_in_progress);
+                                }
+                            }
+                        });
+                    }
+                });
+    }
+
     private void showAlertDialog(String number) {
         AlertDialog dialogBuilder = new AlertDialog.Builder(getContext()).create();
         LayoutInflater inflater = LayoutInflater.from(getContext());

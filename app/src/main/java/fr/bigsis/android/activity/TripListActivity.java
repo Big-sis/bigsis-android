@@ -24,11 +24,20 @@ import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -43,6 +52,8 @@ import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
+
+import static fr.bigsis.android.helpers.FirestoreHelper.deleteTrip;
 
 
 public class TripListActivity extends BigsisActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener,
@@ -107,19 +118,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
         item.setIcon(R.drawable.ic_trip_selected);
         selectItem(selectedItem, curvedBottomNavigationView);
 
-        viewModel.getDeparture().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                TripListActivity.this.setUpAdapter();
-            }
-        });
-
-        viewModel.getArrival().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                TripListActivity.this.setUpAdapter();
-            }
-        });
     }
 
     public void openFragment() {
@@ -218,6 +216,45 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     private void setUpAdapter() {
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
+
+        Query baseQuery;
+        viewModel = ViewModelProviders.of(TripListActivity.this).get(SearchMenuViewModel.class);
+        viewModel.getDateTrip().observe(TripListActivity.this, new Observer<Date>() {
+            @Override
+            public void onChanged(Date date) {
+                mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        String nameCampus = documentSnapshot.getString("groupCampus");
+                        String organism = documentSnapshot.getString("organism");
+                        String myFormat = "E dd MMM"; //In which you need put here
+                        Query query = FirebaseFirestore.getInstance()
+                                .collection("AllTrips")
+                                .whereLessThan("date", viewModel.getDateTrip().getValue());
+
+                        PagedList.Config config = new PagedList.Config.Builder()
+                                .setEnablePlaceholders(false)
+                                .setPrefetchDistance(10)
+                                .setPageSize(20)
+                                .build();
+                        FirestorePagingOptions<TripEntity> options = new FirestorePagingOptions.Builder<TripEntity>()
+                                .setLifecycleOwner(TripListActivity.this)
+                                .setQuery(query, config, TripEntity.class)
+                                .build();
+                        TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd);
+                        mRecycler.setLayoutManager(new LinearLayoutManager(TripListActivity.this));
+                        mRecycler.setAdapter(adapter);
+                        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                            @Override
+                            public void onRefresh() {
+                                adapter.refresh();
+                            }
+                        });
+                    }
+                });
+            }
+        });
+
         mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
@@ -228,7 +265,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                         .setPrefetchDistance(10)
                         .setPageSize(20)
                         .build();
-
+                deleteTrip(organism, nameCampus);
                 Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus")
                         .collection("AllCampus").document(nameCampus)
                         .collection("Trips").orderBy("date");
@@ -249,14 +286,9 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                 });
             }
         });
-        Query baseQuery;
 
-        if (!viewModel.getDeparture().getValue().equals("") || !viewModel.getArrival().getValue().equals("")) {
-            baseQuery = mItemsCollection.whereArrayContains("filters", viewModel.getDeparture().getValue() + "-" + viewModel.getArrival().getValue());
-        } else {
-            baseQuery = mItemsCollection.orderBy("date", Query.Direction.DESCENDING);
-        }
-    }
+}
+
 
     @Override
     public void onBackPressed() {

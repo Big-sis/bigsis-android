@@ -1,5 +1,7 @@
 package fr.bigsis.android.fragment;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.content.Context;
 import android.os.Bundle;
 
@@ -14,7 +16,20 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.TimePicker;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
+
+import com.google.firebase.Timestamp;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
@@ -22,8 +37,10 @@ import fr.bigsis.android.viewModel.SearchMenuViewModel;
 public class SearchMenuFragment extends Fragment {
     private SearchMenuViewModel viewModel;
     private OnFragmentInteractionListener mListener;
-    private EditText etSearchFrom;
-    private EditText etSearchTo;
+    private LinearLayout linearLayoutSelectDate;
+    private TextView tvSelectDate;
+    private Calendar dateCal;
+    private Date date;
 
     public SearchMenuFragment() {
         // Required empty public constructor
@@ -45,15 +62,23 @@ public class SearchMenuFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_search_menu, container, false);
-        etSearchFrom = view.findViewById(R.id.etSearchFrom);
-        etSearchTo = view.findViewById(R.id.etSearchTo);
+        linearLayoutSelectDate = view.findViewById(R.id.linearLayoutSelectDate);
+        tvSelectDate = view.findViewById(R.id.tvSelectDate);
+
+
+        linearLayoutSelectDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDateTimePicker();
+            }
+        });
         return view;
     }
 
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
 
-        etSearchFrom.addTextChangedListener(new TextWatcher() {
+        tvSelectDate.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -66,11 +91,11 @@ public class SearchMenuFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                viewModel.setDeparture(s.toString());
+
             }
         });
 
-        etSearchTo.addTextChangedListener(new TextWatcher() {
+       /* etSearchTo.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -85,10 +110,31 @@ public class SearchMenuFragment extends Fragment {
             public void afterTextChanged(Editable s) {
                 viewModel.setArrival(s.toString());
             }
-        });
+        });*/
 
     }
+    private void showDateTimePicker() {
+        final Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("Europe/Paris"));
+        dateCal = Calendar.getInstance();
+        new DatePickerDialog(getActivity(), R.style.MyDatePickerDialogStyle, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int dayOfMonth) {
+                dateCal.set(year, month, dayOfMonth);
+                new TimePickerDialog(getActivity(), R.style.MyDatePickerDialogStyle, new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        dateCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        dateCal.set(Calendar.MINUTE, minute);
+                        SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+                        date = dateCal.getTime();
+                        tvSelectDate.setText(format.format(date));
+                        viewModel.setDateTrip(date);
+                    }
+                }, currentDate.get(Calendar.HOUR_OF_DAY), currentDate.get(Calendar.MINUTE), false).show();
+            }
+        }, currentDate.get(Calendar.YEAR), currentDate.get(Calendar.MONTH), currentDate.get(Calendar.DATE)).show();
 
+    }
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);

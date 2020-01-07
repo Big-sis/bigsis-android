@@ -8,6 +8,7 @@ public class Constant {
     public static final int REQUEST_CODE_FROM_AUTOCOMPLETE = 1;
     public static final int REQUEST_CODE_TO_AUTOCOMPLETE = 2;
     public static final int REQUEST_CODE_ADRESS_AUTOCOMPLETE = 1;
+    public static final int REQUEST_CODE_ITINERARY_AUTOCOMPLETE = 1;
 
 
 }

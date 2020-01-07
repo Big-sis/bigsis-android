@@ -8,6 +8,7 @@ import android.location.Location;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -36,6 +37,7 @@ import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
 import fr.bigsis.android.R;
 import fr.bigsis.android.fragment.AlertFragment;
+import fr.bigsis.android.fragment.ItineraryFragment;
 import fr.bigsis.android.fragment.MenuFilterFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -61,6 +63,21 @@ public class MapHelper {
         });
     }
 
+public static void openItineraryFragment(TextView tv, Activity activity) {
+    ItineraryFragment itineraryFragment = ItineraryFragment.newInstance();
+    tv.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            tv.setVisibility(View.INVISIBLE);
+            FragmentManager fragmentManager = ((FragmentActivity)activity).getSupportFragmentManager();
+            FragmentTransaction transaction = fragmentManager.beginTransaction();
+            transaction.addToBackStack(null);
+            transaction.add(R.id.fragment_container_alert, itineraryFragment, "MENU_ITINERARY_FRAGMENT")
+                    .commit();
+        }
+    });
+
+}
 
     public static void addCustomLayers(@NonNull Style mMapboxMapStyle, Context context) {
         Bitmap icon = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_marker_position);
