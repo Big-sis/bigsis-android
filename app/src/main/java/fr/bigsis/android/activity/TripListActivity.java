@@ -216,8 +216,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
     private void setUpAdapter() {
         mAuth = FirebaseAuth.getInstance();
         userId = mAuth.getCurrentUser().getUid();
-
-        Query baseQuery;
         viewModel = ViewModelProviders.of(TripListActivity.this).get(SearchMenuViewModel.class);
         viewModel.getDateTrip().observe(TripListActivity.this, new Observer<Date>() {
             @Override

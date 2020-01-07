@@ -78,7 +78,6 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             app:layout_constraintTop_toBottomOf="@+id/linearLayoutMyPsition"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             android:layout_marginStart="50dp"
@@ -103,6 +102,47 @@
                 android:textSize="18sp"
                 android:textStyle="italic"
                 android:text="@string/address"/>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayoutSelectDate"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="16dp"
+            android:layout_marginStart="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="20dp"
+            android:gravity="center_horizontal"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/ic_walker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start"
+                android:layout_marginEnd="30dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_walker" />
+            <ImageButton
+                android:id="@+id/ic_car"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_car"
+                />
+            <ImageButton
+                android:id="@+id/ic_bicycle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="30dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_bicycle"
+                />
+
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

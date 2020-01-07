@@ -34,6 +34,8 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.api.directions.v5.DirectionsCriteria;
+import com.mapbox.api.directions.v5.MapboxDirections;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
 import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Point;
@@ -57,6 +59,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
 import com.mapbox.mapboxsdk.utils.BitmapUtils;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
+import com.mapbox.services.android.navigation.ui.v5.NavigationViewOptions;
 import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
 
@@ -78,6 +81,10 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.mapbox.api.directions.v5.DirectionsCriteria.IMPERIAL;
+import static com.mapbox.api.isochrone.IsochroneCriteria.PROFILE_CYCLING;
+import static com.mapbox.api.isochrone.IsochroneCriteria.PROFILE_DRIVING;
+import static com.mapbox.api.isochrone.IsochroneCriteria.PROFILE_WALKING;
 import static com.mapbox.mapboxsdk.style.layers.Property.ICON_ROTATION_ALIGNMENT_VIEWPORT;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
@@ -107,6 +114,8 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     private static final String ICON_ID = "ICON_ID";
     private static final String LAYER_ID = "LAYER_ID";
     ItineraryViewModel itineraryViewModel;
+    String driving;
+    private String profileCriteria = DirectionsCriteria.PROFILE_DRIVING, unitsCriteria = DirectionsCriteria.METRIC;
 
 
     @Override
@@ -164,9 +173,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                                 .position(new LatLng(lat, lng))
                                 .snippet("hiii")
                                 .icon(icon));
-
-
-
                     }
                 }
             }
@@ -175,16 +181,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
 
         mapboxMap.setStyle(new Style.Builder().withImage("test-icon",  getResources().getDrawable(R.drawable.ic_message))
 
-                // Add the SymbolLayer icon image to the map style
-
-
-                // Adding a GeoJson source for the SymbolLayer icons.
-
-
-                // Adding the actual SymbolLayer to the map style. An offset is added that the bottom of the red
-                // marker icon gets fixed to the coordinate, rather than the middle of the icon being fixed to
-                // the coordinate point. This is offset is not always needed and is dependent on the image
-                // that you use for the SymbolLayer icon.
                 .withLayer(new SymbolLayer(LAYER_ID, SOURCE_ID)
                         .withProperties(PropertyFactory.iconImage("test-icon"),
                                 iconAllowOverlap(true),
@@ -199,9 +195,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
 
             }
         });
-
-
-
         mapboxMap.setStyle(getString(R.string.navigation_guidance_day), new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
@@ -241,16 +234,46 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 itineraryViewModel.getLatitudeItinerary().getValue());
                 Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
                         locationComponent.getLastKnownLocation().getLatitude());
-                getRoute(originPoint, destinationPoint);
+                itineraryViewModel.getModeItinerary().observe(MapsActivity.this, new Observer<String>() {
+                    @Override
+                    public void onChanged(String s) {
+                        if(s.equals("DRIVING")) {
+                            getRouteDriving(originPoint, destinationPoint);
+                        }
+                        if(s.equals("WALKING")) {
+                            getRouteWalking(originPoint, destinationPoint);
+                        }
+
+                        if(s.equals("CYCLING")) {
+                            getRouteCycling(originPoint, destinationPoint);
+                        }
+                    }
+                });
                 imgBtItinarary.show();
                 imgBtItinarary.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                       /* NavigationLauncherOptions options = NavigationLauncherOptions.builder()
                                 .directionsRoute(currentRoute)
                                 .build();
-                        NavigationLauncher.startNavigation(MapsActivity.this, options);
+                        NavigationLauncher.startNavigation(MapsActivity.this, options);*/
                         enableLocationComponent(mapboxMap.getStyle());
+                        itineraryViewModel.getModeItinerary().observe(MapsActivity.this, new Observer<String>() {
+                            @Override
+                            public void onChanged(String s) {
+                                if(s.equals("DRIVING")) {
+                                    MapHelper.startNavigationDriving(originPoint, destinationPoint, MapsActivity.this);
+                                }
+
+                                if(s.equals("WALKING")) {
+                                    MapHelper.startNavigationWalking(originPoint, destinationPoint, MapsActivity.this);
+                                }
+
+                                if(s.equals("CYCLING")) {
+                                    MapHelper.startNavigationCycling(originPoint, destinationPoint, MapsActivity.this);
+                                }
+                            }
+                        });
                     }
                 });
             }
@@ -266,6 +289,8 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
             @Override
             public boolean onMarkerClick(@NonNull Marker marker) {
                 onMapClick(marker.getPosition());
+                boolean simulateRoute = true;
+
                 marker.showInfoWindow(mapboxMap, mapView);
                 onInfoWindowClick(marker);
                 mapboxMap.addOnCameraMoveListener(() -> mapboxMap.getMarkers().forEach(Marker::hideInfoWindow));
@@ -285,6 +310,9 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
             }
         });
     }
+
+
+
 
     @Override
     public boolean onInfoWindowClick(@NonNull Marker marker) {
@@ -320,16 +348,17 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         Point destinationPoint = Point.fromLngLat(point.getLongitude(), point.getLatitude());
         Point originPoint = Point.fromLngLat(locationComponent.getLastKnownLocation().getLongitude(),
                 locationComponent.getLastKnownLocation().getLatitude());
-        getRoute(originPoint, destinationPoint);
+        getRouteWalking(originPoint, destinationPoint);
 
         return true;
     }
 
-    private void getRoute(Point origin, Point destination) {
+    private void getRouteDriving(Point origin, Point destination) {
         NavigationRoute.builder(this)
                 .accessToken(Mapbox.getAccessToken())
                 .origin(origin)
                 .destination(destination)
+                .profile(PROFILE_DRIVING)
                 .build()
                 .getRoute(new Callback<DirectionsResponse>() {
                     @Override
@@ -343,7 +372,76 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                             return;
                         }
                         currentRoute = response.body().routes().get(0);
-                        mapboxMap.addOnCameraMoveListener(() -> navigationMapRoute.removeRoute());
+                     //   mapboxMap.addOnCameraMoveListener(() -> navigationMapRoute.removeRoute());
+                        // Draw the route on the map
+                        if (navigationMapRoute != null) {
+                            navigationMapRoute.removeRoute();
+                        } else {
+                            navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
+                        }
+                        navigationMapRoute.addRoute(currentRoute);
+                    }
+                    @Override
+                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                    }
+                });
+    }
+
+    private void getRouteWalking(Point origin, Point destination) {
+        NavigationRoute.builder(this)
+                .accessToken(Mapbox.getAccessToken())
+                .origin(origin)
+                .destination(destination)
+                .profile(PROFILE_WALKING)
+                .build()
+                .getRoute(new Callback<DirectionsResponse>() {
+                    @Override
+                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                        Log.d(TAG, "Response code: " + response.code());
+                        if (response.body() == null) {
+                            Log.e(TAG, "No routes found, make sure you set the right user and access token.");
+                            return;
+                        } else if (response.body().routes().size() < 1) {
+                            Log.e(TAG, "No routes found");
+                            return;
+                        }
+                        currentRoute = response.body().routes().get(0);
+
+                        //    mapboxMap.addOnCameraMoveListener(() -> navigationMapRoute.removeRoute());
+                        // Draw the route on the map
+                        if (navigationMapRoute != null) {
+                            navigationMapRoute.removeRoute();
+                        } else {
+                            navigationMapRoute = new NavigationMapRoute(null, mapView, mapboxMap, R.style.NavigationMapRoute);
+                        }
+                        navigationMapRoute.addRoute(currentRoute);
+                    }
+                    @Override
+                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                    }
+                });
+    }
+    private void getRouteCycling(Point origin, Point destination) {
+        NavigationRoute.builder(this)
+                .accessToken(Mapbox.getAccessToken())
+                .origin(origin)
+                .destination(destination)
+                .profile(PROFILE_CYCLING)
+                .build()
+                .getRoute(new Callback<DirectionsResponse>() {
+                    @Override
+                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                        Log.d(TAG, "Response code: " + response.code());
+                        if (response.body() == null) {
+                            Log.e(TAG, "No routes found, make sure you set the right user and access token.");
+                            return;
+                        } else if (response.body().routes().size() < 1) {
+                            Log.e(TAG, "No routes found");
+                            return;
+                        }
+                        currentRoute = response.body().routes().get(0);
+
+                        //    mapboxMap.addOnCameraMoveListener(() -> navigationMapRoute.removeRoute());
                         // Draw the route on the map
                         if (navigationMapRoute != null) {
                             navigationMapRoute.removeRoute();

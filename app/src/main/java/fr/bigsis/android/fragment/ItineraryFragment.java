@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProviders;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.mapbox.api.geocoding.v5.models.CarmenFeature;
@@ -37,6 +38,7 @@ public class ItineraryFragment extends Fragment {
     double latDestination;
     double lngDestination;
     ItineraryViewModel itineraryViewModel;
+    private ImageButton ic_walker, ic_car, ic_bicycle;
 
     public ItineraryFragment() {
         // Required empty public constructor
@@ -59,9 +61,49 @@ public class ItineraryFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
         View view =  inflater.inflate(R.layout.fragment_itinerary, container, false);
+        itineraryViewModel = ViewModelProviders.of(getActivity()).get(ItineraryViewModel.class);
+
         tvPosition = view.findViewById(R.id.tvPosition);
         tvAdressItinerary = view.findViewById(R.id.tvAdressItinerary);
+        ic_walker = view.findViewById(R.id.ic_walker);
+        ic_car = view.findViewById(R.id.ic_car);
+        ic_bicycle = view.findViewById(R.id.ic_bicycle);
+        ic_walker.setImageResource(R.drawable.ic_walker_selected);
+
+        ic_car.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ic_car.setImageResource(R.drawable.ic_car_selected);
+                ic_walker.setImageResource(R.drawable.ic_walker);
+                ic_bicycle.setImageResource(R.drawable.ic_bicycle);
+                itineraryViewModel.setModeItinerary("DRIVING");
+            }
+        });
+
+
+
+        ic_walker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ic_walker.setImageResource(R.drawable.ic_walker_selected);
+                ic_bicycle.setImageResource(R.drawable.ic_bicycle);
+                ic_car.setImageResource(R.drawable.ic_car);
+                itineraryViewModel.setModeItinerary("WALKING");
+            }
+        });
+
+        ic_bicycle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ic_bicycle.setImageResource(R.drawable.ic_bicycle_selected);
+                ic_walker.setImageResource(R.drawable.ic_walker);
+                ic_car.setImageResource(R.drawable.ic_car);
+                itineraryViewModel.setModeItinerary("CYCLING");
+            }
+        });
+
         tvAdressItinerary.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
