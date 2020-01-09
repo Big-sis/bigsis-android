@@ -32,6 +32,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -78,6 +79,7 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
     private String organism;
     AddEventFragment fragmentAdd;
     private Locale current;
+    boolean isParticipating ;
 
     public EventListAdapter(@NonNull FirestorePagingOptions<EventEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout,
                            String nameCampus, String organism, AddEventFragment fragmentAdd) {
@@ -97,7 +99,7 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-
+isParticipating = false;
         //Check if creator or not and modify button
         mFirestore.collection(organism).document("AllCampus").collection("AllEvents")
                 .document(idEvent).collection("Creator").document(mCurrentUserId).get()
@@ -155,9 +157,9 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
                     DocumentSnapshot document = task.getResult();
                     Boolean creator = document.getBoolean("creator");
                     if (document.exists() && !creator) {
-                        i = 0;
-                        holder.btParticipateEvent.setSelected(true);
-                        holder.btParticipateEvent.setText("Ne plus participer");
+
+                        holder.btParticipateEvent.setVisibility(View.GONE);
+                        holder.btUnparticipateEvent.setVisibility(View.VISIBLE);
                     }
                 } else {
                     Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
@@ -181,61 +183,121 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
             @Override
             public void onClick(View v) {
                 //partcipate
-                if (i == 0) {
-                    holder.btParticipateEvent.setSelected(true);
-                    holder.btParticipateEvent.setText("Ne plus participer");
 
-                    mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                String title = item.getTitleEvent();
+                String description = item.getDescription();
+                String adress = item.getAddressEvent();
+                Date dateStart = item.getDateStart();
+                Date dateEnd = item.getDateEnd();
+                String imageEvent = item.getImage();
+                String createdBy = item.getCreatedBy();
+                String sharedIn = item.getSharedIn();
+                String organismEvent = item.getOrganism();
+                double lat = item.getLatDestination();
+                double lng = item.getLngDestination();
+                boolean alertAvailable = item.isAlertAvailable();
+
+                    mFirestore.collection("USERS").document(mCurrentUserId)
+                            .collection("ParticipateToEvents").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                         @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            String username = documentSnapshot.getString("username");
-                            String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
-                            String firstname = documentSnapshot.getString("firstname");
-                            String lastname = documentSnapshot.getString("lastname");
-                            String descripition = documentSnapshot.getString("description");
-                            Boolean isAdmin = documentSnapshot.getBoolean("admin");
-                            String nameCampus = documentSnapshot.getString("groupCampus");
-                            String organism = documentSnapshot.getString("organism");
-                            UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
-                                    firstname, lastname, false, isAdmin, nameCampus, organism);
-                            FirestoreDBHelper.setParticipantTo(organism,  "AllEvents", idEvent, mCurrentUserId, userEntity);
-                            FirestoreDBHelper.setParticipantTo(organism, "AllChatGroups", idEvent, mCurrentUserId, userEntity);
-                            String title = item.getTitleEvent();
-                            String description = item.getDescription();
-                            String adress = item.getAddressEvent();
-                            Date dateStart = item.getDateStart();
-                            Date dateEnd = item.getDateEnd();
-                            String imageEvent = item.getImage();
-                            String createdBy = item.getCreatedBy();
-                            String sharedIn = item.getSharedIn();
-                            String organismEvent = item.getOrganism();
-                            double lat = item.getLatDestination();
-                            double lng = item.getLngDestination();
-                            boolean alertAvailable = item.isAlertAvailable();
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
 
-                            EventEntity eventEntity = new EventEntity(dateStart, dateEnd, title, adress, imageEvent,
-                                    description, createdBy, sharedIn, organismEvent, lat, lng, alertAvailable);
-                            setParticipantToCampus(organism, sharedIn, "Events", idEvent, mCurrentUserId, userEntity);
-                            GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart, null, organism, sharedIn);
-                            FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idEvent, groupChatEntity);
-                            mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateToEvents")
-                                    .document(idEvent).set(eventEntity);
+                            if(  task.getResult().size() == 0) {
+                                holder.btUnparticipateEvent.setVisibility(View.VISIBLE);
+                                holder.btParticipateEvent.setVisibility(View.GONE);
+                                mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        String username = documentSnapshot.getString("username");
+                                        String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                                        String firstname = documentSnapshot.getString("firstname");
+                                        String lastname = documentSnapshot.getString("lastname");
+                                        String descripition = documentSnapshot.getString("description");
+                                        Boolean isAdmin = documentSnapshot.getBoolean("admin");
+                                        String nameCampus = documentSnapshot.getString("groupCampus");
+                                        String organism = documentSnapshot.getString("organism");
+                                        UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
+                                                firstname, lastname, false, isAdmin, nameCampus, organism);
+                                        FirestoreDBHelper.setParticipantTo(organism, "AllEvents", idEvent, mCurrentUserId, userEntity);
+                                        FirestoreDBHelper.setParticipantTo(organism, "AllChatGroups", idEvent, mCurrentUserId, userEntity);
+
+                                        EventEntity eventEntity = new EventEntity(dateStart, dateEnd, title, adress, imageEvent,
+                                                description, createdBy, sharedIn, organismEvent, lat, lng, alertAvailable);
+                                        setParticipantToCampus(organism, sharedIn, "Events", idEvent, mCurrentUserId, userEntity);
+                                        GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart, null, organism, sharedIn);
+                                        FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idEvent, groupChatEntity);
+                                        mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateToEvents")
+                                                .document(idEvent).set(eventEntity);
+                                    }
+                                });
+                            }
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    String id = document.getId();
+                                    mFirestore.collection("USERS").document(mCurrentUserId)
+                                            .collection("ParticipateToEvents").document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                        @Override
+                                        public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                           Date dateStartParticipating = documentSnapshot.getDate("dateStart");
+                                            if(dateStartParticipating.before(dateEnd) || dateStartParticipating.after(dateStart)) {
+                                                isParticipating = true;
+                                                Toast.makeText(mContext, "Vous participez déjà à un évènement à cette date", Toast.LENGTH_SHORT).show();
+                                            }
+                                            if(isParticipating == false ) {
+                                                holder.btUnparticipateEvent.setVisibility(View.VISIBLE);
+                                                holder.btParticipateEvent.setVisibility(View.GONE);
+                                                mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        String username = documentSnapshot.getString("username");
+                                                        String imageProfileUrl = documentSnapshot.getString("imageProfileUrl");
+                                                        String firstname = documentSnapshot.getString("firstname");
+                                                        String lastname = documentSnapshot.getString("lastname");
+                                                        String descripition = documentSnapshot.getString("description");
+                                                        Boolean isAdmin = documentSnapshot.getBoolean("admin");
+                                                        String nameCampus = documentSnapshot.getString("groupCampus");
+                                                        String organism = documentSnapshot.getString("organism");
+                                                        UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
+                                                                firstname, lastname, false, isAdmin, nameCampus, organism);
+                                                        FirestoreDBHelper.setParticipantTo(organism, "AllEvents", idEvent, mCurrentUserId, userEntity);
+                                                        FirestoreDBHelper.setParticipantTo(organism, "AllChatGroups", idEvent, mCurrentUserId, userEntity);
+
+                                                        EventEntity eventEntity = new EventEntity(dateStart, dateEnd, title, adress, imageEvent,
+                                                                description, createdBy, sharedIn, organismEvent, lat, lng, alertAvailable);
+                                                        setParticipantToCampus(organism, sharedIn, "Events", idEvent, mCurrentUserId, userEntity);
+                                                        GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart, null, organism, sharedIn);
+                                                        FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idEvent, groupChatEntity);
+                                                        mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateToEvents")
+                                                                .document(idEvent).set(eventEntity);
+                                                    }
+                                                });
+                                                //unparticipate
+                                            } else {
+                                                Toast.makeText(mContext, "hey", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                                }
+                                }
                         }
+
                     });
-                    i++;
-                    //unparticipate
-                } else if (i == 1 || holder.btParticipateEvent.isSelected()) {
-                    holder.btParticipateEvent.setSelected(false);
-                    holder.btParticipateEvent.setText("Participer");
-                    String sharedIn = item.getSharedIn();
-                    FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllEvents", idEvent, mCurrentUserId);
-                    FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllChatGroups", idEvent, mCurrentUserId);
-                    FirestoreDBHelper.deleteFromdb("USERS", mCurrentUserId, "ChatGroup", idEvent);
-                    deleteParticipantFromCampus(organism, sharedIn, "Events", idEvent, mCurrentUserId);
-                    mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateToEvents")
-                            .document(idEvent).delete();
-                    i = 0;
-                }
+            }
+        });
+
+        holder.btUnparticipateEvent.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                holder.btParticipateEvent.setVisibility(View.VISIBLE);
+                holder.btUnparticipateEvent.setVisibility(View.GONE);
+                String sharedIn = item.getSharedIn();
+
+                FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllEvents", idEvent, mCurrentUserId);
+                FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllChatGroups", idEvent, mCurrentUserId);
+                FirestoreDBHelper.deleteFromdb("USERS", mCurrentUserId, "ChatGroup", idEvent);
+                deleteParticipantFromCampus(organism, sharedIn, "Events", idEvent, mCurrentUserId);
+                mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateToEvents")
+                        .document(idEvent).delete();
             }
         });
 
@@ -266,7 +328,6 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
         });
 
         FirestoreHelper.getImageProfile(organism, idEvent, holder.profile_image_one.getContext(), holder.profile_image_one);
-
 
         mFirestore.collection(organism).document("AllCampus").collection("AllEvents")
                 .document(idEvent).collection("Creator")
@@ -400,6 +461,8 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
         TextView tvInformations;
         @BindView(R.id.btParticipateEvent)
         Button btParticipateEvent;
+        @BindView(R.id.btUnparticipateEvent)
+        Button btUnparticipateEvent;
         @BindView(R.id.profile_image_one_event)
         CircleImageView profile_image_one;
         @BindView(R.id.profile_image_two_event)

@@ -153,7 +153,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                     if (document.exists() && !creator) {
                         i = 1;
                         holder.btParticipate.setSelected(true);
-                        holder.btParticipate.setText("Ne plus participer");
+                        holder.btParticipate.setText(R.string.dont_participate);
                     }
                 } else {
                     Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
@@ -167,7 +167,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 //partcipate to a trip
                 if (i == 0) {
                     holder.btParticipate.setSelected(true);
-                    holder.btParticipate.setText("Ne plus participer");
+                    holder.btParticipate.setText(R.string.dont_participate);
 
                     mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override

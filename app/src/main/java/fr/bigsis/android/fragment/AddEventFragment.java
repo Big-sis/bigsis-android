@@ -69,12 +69,9 @@ import fr.bigsis.android.helpers.UpdateHelper;
 import fr.bigsis.android.viewModel.ChooseParticipantViewModel;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
 
-import static android.content.Context.MODE_PRIVATE;
 import static fr.bigsis.android.constant.Constant.REQUEST_CODE_ADRESS_AUTOCOMPLETE;
 import static fr.bigsis.android.constant.Constant.REQUEST_CODE_FROM_AUTOCOMPLETE;
-import static fr.bigsis.android.constant.Constant.REQUEST_CODE_TO_AUTOCOMPLETE;
 import static fr.bigsis.android.helpers.FirestoreHelper.setEvent;
-import static fr.bigsis.android.helpers.FirestoreHelper.updateData;
 
 public class AddEventFragment extends Fragment {
 

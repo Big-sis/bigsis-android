@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">bigsis-android</string>
+    <string name="app_name">BIGSIS</string>
     <string name="participer">participer</string>
     <string name="rechercher_un_trajet">Rechercher un trajet</string>
     <string name="add">Ajouter</string>
@@ -132,4 +132,5 @@
     <string name="complete">Complet</string>
     <string name="show_staff">Voir STAFF...</string>
     <string name="email_campus">email@campus.com*</string>
+    <string name="dont_participate">Ne plus participer</string>
 </resources>
