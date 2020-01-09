@@ -1,4 +1,7 @@
-package fr.bigsis.android.helpers;
+package fr.bigsis.android.activity;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.Manifest;
 import android.content.ContentResolver;
@@ -7,9 +10,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.webkit.MimeTypeMap;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,20 +20,18 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import fr.bigsis.android.activity.EventListActivity;
+import fr.bigsis.android.R;
 
-import static android.app.Activity.RESULT_OK;
-
-public class UploadImageHelper extends AppCompatActivity {
-
+public class UploadImageActivity extends AppCompatActivity {
     private Uri imageProfileUri;
     private StorageReference mStroageReference;
     private int STORAGE_PERMISSION_CODE = 1;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_upload_image);
         requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+
     }
 
     @Override
@@ -53,7 +51,7 @@ public class UploadImageHelper extends AppCompatActivity {
     }
 
     private String getFileExtension(Uri uri) {
-        ContentResolver cR = UploadImageHelper.this.getContentResolver();
+        ContentResolver cR = UploadImageActivity.this.getContentResolver();
         MimeTypeMap mime = MimeTypeMap.getSingleton();
         return mime.getExtensionFromMimeType(cR.getType(uri));
     }
@@ -98,7 +96,7 @@ public class UploadImageHelper extends AppCompatActivity {
                                                                 StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(oldImage);
                                                                 photoRef.delete();
                                                             }
-                                                            startActivity(new Intent(UploadImageHelper.this, EventListActivity.class));
+                                                            startActivity(new Intent(UploadImageActivity.this, EventListActivity.class));
                                                         }
                                                     });
                                                 }
@@ -116,7 +114,7 @@ public class UploadImageHelper extends AppCompatActivity {
                                         StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(oldImage);
                                         photoRef.delete();
                                     }
-                                    startActivity(new Intent(UploadImageHelper.this, EventListActivity.class));
+                                    startActivity(new Intent(UploadImageActivity.this, EventListActivity.class));
                                 }
                             });
                         }

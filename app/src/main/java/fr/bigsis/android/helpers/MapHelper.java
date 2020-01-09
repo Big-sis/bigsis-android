@@ -6,6 +6,7 @@ import android.location.Location;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -36,12 +37,13 @@ import static com.mapbox.api.isochrone.IsochroneCriteria.PROFILE_WALKING;
 public class MapHelper {
 
     public static void setOnCLickButton (FloatingActionButton fbAlertGreen, FloatingActionButton fbAlertRed,
-                                         Activity activity, Context context) {
+                                         Activity activity, Context context, TextView tv) {
         AlertFragment alertFragment = AlertFragment.newInstance();
 
         fbAlertGreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                tv.setVisibility(View.GONE);
                 fbAlertGreen.hide();
                 fbAlertRed.show();
                 FragmentManager fragmentManager = ((FragmentActivity)activity).getSupportFragmentManager();
@@ -49,6 +51,13 @@ public class MapHelper {
                 transaction.addToBackStack(null);
                 transaction.add(R.id.fragment_container_alert, alertFragment, "MENU_ALERT_FRAGMENT")
                         .commit();
+
+                FragmentManager manager = ((FragmentActivity)activity).getSupportFragmentManager();
+                FragmentTransaction ft = manager.beginTransaction();
+                Fragment itineraryMenu = manager.findFragmentByTag("MENU_ITINERARY_FRAGMENT");
+                if (itineraryMenu != null) {
+                    ft.remove(itineraryMenu).commitAllowingStateLoss();
+                }
             }
         });
     }

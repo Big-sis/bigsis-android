@@ -33,9 +33,13 @@ import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.fragment.AddEventFragment;
 import fr.bigsis.android.fragment.ChooseParticipantFragment;
 import fr.bigsis.android.fragment.ChooseStaffFragment;
+import fr.bigsis.android.helpers.FirestoreHelper;
 import fr.bigsis.android.helpers.KeyboardHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.ChooseUsersViewModel;
+
+import static fr.bigsis.android.helpers.FirestoreHelper.deleteEvent;
+import static fr.bigsis.android.helpers.FirestoreHelper.deleteEventFromCampus;
 
 public class EventListActivity extends BigsisActivity implements AddEventFragment.OnFragmentInteractionListener,
         ChooseStaffFragment.OnFragmentInteractionListener, ChooseParticipantFragment.OnFragmentInteractionListener{
@@ -63,6 +67,12 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
         viewModel = ViewModelProviders.of(this).get(ChooseUsersViewModel.class);
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
+
+        FirestoreHelper.compareForParticipants("AllEvents", "Participants");
+        FirestoreHelper.compareForParticipants("AllEvents", "Creator");
+        FirestoreHelper.compareForParticipants("AllEvents", "StaffMembers");
+
+
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setSelectedItemId(R.id.action_events);
@@ -154,6 +164,9 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
                         .setPrefetchDistance(10)
                         .setPageSize(20)
                         .build();
+
+                deleteEvent(organism);
+                deleteEventFromCampus(organism, nameCampus, mCurrentUserId);
 
                 Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus")
                         .collection("AllCampus").document(nameCampus)

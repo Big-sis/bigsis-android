@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -99,10 +100,12 @@ public class AddEventFragment extends Fragment {
     private TextView tvTitleToolbar;
     private ConstraintLayout transitionContainer;
     private ImageButton imbtSearch, imBtAdd, imgBtBack, imBtCancel, imgBtDeleteEvent;
+    private CheckBox checkBoxBtEventAlert;
 
     private String createdOrUpdated;
     double latDestination;
     double lngDestination;
+    boolean isAlertAvailable = false;
 
     public AddEventFragment() {
         // Required empty public constructor
@@ -135,12 +138,14 @@ public class AddEventFragment extends Fragment {
         tvMembersFragment = view.findViewById(R.id.tvMembersFragment);
         btCreateEvent = view.findViewById(R.id.btCreateEvent);
         imgBtDeleteEvent = view.findViewById(R.id.imgBtDeleteEvent);
+        checkBoxBtEventAlert = view.findViewById(R.id.checkBoxBtEventAlert);
 
         transitionContainer = getActivity().findViewById(R.id.toolbarLayout);
         imbtSearch = transitionContainer.findViewById(R.id.imBt_search_frag);
         imBtAdd = transitionContainer.findViewById(R.id.imBt_add_frag);
         imBtCancel = transitionContainer.findViewById(R.id.imBt_cancel_frag);
         tvTitleToolbar = transitionContainer.findViewById(R.id.tvTitleToolbar);
+
 
         String id = getArguments().getString("ID_EVENT");
         String title = getArguments().getString("TITLE");
@@ -181,6 +186,23 @@ public class AddEventFragment extends Fragment {
                 getActivity().onBackPressed();
             }
         });
+            checkBoxBtEventAlert.setOnClickListener(new View.OnClickListener() {
+                int i = 0;
+                @Override
+                public void onClick(View v) {
+                  if(i == 0) {
+                      tvMembersFragment.setVisibility(View.VISIBLE);
+                      viewModel.setIsStaffChecked(true);
+                      isAlertAvailable = true;
+                      i++;
+                  } else if (i == 1) {
+                      tvMembersFragment.setVisibility(View.GONE);
+                      viewModel.setIsStaffChecked(false);
+                      isAlertAvailable = false;
+                      i = 0;
+                  }
+                }
+            });
 
         etAddressEventFragment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -250,6 +272,7 @@ public class AddEventFragment extends Fragment {
 
         return view;
     }
+
     public void suggestPlaces(int code){
         Intent intent = new PlaceAutocomplete.IntentBuilder()
                 .accessToken(Constant.MAPBOX_ACCESS_TOKEN)
@@ -341,10 +364,7 @@ public class AddEventFragment extends Fragment {
                         String groupCampusName = chooseParticipantViewModel.getParticipant().getValue();
                         UserEntity userEntity = new UserEntity(username, description,
                                 imageProfileUrl, firstname, lastname, true, isAdmin, groupNameUser, organism);
-                        if (viewModel.getStaffList().getValue() == null){
-                            Toast.makeText(getActivity(), "Veuillez sélectionner les staff", Toast.LENGTH_LONG).show();
-                            return;
-                        }
+
                         Date today = new Date();
                         long diffStart = dateStart.getTime() - today.getTime();
                         diffStart = TimeUnit.DAYS.convert(diffStart, TimeUnit.MILLISECONDS);
@@ -375,17 +395,16 @@ public class AddEventFragment extends Fragment {
                             Toast.makeText(getActivity(), "Veuillez sélectionner les groupes", Toast.LENGTH_LONG).show();
                             return;
                         }
-
                         EventEntity eventEntity = new EventEntity(dateStart, dateEnd, title, address, null, descriptionEvent, username,
-                                groupCampusName,  organism, latDestination, lngDestination);
+                                groupCampusName,  organism, latDestination, lngDestination, isAlertAvailable);
 
                         GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart, null, organism, groupCampusName);
-                        setData(organism, eventEntity, groupChatEntity, userEntity, groupCampusName);
+                        setData(organism, eventEntity, groupChatEntity, userEntity, groupCampusName, isAlertAvailable);
 
                     }
                 });
     }
-    private void setData(String organism, Object object, Object objectGroup, UserEntity objectUser, String groupCampusName) {
+    private void setData(String organism, Object object, Object objectGroup, UserEntity objectUser, String groupCampusName, boolean alertIsAvailable) {
         CollectionReference eventRef = mFirestore
                 .collection(organism).document("AllCampus").collection("AllEvents");
 
@@ -396,7 +415,11 @@ public class AddEventFragment extends Fragment {
                 String eventId = documentReference.getId();
                 setEvent(eventRef, eventId,"Participants", userId, objectUser);
                         eventRef.document(eventId).collection("Creator").document(userId).set(objectUser);
-                setEvent(eventRef, eventId,"StaffMembers", userId, objectUser);
+
+                if(alertIsAvailable == true) {
+                    setEvent(eventRef, eventId, "StaffMembers", userId, objectUser);
+                }
+
                 mFirestore.collection(organism).document("AllCampus")
                         .collection("AllChatGroups").document(eventId).set(objectGroup);
                 chooseParticipantViewModel = ViewModelProviders.of(getActivity()).get(ChooseParticipantViewModel.class);
@@ -404,11 +427,17 @@ public class AddEventFragment extends Fragment {
                  CollectionReference groupChatRef = mFirestore.collection(organism).document("AllCampus")
                         .collection("AllChatGroups");
                 setEvent(groupChatRef, eventId,"Participants", userId, objectUser);
-                setEvent(groupChatRef, eventId,"StaffMembers", userId, objectUser);
+                if(alertIsAvailable == true) {
+                    setEvent(groupChatRef, eventId, "StaffMembers", userId, objectUser);
+                }
                 setEvent(groupChatRef, eventId,"Creator", userId, objectUser);
                 userDocumentRef.collection("ChatGroup")
                         .document(eventId)
                         .set(objectGroup);
+
+
+                userDocumentRef.collection("ParticipateToEvents").document(eventId).set(object);
+
 
                 FirestoreDBHelper.setData("USERS", userId, "ChatGroup", eventId, objectGroup);
                 viewModel = ViewModelProviders.of(getActivity()).get(ChooseUsersViewModel.class);
@@ -416,12 +445,17 @@ public class AddEventFragment extends Fragment {
                     @Override
                     public void onChanged(List<UserEntity> userEntities) {
                         for (UserEntity user : userEntities) {
-                            eventRef.document(eventId).collection("StaffMembers").document(user.getUserId()).set(user, SetOptions.merge());
+                            if(alertIsAvailable == true) {
+                                eventRef.document(eventId).collection("StaffMembers").document(user.getUserId()).set(user, SetOptions.merge());
+                            }
                             eventRef.document(eventId).collection("Participants").document(user.getUserId()).set(user, SetOptions.merge());
                             DocumentReference userListsRef = mFirestore.collection("USERS").document(user.getUserId());
                             userListsRef.collection("ChatGroup").document(eventId).set(objectGroup);
+                            userListsRef.collection("ParticipateToEvents").document(eventId).set(object);
                             setEvent(groupChatRef, eventId,"Participants", user.getUserId(), user);
-                            setEvent(groupChatRef, eventId,"StaffMembers", user.getUserId(), user);
+                            if(alertIsAvailable == true) {
+                                setEvent(groupChatRef, eventId, "StaffMembers", user.getUserId(), user);
+                            }
                         }
                     }
                 });
@@ -471,7 +505,6 @@ public class AddEventFragment extends Fragment {
         String organism = getArguments().getString("ORGANISM_EVENT");
         String sharedInNotUpdated = getArguments().getString("CAMPUS_EVENT");
         String created_by = getArguments().getString("CREATED_BY");
-        String description = getArguments().getString("CREATED_BY");
         mFirestore = FirebaseFirestore.getInstance();
 
         mFirestore.collection(organism_event).document("AllCampus").collection("AllEvents").document(id_event)
@@ -545,7 +578,7 @@ public class AddEventFragment extends Fragment {
                                     return;
                                 }
                                 if (!groupCampusNameVM.equals("") && !groupCampusNameVM.equals(sharedIn)) {
-                                    setData(organism, hashMapEvent, hashMapGroup, userEntity, groupCampusNameVM);
+                                    setData(organism, hashMapEvent, hashMapGroup, userEntity, groupCampusNameVM, isAlertAvailable);
                                     AddTripHelper.deleteEventFromDB(organism, id_event, userId);
                                 } else {
                                     updateDataEvent(organism, groupCampusName, hashMapEvent, hashMapGroup, id_event);

@@ -12,15 +12,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -109,9 +115,54 @@ public class AlertFragment extends Fragment {
             }
         });
         verifyIfAlert();
+        userParticipateToEvent();
         return view;
     }
 
+
+    private void userParticipateToEvent () {
+        CollectionReference collectionReference = mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateToEvents");
+
+        collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        String eventId = document.getId();
+                        collectionReference.document(eventId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                boolean alertAvailable = documentSnapshot.getBoolean("alertAvailable");
+                                Date dateStart = documentSnapshot.getDate("dateStart");
+                                Date dateEnd = documentSnapshot.getDate("dateEnd");
+
+                                Calendar calendarEndDate = Calendar.getInstance();
+                                calendarEndDate.setTime(dateEnd);
+                                calendarEndDate.add(Calendar.HOUR_OF_DAY, 3);
+                                Date addedHoursToDateEnd = calendarEndDate.getTime();
+
+                                Calendar calendarStartDate = Calendar.getInstance();
+                                calendarStartDate.setTime(dateStart);
+                                calendarStartDate.add(Calendar.HOUR, -1);
+                                Date addedHoursToDateStart = calendarStartDate.getTime();
+
+                                Calendar calendar = Calendar.getInstance();
+                                Date today = calendar.getTime();
+
+                                if(alertAvailable  && today.after(addedHoursToDateStart) && today.before(addedHoursToDateEnd) ) {
+                                    btAlertStaff.setVisibility(View.VISIBLE);
+                                }
+                                /*if(alertAvailable && today.before(addedHoursToDateEnd) && today.after(addedHoursToDateStart)) {
+                                    btAlertStaff.setVisibility(View.VISIBLE);
+                                }*/
+                            }
+                        });
+
+                    }
+                    }
+            }
+        });
+    }
     private void showAlertDialogForStaff() {
         AlertDialog dialogBuilder = new AlertDialog.Builder(getContext()).create();
         LayoutInflater inflater = LayoutInflater.from(getContext());
@@ -160,29 +211,7 @@ public class AlertFragment extends Fragment {
     }
 
     private void verifyIfAlert() {
-        mFirestore.collection("USERS").document(mCurrentUserId).get()
-                .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
 
-                        String organism = documentSnapshot.getString("organism");
-                        String groupCampus = documentSnapshot.getString("groupCampus");
-                        Calendar calendar = Calendar.getInstance();
-                        Date dateAlert = calendar.getTime();
-
-                        mFirestore.collection(organism).document("AllCampus")
-                                .collection("AllCampus").document(groupCampus)
-                                .collection("Alert").document(mCurrentUserId)
-                                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                if (documentSnapshot.exists()) {
-                                    btAlertStaff.setText(R.string.alrt_in_progress);
-                                }
-                            }
-                        });
-                    }
-                });
     }
 
     private void showAlertDialog(String number) {

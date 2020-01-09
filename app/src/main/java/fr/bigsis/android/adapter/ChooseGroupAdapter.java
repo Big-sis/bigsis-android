@@ -57,6 +57,7 @@ public class ChooseGroupAdapter extends FirestorePagingAdapter<OrganismEntity, C
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                finish.setVisibility(View.VISIBLE);
                 selectedGroup = item.getIdGroup();
                 notifyDataSetChanged();
             }

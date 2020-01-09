@@ -31,6 +31,7 @@
         android:id="@+id/btFinishChoice"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="50dp"

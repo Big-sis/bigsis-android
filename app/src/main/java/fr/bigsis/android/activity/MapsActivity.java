@@ -121,7 +121,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         imgBtItinarary = findViewById(R.id.imgBtItinarary);
         tvOpenItinerary = findViewById(R.id.tvOpenItinerary);
         openItineraryFragment(tvOpenItinerary, MapsActivity.this);
-        MapHelper.setOnCLickButton(fbAlertGreen, fbAlertRed, MapsActivity.this, this);
+        MapHelper.setOnCLickButton(fbAlertGreen, fbAlertRed, MapsActivity.this, this, tvOpenItinerary);
         if (alertFragment.isAdded()) {
             fbAlertRed.show();
             fbAlertGreen.hide();
@@ -551,6 +551,9 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        tvOpenItinerary.setVisibility(View.VISIBLE);
+        fbAlertGreen.show();
+        fbAlertRed.hide();
         tvOpenItinerary.setVisibility(View.VISIBLE);
     }
 }

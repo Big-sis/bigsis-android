@@ -16,13 +16,14 @@ public class EventEntity {
     private double latDestination;
     private double lngDestination;
     private String createdBy;
+    private boolean isAlertAvailable;
 
     public EventEntity() {
     }
 
     public EventEntity(Date dateStart, Date dateEnd, String titleEvent, String addressEvent,
                        String image, String description, String createdBy,String sharedIn, String organism,
-                       double latDestination, double lngDestination) {
+                       double latDestination, double lngDestination, boolean isAlertAvailable) {
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
         this.titleEvent = titleEvent;
@@ -35,6 +36,7 @@ public class EventEntity {
         this.addressEvent = addressEvent;
         this.latDestination = latDestination;
         this.lngDestination = lngDestination;
+        this.isAlertAvailable = isAlertAvailable;
     }
 
     public Date getDateStart() {
@@ -131,5 +133,13 @@ public class EventEntity {
 
     public void setLngDestination(double lngDestination) {
         this.lngDestination = lngDestination;
+    }
+
+    public boolean isAlertAvailable() {
+        return isAlertAvailable;
+    }
+
+    public void setAlertAvailable(boolean alertAvailable) {
+        isAlertAvailable = alertAvailable;
     }
 }

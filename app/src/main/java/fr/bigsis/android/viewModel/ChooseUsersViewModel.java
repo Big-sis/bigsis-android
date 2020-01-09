@@ -15,7 +15,14 @@ import fr.bigsis.android.entity.UserEntity;
 public class ChooseUsersViewModel extends ViewModel {
 
     private MutableLiveData<List<UserEntity>> staffListLiveData = new MutableLiveData<List<UserEntity>>();
+    private MutableLiveData<Boolean> isStaffChecked;
+
     private ArrayList<UserEntity> staffList = new ArrayList<>();
+
+    public ChooseUsersViewModel () {
+        isStaffChecked = new MutableLiveData<>();
+
+    }
 
     public LiveData<List<UserEntity>> getStaffList(){
         return staffListLiveData;
@@ -33,5 +40,14 @@ public class ChooseUsersViewModel extends ViewModel {
     public void resetStaffMember() {
         staffList.clear();
         staffListLiveData.setValue(staffList);
+    }
+
+
+
+    public MutableLiveData<Boolean> isStaffChecked() {
+        return isStaffChecked;
+    }
+    public void setIsStaffChecked(boolean staffChecked) {
+        isStaffChecked.setValue(staffChecked);
     }
 }

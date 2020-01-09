@@ -6,7 +6,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.util.EventLog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,16 +54,16 @@ import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.activity.ParticipantsListActivity;
+import fr.bigsis.android.activity.UploadImageActivity;
 import fr.bigsis.android.entity.EventEntity;
 import fr.bigsis.android.entity.GroupChatEntity;
-import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.AddEventFragment;
-import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
 import fr.bigsis.android.helpers.FirestoreHelper;
-import fr.bigsis.android.helpers.UploadImageHelper;
-import fr.bigsis.android.view.SeeMoreText;
+
+import static fr.bigsis.android.helpers.FirestoreDBHelper.deleteParticipantFromCampus;
+import static fr.bigsis.android.helpers.FirestoreDBHelper.setParticipantToCampus;
 
 public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, EventListAdapter.EventHolder> {
 
@@ -98,11 +97,7 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-        DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection("Events")
-                .document(idEvent)
-                .collection("Participants")
-                .document(mCurrentUserId);
+
         //Check if creator or not and modify button
         mFirestore.collection(organism).document("AllCampus").collection("AllEvents")
                 .document(idEvent).collection("Creator").document(mCurrentUserId).get()
@@ -148,7 +143,11 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
                 });
 
         //Check if user is participating to event or not , and keep the button in the right color
-
+        DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                .document(nameCampus).collection("Events")
+                .document(idEvent)
+                .collection("Participants")
+                .document(mCurrentUserId);
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -156,7 +155,7 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
                     DocumentSnapshot document = task.getResult();
                     Boolean creator = document.getBoolean("creator");
                     if (document.exists() && !creator) {
-                        i = 1;
+                        i = 0;
                         holder.btParticipateEvent.setSelected(true);
                         holder.btParticipateEvent.setText("Ne plus participer");
                     }
@@ -198,7 +197,7 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
                             String nameCampus = documentSnapshot.getString("groupCampus");
                             String organism = documentSnapshot.getString("organism");
                             UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
-                                    firstname, lastname, isAdmin, false, nameCampus, organism);
+                                    firstname, lastname, false, isAdmin, nameCampus, organism);
                             FirestoreDBHelper.setParticipantTo(organism,  "AllEvents", idEvent, mCurrentUserId, userEntity);
                             FirestoreDBHelper.setParticipantTo(organism, "AllChatGroups", idEvent, mCurrentUserId, userEntity);
                             String title = item.getTitleEvent();
@@ -209,13 +208,18 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
                             String imageEvent = item.getImage();
                             String createdBy = item.getCreatedBy();
                             String sharedIn = item.getSharedIn();
-                            String organismTrip = item.getOrganism();
+                            String organismEvent = item.getOrganism();
                             double lat = item.getLatDestination();
                             double lng = item.getLngDestination();
+                            boolean alertAvailable = item.isAlertAvailable();
+
                             EventEntity eventEntity = new EventEntity(dateStart, dateEnd, title, adress, imageEvent,
-                                    description, createdBy, sharedIn, organismTrip, lat, lng);
+                                    description, createdBy, sharedIn, organismEvent, lat, lng, alertAvailable);
+                            setParticipantToCampus(organism, sharedIn, "Events", idEvent, mCurrentUserId, userEntity);
                             GroupChatEntity groupChatEntity = new GroupChatEntity(title, null, dateStart, null, organism, sharedIn);
                             FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idEvent, groupChatEntity);
+                            mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateToEvents")
+                                    .document(idEvent).set(eventEntity);
                         }
                     });
                     i++;
@@ -223,14 +227,21 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
                 } else if (i == 1 || holder.btParticipateEvent.isSelected()) {
                     holder.btParticipateEvent.setSelected(false);
                     holder.btParticipateEvent.setText("Participer");
+                    String sharedIn = item.getSharedIn();
                     FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllEvents", idEvent, mCurrentUserId);
                     FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllChatGroups", idEvent, mCurrentUserId);
                     FirestoreDBHelper.deleteFromdb("USERS", mCurrentUserId, "ChatGroup", idEvent);
+                    deleteParticipantFromCampus(organism, sharedIn, "Events", idEvent, mCurrentUserId);
+                    mFirestore.collection("USERS").document(mCurrentUserId).collection("ParticipateToEvents")
+                            .document(idEvent).delete();
                     i = 0;
                 }
             }
         });
 
+        if(item.isAlertAvailable()) {
+            holder.tvShowStaff.setVisibility(View.VISIBLE);
+        }
         holder.tvShowStaff.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -245,7 +256,7 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
             @Override
             public void onClick(View v) {
                 AppCompatActivity activity = (AppCompatActivity) v.getContext();
-                Intent intent = new Intent(mContext, UploadImageHelper.class);
+                Intent intent = new Intent(mContext, UploadImageActivity.class);
                 intent.putExtra("ID_EVENT_PHOTO", idEvent);
                 intent.putExtra("EVENT_PHOTO", item.getImage());
                 intent.putExtra("campusName", item.getSharedIn());

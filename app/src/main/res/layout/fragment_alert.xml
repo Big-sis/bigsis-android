@@ -146,7 +146,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginBottom="16dp"
             android:text="@string/emergency"
             app:layout_constraintEnd_toStartOf="@+id/btCallEmergency"
             app:layout_constraintStart_toStartOf="parent"
@@ -158,12 +158,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
             android:background="@drawable/custom_button"
             android:minHeight="20dp"
             android:text="@string/call"
             android:textAllCaps="false"
             android:textColor="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/btAlert"
             app:layout_constraintTop_toBottomOf="@+id/view2" />
 
         <Button
@@ -174,6 +176,7 @@
             android:layout_marginBottom="16dp"
             android:background="@drawable/bt_alert_design"
             android:gravity="center"
+            android:visibility="gone"
             android:minHeight="30dp"
             android:paddingLeft="50dp"
             android:paddingRight="50dp"
@@ -181,8 +184,7 @@
             android:textColor="@color/colorWhite"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvCallEmergency" />
+            app:layout_constraintStart_toStartOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
