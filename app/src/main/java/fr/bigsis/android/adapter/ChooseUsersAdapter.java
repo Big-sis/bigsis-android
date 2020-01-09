@@ -95,8 +95,6 @@ public class ChooseUsersAdapter extends FirestorePagingAdapter<UserEntity, Choos
                           String lastname = documentSnapshot.getString("lastname");
                           String description = documentSnapshot.getString("description");
                           Boolean isAdmin = documentSnapshot.getBoolean("admin");
-                          UserEntity userEntity = new UserEntity(username, description, imageProfileUrl,
-                                  firstname, lastname, false, isAdmin, false, idContact);
                       }
                   });
                   i++;
@@ -114,8 +112,7 @@ public class ChooseUsersAdapter extends FirestorePagingAdapter<UserEntity, Choos
                           String lastname = documentSnapshot.getString("lastname");
                           String description = documentSnapshot.getString("description");
                           Boolean isAdmin = documentSnapshot.getBoolean("admin");
-                          UserEntity userEntity = new UserEntity(username, description, imageProfileUrl,
-                                  firstname, lastname, false, isAdmin, false, idContact);
+
                       }
                   });
                   i = 0;

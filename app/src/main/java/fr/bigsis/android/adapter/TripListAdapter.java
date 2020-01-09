@@ -1,15 +1,16 @@
 package fr.bigsis.android.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
+import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,17 +32,18 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineCallback;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineResult;
+import com.mapbox.geojson.Point;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 import butterknife.BindView;
@@ -54,10 +56,14 @@ import fr.bigsis.android.entity.TripEntity;
 import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
-import fr.bigsis.android.helpers.FirestoreHelper;
+import timber.log.Timber;
+
+import static fr.bigsis.android.helpers.MapHelper.findRouteDriving;
+import static fr.bigsis.android.helpers.MapHelper.findRouteWalking;
 
 public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripListAdapter.TripViewHolder> {
 
+    AddTripFragment fragmentAdd;
     private FirebaseStorage storage = FirebaseStorage.getInstance();
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private Context mContext;
@@ -67,17 +73,20 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
     private int i = 0;
     private String nameCampus;
     private String organism;
-    AddTripFragment fragmentAdd;
     private Locale current;
+    private LocationEngine locationEngine;
+    private Activity activity;
+
 
     public TripListAdapter(@NonNull FirestorePagingOptions<TripEntity> options, Context context, SwipeRefreshLayout swipeRefreshLayout,
-                           String nameCampus, String organism, AddTripFragment fragmentAdd) {
+                           String nameCampus, String organism, AddTripFragment fragmentAdd, Activity activity) {
         super(options);
         mContext = context;
         mSwipeRefreshLayout = swipeRefreshLayout;
         this.nameCampus = nameCampus;
         this.organism = organism;
         this.fragmentAdd = fragmentAdd;
+        this.activity = activity;
     }
 
     @Override
@@ -97,42 +106,43 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
                 .document(idTrip).collection("Creator").document(mCurrentUserId).get()
                 .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        holder.btParticipate.setSelected(true);
-                        holder.btParticipate.setText(R.string.modify);
-                        holder.btParticipate.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-                                Bundle bundle = new Bundle();
-                                bundle.putString("ID_TRIP", idTrip);
-                                bundle.putString("FROM", item.getFrom());
-                                bundle.putString("TO", item.getTo());
-                                bundle.putString("CAMPUS", item.getSharedIn());
-                                bundle.putString("ORGANISM_TRIP", item.getOrganism());
-                                bundle.putString("DATE", format.format(item.getDate().getTime()));
-                                bundle.putString("CREATED_BY", item.getCreatedBy());
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            if (document.exists()) {
+                                holder.btParticipate.setSelected(true);
+                                holder.btParticipate.setText(R.string.modify);
+                                holder.btParticipate.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("ID_TRIP", idTrip);
+                                        bundle.putString("FROM", item.getFrom());
+                                        bundle.putString("TO", item.getTo());
+                                        bundle.putString("CAMPUS", item.getSharedIn());
+                                        bundle.putString("ORGANISM_TRIP", item.getOrganism());
+                                        bundle.putString("DATE", format.format(item.getDate().getTime()));
+                                        bundle.putString("CREATED_BY", item.getCreatedBy());
+                                        bundle.putString("MODE_TRIP", item.getModeTrip());
+                                        bundle.putString("NB_PLACES", item.getNumberPlaces());
 
-                                fragmentAdd = new AddTripFragment();
-                                fragmentAdd.setArguments(bundle);
+                                        fragmentAdd = new AddTripFragment();
+                                        fragmentAdd.setArguments(bundle);
 
-                                FragmentManager fragmentManager = ((AppCompatActivity)mContext).getSupportFragmentManager();
-                                FragmentTransaction transaction = fragmentManager.beginTransaction();
-                                transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
-                                transaction.addToBackStack(null);
-                                transaction.add(R.id.fragment_container, fragmentAdd, "ADD_MENU_FRAGMENT")
-                                        .commit();
-                                            }
-
-                        });
+                                        FragmentManager fragmentManager = ((AppCompatActivity) mContext).getSupportFragmentManager();
+                                        FragmentTransaction transaction = fragmentManager.beginTransaction();
+                                        transaction.setCustomAnimations(R.animator.enter_to_bottom, R.animator.exit_to_top, R.animator.enter_to_bottom, R.animator.exit_to_top);
+                                        transaction.addToBackStack(null);
+                                        transaction.add(R.id.fragment_container, fragmentAdd, "ADD_MENU_FRAGMENT")
+                                                .commit();
+                                    }
+                                });
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
         //Check if user is participating to a trip or not , and keep the button in the right color
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -172,7 +182,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String organism = documentSnapshot.getString("organism");
                             UserEntity userEntity = new UserEntity(username, descripition, imageProfileUrl,
                                     firstname, lastname, isAdmin, false, nameCampus, organism);
-                            FirestoreDBHelper.setParticipantTo(organism,  "AllTrips", idTrip, mCurrentUserId, userEntity);
+                            FirestoreDBHelper.setParticipantTo(organism, "AllTrips", idTrip, mCurrentUserId, userEntity);
                             FirestoreDBHelper.setParticipantTo(organism, "AllChatGroups", idTrip, mCurrentUserId, userEntity);
                             String from = item.getFrom();
                             String to = item.getTo();
@@ -182,7 +192,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             String organismTrip = item.getOrganism();
                             double lat = item.getLatDestination();
                             double lng = item.getLngDestination();
-                            TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip, lat, lng, date.toString());
+                            //TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip, lat, lng, date.toString());
                             String titleTrip = from + " ... " + to;
                             GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, null, date, null, organism, sharedIn);
                             FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idTrip, groupChatEntity);
@@ -200,21 +210,23 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                 }
             }
         });
-       holder.imgview.setOnClickListener(new View.OnClickListener() {
+        holder.btItinerary.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 double lat = item.getLatDestination();
                 double lng = item.getLngDestination();
-                        Uri gmmIntentUri = Uri.parse("google.navigation:q="  + String.valueOf(lat)
-                                + "," + String.valueOf(lng));
-                        Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                        mapIntent.setPackage("com.google.android.apps.maps");
-                        mContext.startActivity(mapIntent);
-                    }
-                });
+                String modeOfTrip = item.getModeTrip();
+                Point destination = Point.fromLngLat(lng, lat);
+                if (modeOfTrip.equals("driving")) {
+                    calculateRouteDriving(destination);
+                } else {
+                    calculateRoutewalking(destination);
+                }
+            }
+        });
 
         mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
-               .document(idTrip).collection("Participants")
+                .document(idTrip).collection("Participants")
                 .whereEqualTo("creator", false).limit(1).get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -222,7 +234,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 String imageProfileUrl = document.getString("imageProfileUrl");
-                                if(imageProfileUrl != null) {
+                                if (imageProfileUrl != null) {
                                     StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
                                     storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                         @Override
@@ -234,11 +246,11 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                                                     .into(holder.profile_image_one);
                                         }
                                     });
-                                }  else {
-                                Glide.with(holder.profile_image_one.getContext())
-                                        .load(R.drawable.ic_profile)
-                                        .into(holder.profile_image_one);
-                            }
+                                } else {
+                                    Glide.with(holder.profile_image_one.getContext())
+                                            .load(R.drawable.ic_profile)
+                                            .into(holder.profile_image_one);
+                                }
                             }
                         }
                     }
@@ -246,13 +258,13 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
 
         mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
                 .document(idTrip).collection("Creator")
-               .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         String imageProfileUrl = document.getString("imageProfileUrl");
-                        if(imageProfileUrl != null) {
+                        if (imageProfileUrl != null) {
                             StorageReference storageRef = storage.getReferenceFromUrl(imageProfileUrl);
                             storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                                 @Override
@@ -274,7 +286,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
             }
         });
         mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
-            .document(idTrip).collection("Participants")
+                .document(idTrip).collection("Participants")
                 .get()
                 .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                     @Override
@@ -288,6 +300,32 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             if (count < 2) {
                                 holder.profile_image_one.setVisibility(View.GONE);
                                 holder.mtvMore.setText("...");
+                            }
+                            if (item.getNumberPlaces() != null) {
+                                String numberPlaces = item.getNumberPlaces();
+                                String numberOfParticipants = String.valueOf(count - 1);
+                                //.numberOfPlacesTv.setText("(" + numberOfParticipants + "/" + numberPlaces + ")");
+                                //holder.numberOfPlacesTv.setVisibility(View.VISIBLE);
+
+                                if(numberOfParticipants.equals(numberPlaces)) {
+                                    holder.numberOfPlacesTv.setText(R.string.complete);
+                                    holder.numberOfPlacesTv.setVisibility(View.VISIBLE);
+
+                                    mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
+                                            .document(idTrip).collection("Participants")
+                                            .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                            if (task.isSuccessful()) {
+                                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                                    if(!document.exists()) {
+                                                        holder.btParticipate.setVisibility(View.GONE);
+                                                    }
+                                                }
+                                                }
+                                        }
+                                    });
+                                }
                             }
                         }
                     }
@@ -318,33 +356,62 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         intent.putExtra("ID_TRIP", idTrip);
         mContext.startActivity(intent);
     }
+
     public void openFragment() {
 
     }
 
-    public LatLng getLocationFromAddress(Context context, String strAddress) {
 
-        Geocoder coder = new Geocoder(context);
-        List<Address> address;
-        LatLng p1 = null;
+    private void calculateRoutewalking(Point destination) {
+        if (!locationEnabled()) {
+            //TODO
+            Toast.makeText(mContext, "La localisation est désactivée", Toast.LENGTH_SHORT).show();
+        } else {
+            LocationEngine locationEngine = LocationEngineProvider.getBestLocationEngine(mContext);
+            locationEngine.getLastLocation(new LocationEngineCallback<LocationEngineResult>() {
+                @Override
+                public void onSuccess(LocationEngineResult result) {
+                    findRouteWalking(result, destination, mContext, activity);
+                }
 
-        try {
-            // May throw an IOException
-            address = coder.getFromLocationName(strAddress, 5);
-            if (address == null) {
-                return null;
-            }
-
-            Address location = address.get(0);
-            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
-
-        } catch (IOException ex) {
-
-            ex.printStackTrace();
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    Timber.e(exception);
+                }
+            });
         }
-
-        return p1;
     }
+
+    private void calculateRouteDriving(Point destination) {
+        if (!locationEnabled()) {
+            //TODO
+            Toast.makeText(mContext, "La localisation est désactivée", Toast.LENGTH_SHORT).show();
+        } else {
+            LocationEngine locationEngine = LocationEngineProvider.getBestLocationEngine(mContext);
+            locationEngine.getLastLocation(new LocationEngineCallback<LocationEngineResult>() {
+                @Override
+                public void onSuccess(LocationEngineResult result) {
+                    findRouteDriving(result, destination, mContext, activity);
+                }
+
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    Timber.e(exception);
+                }
+            });
+        }
+    }
+
+    public boolean locationEnabled() {
+
+        LocationManager lm = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
+        try {
+            return lm != null && lm.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     @NonNull
     @Override
     public TripViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -384,12 +451,16 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         TextView mTextTo;
         @BindView(R.id.tvMore)
         TextView mtvMore;
+        @BindView(R.id.numberOfPlacesTv)
+        TextView numberOfPlacesTv;
         @BindView(R.id.ivTripImage)
-        CircleImageView imgview;
+        ImageView imgview;
         @BindView(R.id.tvDateTrip)
         TextView mTextDate;
         @BindView(R.id.btParticipate)
         Button btParticipate;
+        @BindView(R.id.btItinerary)
+        Button btItinerary;
         @BindView(R.id.profile_image_one)
         CircleImageView profile_image_one;
         @BindView(R.id.profile_image_two)
@@ -418,10 +489,12 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
             }
             SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
             mTextDate.setText(format.format(item.getDate().getTime()));
-            Glide.with(imgview)
-                    .asBitmap()
-                    .load(R.drawable.ic_confusing_directions_filled)
-                    .into(imgview);
+
+            if (item.getModeTrip().equals("driving")) {
+                imgview.setImageDrawable(mContext.getDrawable(R.drawable.ic_car_selected));
+            } else {
+                imgview.setImageDrawable(mContext.getDrawable(R.drawable.ic_walker_selected));
+            }
         }
     }
 

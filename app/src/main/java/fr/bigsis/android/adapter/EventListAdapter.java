@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.firebase.ui.firestore.paging.LoadingState;
@@ -44,6 +45,7 @@ import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -167,7 +169,7 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
             @Override
             public void onClick(View v) {
                 holder.relativeLayoutEventText.setVisibility(View.VISIBLE);
-                SeeMoreText.makeTextViewResizable(holder.tvDesctiptionEvent, 4, mContext.getString(R.string.see_more), true);
+//                SeeMoreText.makeTextViewResizable(holder.tvDesctiptionEvent, 4, mContext.getString(R.string.see_more), true);
             }
         });
         holder.imgBtCancelInfo.setOnClickListener(new View.OnClickListener() {
@@ -414,11 +416,17 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
         public void bind(@NonNull EventEntity item) {
             textViewTitle.setText(item.getTitleEvent());
             current = mContext.getResources().getConfiguration().locale;
+            Calendar calendar = Calendar.getInstance();
+            //TODO set date in the right form at
+            Date today = calendar.getTime();
+            if(item.getDateStart().equals(today)) {
+                textViewDateEvent.setText(R.string.today);
+            }
             if (current.getLanguage().equals("fr")) {
-                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+                SimpleDateFormat format = new SimpleDateFormat(" dd/MM/yy HH:mm", Locale.FRENCH);
                 textViewDateEvent.setText(format.format(item.getDateStart().getTime()));
             } else if (current.getLanguage().equals("en")) {
-                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.ENGLISH);
+                SimpleDateFormat format = new SimpleDateFormat(" dd/MM/yy HH:mm", Locale.ENGLISH);
                 textViewDateEvent.setText(format.format(item.getDateStart().getTime()));
             }
 
@@ -433,6 +441,7 @@ public class EventListAdapter  extends FirestorePagingAdapter<EventEntity, Event
                         String urlImage = downloadUrl.toString();
                         Glide.with(eventImage)
                                 .load(urlImage)
+                                .apply(new RequestOptions().override(500, 500))
                                 .into(eventImage);
                     }
                 });

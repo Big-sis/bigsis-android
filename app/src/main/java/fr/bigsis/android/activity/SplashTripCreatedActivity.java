@@ -24,10 +24,10 @@ public class SplashTripCreatedActivity extends AppCompatActivity {
         trip = extras.getString("Trip");
         tvSplash = findViewById(R.id.tvSplash);
         if (trip != null) {
-            tvSplash.setText(getString(R.string.your_trip_is) + trip);
+            tvSplash.setText(getString(R.string.your_trip_is) + " " + trip);
         }
         if (event != null) {
-            tvSplash.setText(getString(R.string.your_event_is) + event);
+            tvSplash.setText(getString(R.string.your_event_is) + " " + event);
         }
         Thread myThread = new Thread() {
             @Override

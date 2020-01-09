@@ -169,8 +169,5 @@ public class StartSignUpFragment extends Fragment {
         void onFragmentInteraction();
     }
 
-    private void verifyUsername(String etUsername, EditText editText){
 
-
-    }
 }

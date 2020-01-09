@@ -10,7 +10,7 @@
     android:layout_height="match_parent">
     <RelativeLayout
         android:id="@+id/relativeLayoutEvent"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
         <ImageView
@@ -18,11 +18,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_margin="10dp"
             android:adjustViewBounds="true"
             android:background="@color/colorGreyLight"
-            android:padding="10dp"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:src="@drawable/smile_logo" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -53,12 +51,10 @@
 
     <RelativeLayout
         android:id="@+id/relativeLayoutEventText"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_alignBottom="@+id/relativeLayoutEvent"
         android:layout_alignParentTop="true"
-        android:layout_marginBottom="0dp"
-        android:background="@color/colorWhite"
+        android:background="@drawable/custom_event_info"
         android:visibility="gone">
 
         <TextView
@@ -84,7 +80,6 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="0dp"
             android:adjustViewBounds="true"
-            android:background="@color/colorWhite"
             android:padding="10dp"
             android:textSize="16sp" />
         <ImageButton
@@ -117,12 +112,15 @@
             android:layout_alignParentTop="true"
             android:layout_marginStart="10dp"
             android:layout_marginTop="0dp"
+            android:layout_marginEnd="20dp"
+            android:layout_toStartOf="@+id/linearLayoutImages"
             android:textColor="@color/colorPrimaryDark"
             android:textSize="18sp"
             android:textStyle="bold"
             tools:text="Title" />
 
         <LinearLayout
+            android:id="@+id/linearLayoutImages"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
@@ -186,8 +184,22 @@
             android:layout_height="wrap_content"
             android:layout_alignParentStart="true"
             android:layout_marginStart="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:textSize="16sp"
+            android:gravity="center_vertical"
             tools:text="Date" />
-
+        <TextView
+            android:id="@+id/tvShowStaff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="10dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/colorPrimary"
+            android:text="@string/show_staff" />
 
     </RelativeLayout>
 
@@ -195,16 +207,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/tvShowStaff"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="10dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
-            android:textColor="@color/colorPrimary"
-            android:text="Voir staff ..." />
+
     </RelativeLayout>
 
     <Button

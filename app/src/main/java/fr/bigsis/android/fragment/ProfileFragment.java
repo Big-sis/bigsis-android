@@ -189,8 +189,10 @@ public class ProfileFragment extends Fragment {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
                                 String oldImage = documentSnapshot.getString("imageProfileUrl");
-                                StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(oldImage);
-                                photoRef.delete();
+                                if(oldImage != null) {
+                                    StorageReference photoRef = FirebaseStorage.getInstance().getReferenceFromUrl(oldImage);
+                                    photoRef.delete();
+                                }
                                 db.collection("USERS")
                                         .document(user_id)
                                         .update("imageProfileUrl", link).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -203,7 +205,6 @@ public class ProfileFragment extends Fragment {
                                 FirestoreHelper.updateImage(user_id, link);
                             }
                         });
-
                     }
                 });
             }

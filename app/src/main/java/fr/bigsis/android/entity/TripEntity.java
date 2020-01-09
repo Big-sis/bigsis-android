@@ -17,14 +17,15 @@ public class TripEntity {
     private double latDestination;
     private double lngDestination;
     private String dateToString;
-
+    private String numberPlaces;
     private String createdBy;
+    private String modeTrip;
 
     public TripEntity() {
     }
 
     public TripEntity(String from, String to, Date date, String createdBy, String sharedIn, String organism,
-                      double latDestination, double lngDestination, String dateToString ) {
+                      double latDestination, double lngDestination, String dateToString, String numberPlaces, String modeTrip ) {
         this.from = from;
         this.to = to;
         this.date = date;
@@ -34,6 +35,8 @@ public class TripEntity {
         this.latDestination = latDestination;
         this.lngDestination = lngDestination;
         this.dateToString = dateToString;
+        this.numberPlaces = numberPlaces;
+        this.modeTrip = modeTrip;
     }
 
     public Map<String, Object> toHashMap() {
@@ -121,5 +124,21 @@ public class TripEntity {
 
     public void setDateToString(String dateToString) {
         this.dateToString = dateToString;
+    }
+
+    public String getNumberPlaces() {
+        return numberPlaces;
+    }
+
+    public void setNumberPlaces(String numberPlaces) {
+        this.numberPlaces = numberPlaces;
+    }
+
+    public String getModeTrip() {
+        return modeTrip;
+    }
+
+    public void setModeTrip(String modeTrip) {
+        this.modeTrip = modeTrip;
     }
 }

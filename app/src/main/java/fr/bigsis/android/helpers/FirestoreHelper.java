@@ -336,6 +336,9 @@ public class FirestoreHelper {
                                                     for (QueryDocumentSnapshot document : task.getResult()) {
                                                         String idForUpdateImage = document.getId();
                                                         String imageProfileUrl = document.getString("imageProfileUrl");
+                                                        if(imageProfileUrl == null && idUser.equals(idForUpdateImage) && imageProfileUrlUpdated != null) {
+                                                            collectionReference.document(idForUpdateImage).update("imageProfileUrl", imageProfileUrlUpdated);
+                                                        }
                                                         if (imageProfileUrl != null && idUser.equals(idForUpdateImage) && (!imageProfileUrlUpdated.equals(imageProfileUrl))) {
                                                             collectionReference.document(idForUpdateImage).update("imageProfileUrl", imageProfileUrlUpdated);
                                                         }
@@ -468,9 +471,10 @@ public class FirestoreHelper {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Calendar calendar = Calendar.getInstance();
+                        calendar.add(Calendar.HOUR_OF_DAY, 1);
                         Date today = calendar.getTime();
                         Date dateTrip = document.getDate("date");
-                        if(dateTrip.before(today)) {
+                        if (dateTrip.before(today)) {
                             String id = document.getId();
                             DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
                                     .collection("AllTrips").document(id);
@@ -482,7 +486,7 @@ public class FirestoreHelper {
                                             String idParticipant = document.getId();
                                             documentReference.collection("Participants").document(idParticipant).delete();
                                         }
-                                        }
+                                    }
                                 }
                             });
                             documentReference.collection("Creator").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -502,7 +506,10 @@ public class FirestoreHelper {
                 }
             }
         });
+    }
 
+    public static void deleteTripFromCampus(String organism, String campusName) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
                 .document(campusName).collection("Trips").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -510,6 +517,7 @@ public class FirestoreHelper {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         Calendar calendar = Calendar.getInstance();
+                        calendar.add(Calendar.HOUR_OF_DAY, 1);
                         Date today = calendar.getTime();
                         Date dateTrip = document.getDate("date");
                         if (dateTrip.before(today)) {
@@ -544,6 +552,5 @@ public class FirestoreHelper {
                 }
             }
         });
-
     }
 }

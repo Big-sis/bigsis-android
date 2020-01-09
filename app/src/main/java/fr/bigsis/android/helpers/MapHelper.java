@@ -2,51 +2,32 @@ package fr.bigsis.android.helpers;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.mapbox.android.core.permissions.PermissionsListener;
-import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.api.directions.v5.DirectionsCriteria;
+import com.mapbox.android.core.location.LocationEngineResult;
 import com.mapbox.api.directions.v5.models.DirectionsResponse;
-import com.mapbox.api.directions.v5.models.DirectionsRoute;
 import com.mapbox.geojson.Point;
-import com.mapbox.mapboxsdk.Mapbox;
-import com.mapbox.mapboxsdk.location.LocationComponent;
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
-import com.mapbox.mapboxsdk.location.LocationComponentOptions;
-import com.mapbox.mapboxsdk.location.modes.CameraMode;
-import com.mapbox.mapboxsdk.maps.MapView;
-import com.mapbox.mapboxsdk.maps.MapboxMap;
-import com.mapbox.mapboxsdk.maps.Style;
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncher;
 import com.mapbox.services.android.navigation.ui.v5.NavigationLauncherOptions;
-import com.mapbox.services.android.navigation.ui.v5.route.NavigationMapRoute;
 import com.mapbox.services.android.navigation.v5.navigation.NavigationRoute;
+import com.mapbox.turf.TurfConstants;
+import com.mapbox.turf.TurfMeasurement;
 
 import fr.bigsis.android.R;
-import fr.bigsis.android.activity.MapsActivity;
 import fr.bigsis.android.constant.Constant;
 import fr.bigsis.android.fragment.AlertFragment;
 import fr.bigsis.android.fragment.ItineraryFragment;
-import fr.bigsis.android.fragment.MenuFilterFragment;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import timber.log.Timber;
 
 import static com.mapbox.api.isochrone.IsochroneCriteria.PROFILE_CYCLING;
 import static com.mapbox.api.isochrone.IsochroneCriteria.PROFILE_DRIVING;
@@ -87,6 +68,71 @@ public static void openItineraryFragment(TextView tv, Activity activity) {
     });
 
 }
+
+    public static void findRouteDriving(LocationEngineResult result, Point  destination, Context mContext, Activity activity) {
+        Location userLocation = result.getLastLocation();
+        if (userLocation == null) {
+            Timber.d("calculateRoute: User location is null, therefore, origin can't be set.");
+            return;
+        }
+        Point origin = Point.fromLngLat(userLocation.getLongitude(), userLocation.getLatitude());
+        if (TurfMeasurement.distance(origin, destination, TurfConstants.UNIT_METERS) < 50) {
+            return;
+        }
+
+        NavigationRoute.builder(mContext)
+                .accessToken(Constant.MAPBOX_ACCESS_TOKEN)
+                .profile(PROFILE_DRIVING)
+                .origin(origin)
+                .destination(destination)
+                .build()
+                .getRoute(new Callback<DirectionsResponse>() {
+                    @Override
+                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                                .directionsRoute(response.body().routes().get(0))
+                                .shouldSimulateRoute(true)
+                                .build();
+                        NavigationLauncher.startNavigation(activity, options);
+                    }
+
+                    @Override
+                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                    }
+                });
+    }
+    public static void findRouteWalking(LocationEngineResult result, Point  destination, Context mContext, Activity activity) {
+        Location userLocation = result.getLastLocation();
+        if (userLocation == null) {
+            Timber.d("calculateRoute: User location is null, therefore, origin can't be set.");
+            return;
+        }
+        Point origin = Point.fromLngLat(userLocation.getLongitude(), userLocation.getLatitude());
+        if (TurfMeasurement.distance(origin, destination, TurfConstants.UNIT_METERS) < 50) {
+            return;
+        }
+
+        NavigationRoute.builder(mContext)
+                .accessToken(Constant.MAPBOX_ACCESS_TOKEN)
+                .profile(PROFILE_WALKING)
+                .origin(origin)
+                .destination(destination)
+                .build()
+                .getRoute(new Callback<DirectionsResponse>() {
+                    @Override
+                    public void onResponse(Call<DirectionsResponse> call, Response<DirectionsResponse> response) {
+                        NavigationLauncherOptions options = NavigationLauncherOptions.builder()
+                                .directionsRoute(response.body().routes().get(0))
+                                .shouldSimulateRoute(true)
+                                .build();
+                        NavigationLauncher.startNavigation(activity, options);
+                    }
+
+                    @Override
+                    public void onFailure(Call<DirectionsResponse> call, Throwable t) {
+                    }
+                });
+    }
 
     public static void startNavigationDriving(Point originPoint, Point destinationPoint, Activity context) {
         NavigationRoute.builder(context)
@@ -156,7 +202,4 @@ public static void openItineraryFragment(TextView tv, Activity activity) {
                     }
                 });
     }
-
-
-
 }

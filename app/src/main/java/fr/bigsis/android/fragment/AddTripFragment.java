@@ -11,7 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -60,6 +62,7 @@ import fr.bigsis.android.entity.UserEntity;
 import fr.bigsis.android.helpers.AddTripHelper;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
 import fr.bigsis.android.viewModel.ChooseParticipantViewModel;
+import fr.bigsis.android.viewModel.ItineraryViewModel;
 
 import static fr.bigsis.android.constant.Constant.REQUEST_CODE_FROM_AUTOCOMPLETE;
 import static fr.bigsis.android.constant.Constant.REQUEST_CODE_TO_AUTOCOMPLETE;
@@ -77,11 +80,17 @@ public class AddTripFragment extends Fragment {
     private FirebaseFirestore mFirestore;
     private String userId;
     private ChooseParticipantViewModel viewModel;
+    private ItineraryViewModel itineraryViewModel;
     private ConstraintLayout transitionContainer;
     private ImageButton imbtSearch, imBtAdd, imgBtBack, imBtCancel, imgBtDelete;
+    private EditText etNumber;
     private String createdOrUpdated;
     double latDestination;
     double lngDestination;
+    private ImageButton ic_walker, ic_car;
+    private LinearLayout linearLayoutNumberPlaces;
+    private String modeTrip;
+    private String numberPlaces;
 
     public AddTripFragment() {
     }
@@ -111,13 +120,20 @@ public class AddTripFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_add_trip, container, false);
         viewModel = ViewModelProviders.of(getActivity()).get(ChooseParticipantViewModel.class);
+
         etAddFromDestination = view.findViewById(R.id.etAddFromDestination);
         etAddToDestination = view.findViewById(R.id.etAddToDestination);
         tvGroupCampusTrip = view.findViewById(R.id.tvGroupCampusTrip);
         tvDateTrip = view.findViewById(R.id.tvDateTripAdd);
         btCreate = view.findViewById(R.id.btCreateTrip);
         imgBtDelete = view.findViewById(R.id.imgBtDelete);
+        etNumber = view.findViewById(R.id.etNumber);
+        ic_walker = view.findViewById(R.id.imageBtWalker);
+        ic_car = view.findViewById(R.id.imageBtCar);
+        linearLayoutNumberPlaces = view.findViewById(R.id.linearLayoutNumberPlaces);
 
+        modeTrip = "walking";
+        numberPlaces = null;
         transitionContainer = getActivity().findViewById(R.id.toolbarLayout);
         imbtSearch = transitionContainer.findViewById(R.id.imBt_search_frag);
         imBtAdd = transitionContainer.findViewById(R.id.imBt_add_frag);
@@ -132,6 +148,9 @@ public class AddTripFragment extends Fragment {
         String updateFrom = getArguments().getString("FROM");
         String updateDate = getArguments().getString("DATE");
         String organism_trip = getArguments().getString("ORGANISM_TRIP");
+        String numberPlacesUpdate = getArguments().getString("NB_PLACES");
+        String modeTripUpdate = getArguments().getString("MODE_TRIP");
+
 
         etAddFromDestination.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -195,6 +214,17 @@ public class AddTripFragment extends Fragment {
             imgBtDelete.setVisibility(View.VISIBLE);
             createdOrUpdated = getString(R.string.updated);
             tvGroupCampusTrip.setVisibility(View.GONE);
+
+            if(modeTripUpdate.equals("driving")) {
+                ic_car.setImageResource(R.drawable.ic_car_selected);
+                ic_walker.setImageResource(R.drawable.ic_walker);
+                linearLayoutNumberPlaces.setVisibility(View.VISIBLE);
+                etNumber.setText(numberPlacesUpdate);
+            } else {
+                ic_car.setImageResource(R.drawable.ic_car);
+                ic_walker.setImageResource(R.drawable.ic_walker_selected);
+                linearLayoutNumberPlaces.setVisibility(View.GONE);
+            }
         }
 
         btCreate.setOnClickListener(new View.OnClickListener() {
@@ -213,6 +243,26 @@ public class AddTripFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 showDialogFordelete(organism_trip, id, userId);
+            }
+        });
+
+        ic_walker.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ic_walker.setImageResource(R.drawable.ic_walker_selected);
+                ic_car.setImageResource(R.drawable.ic_car);
+                modeTrip = "walking";
+                linearLayoutNumberPlaces.setVisibility(View.GONE);
+            }
+        });
+
+        ic_car.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ic_walker.setImageResource(R.drawable.ic_walker);
+                ic_car.setImageResource(R.drawable.ic_car_selected);
+                modeTrip = "driving";
+                linearLayoutNumberPlaces.setVisibility(View.VISIBLE);
             }
         });
         return view;
@@ -310,6 +360,8 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                         Boolean isAdmin = documentSnapshot.getBoolean("admin");
                         String addFrom = etAddFromDestination.getText().toString();
                         String toFrom = etAddToDestination.getText().toString();
+                        String numberOfPlaces = etNumber.getText().toString();
+
                         viewModel = ViewModelProviders.of(getActivity()).get(ChooseParticipantViewModel.class);
                         String groupCampusName = viewModel.getParticipant().getValue();
                         UserEntity userEntity = new UserEntity(username, description,
@@ -319,7 +371,22 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                             Toast.makeText(getActivity(), R.string.all_fields, Toast.LENGTH_LONG).show();
                             return;
                         }
-                        Date today = new Date();
+
+                        if(modeTrip.equals("driving")) {
+                            int number = Integer.parseInt(numberOfPlaces);
+                            if(numberOfPlaces.isEmpty()){
+                                //TODO extract
+                                Toast.makeText(getActivity(), "Veuillez indiquer le nombre de places", Toast.LENGTH_LONG).show();
+                           return;
+                            }
+                            if(number == 0){
+                                Toast.makeText(getActivity(), "Veuillez indiquer un nombre valide", Toast.LENGTH_LONG).show();
+                            return;
+                            }
+                            numberPlaces = numberOfPlaces;
+                        }
+                        Calendar calendar = Calendar.getInstance();
+                        Date today = calendar.getTime();
                         long diff = date.getTime() - today.getTime();
                         diff = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
                         if (date == null) {
@@ -334,8 +401,9 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                             Toast.makeText(getActivity(), R.string.select_groups, Toast.LENGTH_LONG).show();
                             return;
                         }
+
                         TripEntity tripEntity = new TripEntity(addFrom, toFrom, date, username,
-                                groupCampusName, organism, latDestination, lngDestination, date.toString());
+                                groupCampusName, organism, latDestination, lngDestination, date.toString(), numberPlaces, modeTrip);
                         GroupChatEntity groupChatEntity = new GroupChatEntity(addFrom, null, date, null, organism, groupCampusName);
                         setData(organism, tripEntity, groupChatEntity, userEntity, groupCampusName);
                     }
@@ -347,6 +415,9 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
         String organism = getArguments().getString("ORGANISM_TRIP");
         String sharedInNotUpdated = getArguments().getString("CAMPUS");
         String created_by = getArguments().getString("CREATED_BY");
+        String modeTripUpdated = getArguments().getString("MODE_TRIP");
+        String numberPlacesNotUpdated = getArguments().getString("NB_PLACES");
+
         mFirestore = FirebaseFirestore.getInstance();
 
         mFirestore.collection(organism_trip).document("AllCampus").collection("AllTrips").document(id_Trip)
@@ -356,7 +427,8 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                 Date dateNotUpdated = documentSnapshot.getDate("date");
                 String addFrom = etAddFromDestination.getText().toString();
                 String toFrom = etAddToDestination.getText().toString();
-
+                String numberOfPlaces = etNumber.getText().toString();
+                numberPlaces = numberOfPlaces;
                 Map<String, Object> hashMapTrip = new HashMap<>();
                 if (date != null) {
                     hashMapTrip.put("date", date);
@@ -368,6 +440,18 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
                 hashMapTrip.put("organism", organism);
                 hashMapTrip.put("createdBy", created_by);
 
+                if(!modeTripUpdated.equals(modeTrip)) {
+                    hashMapTrip.put("modeTrip", modeTrip);
+                } else {
+                    hashMapTrip.put("modeTrip", modeTripUpdated);
+                }
+                hashMapTrip.put("modeTrip", modeTrip);
+                if(modeTrip.equals("walking")){
+                    hashMapTrip.put("numberPlaces", null);
+                } else {
+                    hashMapTrip.put("numberPlaces", numberPlaces);
+                }
+
                 if (!viewModel.getParticipant().getValue().equals("")) {
                     hashMapTrip.put("sharedIn", viewModel.getParticipant().getValue());
                 } else {
@@ -376,16 +460,18 @@ private void showDialogFordelete(String organism_trip, String id, String userId)
 
                 Map<String, Object> hashMapGroup = new HashMap<>();
                 hashMapGroup.put("title", addFrom);
-                Date today = new Date();
-                long diff = date.getTime() - today.getTime();
-                diff = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
 
-                if(diff < 0) {
-                    Toast.makeText(getActivity(), R.string.enter_upcoming_date, Toast.LENGTH_LONG).show();
-                    return;
-                }
                 if (date != null) {
                     hashMapGroup.put("date", date);
+                    Calendar calendar = Calendar.getInstance();
+                    Date today = calendar.getTime();
+                    long diff = date.getTime() - today.getTime();
+                    diff = TimeUnit.DAYS.convert(diff, TimeUnit.MILLISECONDS);
+                    if(diff < 0) {
+                        Toast.makeText(getActivity(), R.string.enter_upcoming_date, Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
                 }else {
                     hashMapGroup.put("date", dateNotUpdated);
                 }

@@ -45,7 +45,6 @@ public class SignUpFragment extends Fragment {
     SignUpViewModel viewModel;
     RelativeLayout relativeLayoutSignUp;
     FirebaseAuth mFirebaseAuth;
-    UserEntity userEntityA = new UserEntity();
     ProgressBar progressBarSign;
     CheckBox acceptCGU;
     CheckBox acceptPolicy;
@@ -116,10 +115,13 @@ public class SignUpFragment extends Fragment {
         String email = etEmail.getText().toString();
         String password = etPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
-     /*  if(!email.contains("@tbs-education")) {
+        //TODO enlever hotmail, gmail..
+       if(!email.contains("@tbs-education") || !email.contains("@hotmail.fr")
+               || !email.contains("@gmail.com") || !email.contains("@bigsis.fr")) {
             Snackbar.make(relativeLayoutSignUp, "Vous devez vous inscrire avec l'adresse e-mail de votre campus", Snackbar.LENGTH_LONG)
                     .show();
-        }*/
+            return;
+        }
         if ((!acceptCGU.isChecked()) || (!acceptPolicy.isChecked())) {
             Snackbar.make(relativeLayoutSignUp, getString(R.string.required_fields), Snackbar.LENGTH_LONG)
                     .show();
@@ -155,7 +157,9 @@ public class SignUpFragment extends Fragment {
                                         FirebaseFirestore db = FirebaseFirestore.getInstance();
                                         String user_id = mFirebaseAuth.getCurrentUser().getUid();
                                         String organism = "";
-                                        if (email.contains("@tbs-education") || email.contains("@hotmail.fr") || email.contains("@gmail.com") || email.contains("@bigsis.fr")) {
+                                        if (email.contains("@tbs-education") || email.contains("@hotmail.fr")
+                                                || email.contains("@gmail.com")
+                                                || email.contains("@bigsis.fr") || email.contains("@waxym.com")) {
                                             organism = "TBS";
                                             userEntity.setOrganism(organism);
                                         }

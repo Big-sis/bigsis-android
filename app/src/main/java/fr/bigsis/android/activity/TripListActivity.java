@@ -24,20 +24,15 @@ import com.firebase.ui.firestore.paging.FirestorePagingOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
-import java.util.TimeZone;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -54,6 +49,7 @@ import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.SearchMenuViewModel;
 
 import static fr.bigsis.android.helpers.FirestoreHelper.deleteTrip;
+import static fr.bigsis.android.helpers.FirestoreHelper.deleteTripFromCampus;
 
 
 public class TripListActivity extends BigsisActivity implements SearchMenuFragment.OnFragmentInteractionListener, AddTripFragment.OnFragmentInteractionListener,
@@ -225,8 +221,6 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String nameCampus = documentSnapshot.getString("groupCampus");
                         String organism = documentSnapshot.getString("organism");
-
-//In which you need put here
                         SimpleDateFormat dateFormat = new SimpleDateFormat("E MMM", Locale.ENGLISH);
                         String dateViewModel = dateFormat.format(date);
 
@@ -238,7 +232,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                                 .orderBy("dateToString")
                                 .startAt(dateViewModel)
                                 .endAt(dateViewModel + "\uf8ff");
-                              //  .whereGreaterThan("dateToString", dateViewModel);
+                        //  .whereGreaterThan("dateToString", dateViewModel);
 
                         PagedList.Config config = new PagedList.Config.Builder()
                                 .setEnablePlaceholders(false)
@@ -249,13 +243,13 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                                 .setLifecycleOwner(TripListActivity.this)
                                 .setQuery(query, config, TripEntity.class)
                                 .build();
-                        TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd);
+                        TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd, TripListActivity.this);
                         mRecycler.setLayoutManager(new LinearLayoutManager(TripListActivity.this));
                         mRecycler.setAdapter(adapter);
                         FragmentManager manager = getSupportFragmentManager();
                         FragmentTransaction ft = manager.beginTransaction();
                         Fragment searchMenu = manager.findFragmentByTag("SEARCH_MENU_FRAGMENT");
-                        if(searchMenu != null) {
+                        if (searchMenu != null) {
                             ft.remove(searchMenu).commitAllowingStateLoss();
                         }
                         imBtCancel.setVisibility(View.GONE);
@@ -271,39 +265,39 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
                 });
             }
         });
-            mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                @Override
-                public void onSuccess(DocumentSnapshot documentSnapshot) {
-                    String nameCampus = documentSnapshot.getString("groupCampus");
-                    String organism = documentSnapshot.getString("organism");
-                    PagedList.Config config = new PagedList.Config.Builder()
-                            .setEnablePlaceholders(false)
-                            .setPrefetchDistance(10)
-                            .setPageSize(20)
-                            .build();
-                    deleteTrip(organism, nameCampus);
-                    Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus")
-                            .collection("AllCampus").document(nameCampus)
-                            .collection("Trips").orderBy("date");
-                    FirestorePagingOptions<TripEntity> options = new FirestorePagingOptions.Builder<TripEntity>()
-                            .setLifecycleOwner(TripListActivity.this)
-                            .setQuery(query, config, TripEntity.class)
-                            .build();
+        mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String nameCampus = documentSnapshot.getString("groupCampus");
+                String organism = documentSnapshot.getString("organism");
+                PagedList.Config config = new PagedList.Config.Builder()
+                        .setEnablePlaceholders(false)
+                        .setPrefetchDistance(10)
+                        .setPageSize(20)
+                        .build();
+                deleteTrip(organism, nameCampus);
+                deleteTripFromCampus(organism, nameCampus);
+                Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus")
+                        .collection("AllCampus").document(nameCampus)
+                        .collection("Trips").orderBy("date");
+                FirestorePagingOptions<TripEntity> options = new FirestorePagingOptions.Builder<TripEntity>()
+                        .setLifecycleOwner(TripListActivity.this)
+                        .setQuery(query, config, TripEntity.class)
+                        .build();
 
-                    TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd);
+                TripListAdapter adapter = new TripListAdapter(options, TripListActivity.this, mSwipeRefreshLayout, nameCampus, organism, fragmentAdd, TripListActivity.this);
 
-                    mRecycler.setLayoutManager(new LinearLayoutManager(TripListActivity.this));
-                    mRecycler.setAdapter(adapter);
-                    mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                        @Override
-                        public void onRefresh() {
-                            adapter.refresh();
-                        }
-                    });
-                }
-            });
-}
-
+                mRecycler.setLayoutManager(new LinearLayoutManager(TripListActivity.this));
+                mRecycler.setAdapter(adapter);
+                mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        adapter.refresh();
+                    }
+                });
+            }
+        });
+    }
 
     @Override
     public void onBackPressed() {

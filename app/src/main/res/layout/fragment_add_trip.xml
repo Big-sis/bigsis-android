@@ -43,8 +43,10 @@
                 android:layout_marginStart="50dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginEnd="50dp"
-                android:textSize="18sp"
+                android:background="@drawable/custom_tv_add"
                 android:hint="@string/add_departure"
+                android:padding="10dp"
+                android:textStyle="italic"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -54,10 +56,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50dp"
-                android:layout_marginTop="24dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="50dp"
+                android:background="@drawable/custom_tv_add"
                 android:hint="@string/add_destination"
-                android:textSize="18sp"
+                android:padding="10dp"
+                android:textStyle="italic"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/etAddFromDestination" />
@@ -67,32 +71,15 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginEnd="50dp"
                 android:drawableEnd="@drawable/ic_open"
                 android:text="@string/select_participants"
+                android:textColor="@color/colorPrimaryDark"
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tvDateTripAdd" />
-
-            <Button
-                android:id="@+id/btCreateTrip"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="24dp"
-                android:background="@drawable/rounded_button"
-                android:gravity="center"
-                android:minHeight="30dp"
-                android:paddingLeft="70dp"
-                android:paddingRight="70dp"
-                android:text="@string/create"
-                android:textColor="@color/colorWhite"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tvGroupCampusTrip" />
 
             <ImageButton
                 android:id="@+id/imgBtDelete"
@@ -109,19 +96,114 @@
                 app:layout_constraintTop_toBottomOf="@+id/btCreateTrip" />
 
             <TextView
-                android:id="@+id/tvDateTripAdd"
+                android:id="@+id/goTripAdd"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50dp"
-                android:layout_marginTop="24dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:gravity="start"
-                android:text="@string/date"
+                android:layout_marginTop="20dp"
+                android:text="@string/goTrip"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="15sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/etAddToDestination" />
+
+            <TextView
+                android:id="@+id/tvDateTripAdd"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="20dp"
+                android:paddingStart="20dp"
+                android:paddingEnd="20dp"
+                android:gravity="start"
+                android:text="@string/date"
+                android:textSize="15sp"
+                android:textStyle="italic"
+                app:layout_constraintStart_toEndOf="@+id/goTripAdd"
+                app:layout_constraintTop_toBottomOf="@+id/etAddToDestination" />
+
+            <LinearLayout
+                android:id="@+id/linearLayoutModeTrip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvGroupCampusTrip">
+
+                <TextView
+                    android:id="@+id/tripMode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="50dp"
+                    android:text="@string/tripAdd"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:textSize="15sp" />
+
+                <ImageButton
+                    android:id="@+id/imageBtWalker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_walker_selected" />
+
+                <ImageButton
+                    android:id="@+id/imageBtCar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="20dp"
+                    android:background="@android:color/transparent"
+                    android:src="@drawable/ic_car" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/linearLayoutNumberPlaces"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginStart="50dp"
+                android:visibility="gone"
+                android:layout_marginTop="20dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayoutModeTrip">
+            <TextView
+                android:id="@+id/numberOfPlacesTrip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/number_of_places"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="15sp" />
+
+            <EditText
+                android:id="@+id/etNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:inputType="number"
+                android:hint="@string/___"
+                android:textColorHint="@color/colorPrimaryDark"
+                android:textSize="15sp" />
+            </LinearLayout>
+            <Button
+                android:id="@+id/btCreateTrip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="24dp"
+                android:background="@drawable/rounded_button"
+                android:gravity="center"
+                android:minHeight="30dp"
+                android:paddingLeft="70dp"
+                android:paddingRight="70dp"
+                android:text="@string/create"
+                android:textColor="@color/colorWhite"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayoutNumberPlaces" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

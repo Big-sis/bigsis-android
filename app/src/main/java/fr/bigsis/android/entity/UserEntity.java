@@ -34,17 +34,14 @@ public class UserEntity {
     }
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname,
-                      String lastname, boolean creator,
-                      boolean isAdmin, boolean isOnline, String userId) {
+                      String lastname,
+                      boolean isAdmin) {
         this.username = username;
         this.description = description;
         this.imageProfileUrl = imageProfileUrl;
         this.firstname = firstname;
         this.lastname = lastname;
-        this.creator = creator;
         this.isAdmin = isAdmin;
-        this.isOnline = isOnline;
-        this.userId = userId;
     }
 
     public UserEntity(String username, String description, String imageProfileUrl, String firstname,
