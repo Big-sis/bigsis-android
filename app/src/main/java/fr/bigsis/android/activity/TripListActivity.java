@@ -92,6 +92,7 @@ public class TripListActivity extends BigsisActivity implements SearchMenuFragme
         mFirestore = FirebaseFirestore.getInstance();
         mItemsCollection = mFirestore.collection("trips");
         btMap = findViewById(R.id.imageBtMap);
+        btMap.bringToFront();
         btMap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

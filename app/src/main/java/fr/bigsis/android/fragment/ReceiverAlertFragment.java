@@ -156,11 +156,10 @@ public class ReceiverAlertFragment extends Fragment {
                         .set(alertEntity).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-
                         String idGroupChat = "Alert" + eventId;
                         Calendar calendar = Calendar.getInstance();
                         Date date = calendar.getTime();
-                        GroupChatEntity groupChatEntity = new GroupChatEntity("Alerte", null, date , organism);
+                        GroupChatEntity groupChatEntity = new GroupChatEntity("Alerte", null, date , organism, userId);
                         mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
                                 .document(idGroupChat).set(groupChatEntity);
 
@@ -191,8 +190,6 @@ public class ReceiverAlertFragment extends Fragment {
         String eventId = getArguments().getString("eventId");
             FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
             rvProgressBar.setVisibility(View.VISIBLE);
-
-
             mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
                 public void onSuccess(DocumentSnapshot documentSnapshot) {

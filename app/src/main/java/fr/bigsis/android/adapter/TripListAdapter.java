@@ -58,6 +58,7 @@ import fr.bigsis.android.fragment.AddTripFragment;
 import fr.bigsis.android.helpers.FirestoreDBHelper;
 import timber.log.Timber;
 
+import static fr.bigsis.android.helpers.FirestoreDBHelper.setParticipantToCampus;
 import static fr.bigsis.android.helpers.MapHelper.findRouteDriving;
 import static fr.bigsis.android.helpers.MapHelper.findRouteWalking;
 
@@ -97,11 +98,7 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         mFirestore = FirebaseFirestore.getInstance();
-        DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
-                .document(nameCampus).collection("Trips")
-                .document(idTrip)
-                .collection("Participants")
-                .document(mCurrentUserId);
+
         //Check if creator or not and modify button
         mFirestore.collection(organism).document("AllCampus").collection("AllTrips")
                 .document(idTrip).collection("Creator").document(mCurrentUserId).get()
@@ -143,7 +140,13 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                         }
                     }
                 });
+        String idd = idTrip;
         //Check if user is participating to a trip or not , and keep the button in the right color
+        DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus").collection("AllCampus")
+                .document(nameCampus).collection("Trips")
+                .document(idTrip)
+                .collection("Participants")
+                .document(mCurrentUserId);
         documentReference.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -151,12 +154,9 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                     DocumentSnapshot document = task.getResult();
                     Boolean creator = document.getBoolean("creator");
                     if (document.exists() && !creator) {
-                        i = 1;
-                        holder.btParticipate.setSelected(true);
-                        holder.btParticipate.setText(R.string.dont_participate);
+                        holder.btUnparticipate.setVisibility(View.VISIBLE);
+                        holder.btParticipate.setVisibility(View.GONE);
                     }
-                } else {
-                    Toast.makeText(mContext, task.getException().toString(), Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -165,9 +165,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
             @Override
             public void onClick(View v) {
                 //partcipate to a trip
-                if (i == 0) {
-                    holder.btParticipate.setSelected(true);
-                    holder.btParticipate.setText(R.string.dont_participate);
+                    holder.btUnparticipate.setVisibility(View.VISIBLE);
+                    holder.btParticipate.setVisibility(View.GONE);
 
                     mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                         @Override
@@ -194,22 +193,27 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
                             double lng = item.getLngDestination();
                             //TripEntity tripEntity = new TripEntity(from, to, date, createdBy, sharedIn, organismTrip, lat, lng, date.toString());
                             String titleTrip = from + " ... " + to;
+                            setParticipantToCampus(organism, sharedIn, "Trips", idTrip, mCurrentUserId, userEntity);
+
                             GroupChatEntity groupChatEntity = new GroupChatEntity(titleTrip, null, date, null, organism, sharedIn);
                             FirestoreDBHelper.setData("USERS", mCurrentUserId, "ChatGroup", idTrip, groupChatEntity);
                         }
                     });
-                    i++;
-                    //unparticipate
-                } else if (i == 1 || holder.btParticipate.isSelected()) {
-                    holder.btParticipate.setSelected(false);
-                    holder.btParticipate.setText("Participer");
-                    FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllTrips", idTrip, mCurrentUserId);
-                    FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllChatGroups", idTrip, mCurrentUserId);
-                    FirestoreDBHelper.deleteFromdb("USERS", mCurrentUserId, "ChatGroup", idTrip);
-                    i = 0;
-                }
             }
         });
+        holder.btUnparticipate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+             holder.btUnparticipate.setVisibility(View.GONE);
+             holder.btParticipate.setVisibility(View.VISIBLE);
+                FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllTrips", idTrip, mCurrentUserId);
+                FirestoreDBHelper.deleteParticipantFromDatab(organism, "AllChatGroups", idTrip, mCurrentUserId);
+                FirestoreDBHelper.deleteFromdb("USERS", mCurrentUserId, "ChatGroup", idTrip);
+                i = 0;
+            }
+        });
+
+
         holder.btItinerary.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -458,6 +462,8 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
         TextView mTextDate;
         @BindView(R.id.btParticipate)
         Button btParticipate;
+        @BindView(R.id.btUnparticipate)
+        Button btUnparticipate;
         @BindView(R.id.btItinerary)
         Button btItinerary;
         @BindView(R.id.profile_image_one)

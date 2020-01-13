@@ -9,8 +9,6 @@ public class Constant {
     public static final int REQUEST_CODE_TO_AUTOCOMPLETE = 2;
     public static final int REQUEST_CODE_ADRESS_AUTOCOMPLETE = 1;
     public static final int REQUEST_CODE_ITINERARY_AUTOCOMPLETE = 1;
-    public static String uniqueStyleUrl = "mapbox://styles/alexdecrozals/ck5c8l9ym0ylo1dpd5qpbjofa/draft";
-
-
+    public static String uniqueStyleUrl = "mapbox://styles/alexdecrozals/ck5c8l9ym0ylo1dpd5qpbjofa";
 }
 

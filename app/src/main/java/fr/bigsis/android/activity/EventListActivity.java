@@ -72,7 +72,6 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
         FirestoreHelper.compareForParticipants("AllEvents", "Creator");
         FirestoreHelper.compareForParticipants("AllEvents", "StaffMembers");
 
-
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setSelectedItemId(R.id.action_events);
@@ -107,27 +106,36 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
         imBtCancel = transitionContainer.findViewById(R.id.imBt_cancel_frag);
         tvTitleToolbar = transitionContainer.findViewById(R.id.tvTitleToolbar);
         tvTitleToolbar.setText(R.string.events);
-        imBtAdd.setVisibility(View.VISIBLE);
         FragmentManager manager = getSupportFragmentManager();
 
         if(chooseUsersFragment.isAdded()){
             imBt_ic_back_frag.setVisibility(View.VISIBLE);
         }
-        imBtAdd.setOnClickListener(new View.OnClickListener() {
+
+        mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onClick(View view) {
-                openFragmentAddEvent();
-                imBtAdd.setVisibility(View.GONE);
-                imBtCancel.setVisibility(View.VISIBLE);
-                tvTitleToolbar.setText(R.string.create_event);
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                boolean isAdmin = documentSnapshot.getBoolean("admin");
+                if(isAdmin == true) {
+                    imBtAdd.setVisibility(View.VISIBLE);
+                    imBtAdd.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            openFragmentAddEvent();
+                            imBtAdd.setVisibility(View.GONE);
+                            imBtCancel.setVisibility(View.VISIBLE);
+                            tvTitleToolbar.setText(R.string.create_event);
+                        }
+                    });
+                }
             }
         });
+
 
         imBtCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 imBtCancel.setVisibility(View.GONE);
-                imBtAdd.setVisibility(View.VISIBLE);
                 FragmentTransaction ft = manager.beginTransaction();
                 Fragment addFrag = manager.findFragmentByTag("ADD_EVENT_FRAGMENT");
                 ft.remove(fragmentAdd).commitAllowingStateLoss();
@@ -140,6 +148,8 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
                 KeyboardHelper.CloseKeyboard(EventListActivity.this, view);
             }
         });
+
+
     }
 
     private void openFragmentAddEvent() {

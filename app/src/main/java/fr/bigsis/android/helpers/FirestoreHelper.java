@@ -479,7 +479,9 @@ public class FirestoreHelper {
                         cal.add(Calendar.HOUR_OF_DAY, 1);
                         Date dateOfDelete = cal.getTime();
 
-                        if (dateTrip.after(dateOfDelete)) {
+                        Calendar calendar = Calendar.getInstance();
+                        Date today = calendar.getTime();
+                        if (dateOfDelete.before(today)) {
                             String id = document.getId();
                             DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
                                     .collection("AllTrips").document(id);
@@ -553,7 +555,10 @@ public class FirestoreHelper {
                         cal.add(Calendar.HOUR_OF_DAY, 1);
                         Date dateOfDelete = cal.getTime();
 
-                        if (dateTrip.after(dateOfDelete)) {
+
+                        Calendar calendar = Calendar.getInstance();
+                        Date today = calendar.getTime();
+                        if (dateOfDelete.before(today)) {
                             String id = document.getId();
                             DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
                                     .collection("AllEvents").document(id);
@@ -677,7 +682,10 @@ public class FirestoreHelper {
                         cal.setTime(dateTrip);
                         cal.add(Calendar.HOUR_OF_DAY, 1);
                         Date dateOfDelete = cal.getTime();
-                        if (dateTrip.after(dateOfDelete)) {
+
+                        Calendar calendar = Calendar.getInstance();
+                        Date today = calendar.getTime();
+                        if (dateOfDelete.before(today)) {
                             String id = document.getId();
                             DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
                                     .collection("AllCampus").document(campusName).collection("Trips").document(id);
@@ -751,7 +759,10 @@ public class FirestoreHelper {
                         cal.setTime(dateEnd);
                         cal.add(Calendar.HOUR_OF_DAY, 1);
                         Date dateOfDelete = cal.getTime();
-                        if (dateEnd.after(dateOfDelete)) {
+
+                        Calendar calendar = Calendar.getInstance();
+                        Date today = calendar.getTime();
+                        if (dateOfDelete.before(today)) {
                             String id = document.getId();
                             mFirestore.collection("USERS").document(userId).collection("ParticipateToEvents").document(id).delete();
                             DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")

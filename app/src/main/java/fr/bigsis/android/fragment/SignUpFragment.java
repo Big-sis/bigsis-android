@@ -145,7 +145,7 @@ public class SignUpFragment extends Fragment {
                                         String organism = "";
                                         if (email.contains("@tbs-education") || email.contains("@hotmail.fr")
                                                 || email.contains("@gmail.com")
-                                                || email.contains("@bigsis.fr") || email.contains("@waxym.com")) {
+                                                || email.contains("@bigsis.fr") || email.contains("@waxym.com") || email.contains("@yahoo")) {
                                             organism = "TBS";
                                             userEntity.setOrganism(organism);
                                         }
@@ -171,7 +171,6 @@ public class SignUpFragment extends Fragment {
                                                                     startActivity(new Intent(getActivity(), MainActivity.class));
                                                                 }
                                                             });
-
                                                         } else {
                                                             progressBarSign.setVisibility(View.GONE);
                                                             Snackbar.make(relativeLayoutSignUp, task.getException().getMessage(), Snackbar.LENGTH_SHORT)

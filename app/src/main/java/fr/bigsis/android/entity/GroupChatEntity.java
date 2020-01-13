@@ -23,11 +23,12 @@ public class GroupChatEntity {
         this.sharedIn = sharedIn;
     }
 
-    public GroupChatEntity(String title, String lastMessage, Date date, String organism) {
+    public GroupChatEntity(String title, String lastMessage, Date date, String organism, String idGroup) {
         this.title = title;
         this.date = date;
         this.lastMessage = lastMessage;
         this.organism = organism;
+        this.idGroup = idGroup;
     }
 
     public String getTitle() {

@@ -19,7 +19,7 @@
         app:showAsAction="ifRoom"/>
     <item
         android:id="@+id/action_map"
-        android:enabled="true"
+        android:enabled="false"
         android:title="@null"
         app:showAsAction="ifRoom"/>
     <item

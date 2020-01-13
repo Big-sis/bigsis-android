@@ -586,10 +586,8 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                                 .build();
 
                 locationComponent.activateLocationComponent(locationComponentActivationOptions);
-
                 locationComponent.setLocationComponentEnabled(true);
                 // Set the component's camera mode
-
                 locationComponent.setCameraMode(CameraMode.TRACKING);
                 alertLocateViewModel = ViewModelProviders.of(MapsActivity.this).get(AlertLocateViewModel.class);
 

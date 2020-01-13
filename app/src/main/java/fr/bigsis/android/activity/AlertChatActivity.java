@@ -1,10 +1,5 @@
 package fr.bigsis.android.activity;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -21,14 +16,21 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -41,7 +43,6 @@ import java.util.TimeZone;
 import de.hdodenhof.circleimageview.CircleImageView;
 import fr.bigsis.android.R;
 import fr.bigsis.android.adapter.AlertChatAdapter;
-import fr.bigsis.android.adapter.ChatAdapter;
 import fr.bigsis.android.entity.ChatEntity;
 import fr.bigsis.android.helpers.FirestoreHelper;
 
@@ -61,6 +62,8 @@ public class AlertChatActivity extends BigsisActivity {
     private ImageButton send, addImage, imBt_participant;
     private LinearLayout frameLayoutContainerAlert;
     private AlertChatAdapter adapter;
+    private ImageButton imBt_ic_validate;
+
 
 
     @Override
@@ -87,7 +90,7 @@ public class AlertChatActivity extends BigsisActivity {
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestPermissions(new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
+                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_PERMISSION_CODE);
             }
         });
         mStroageReference = FirebaseStorage.getInstance().getReference("images");
@@ -100,20 +103,21 @@ public class AlertChatActivity extends BigsisActivity {
                 if (message.getText().toString().isEmpty()) {
                     Toast.makeText(AlertChatActivity.this, "erreur", Toast.LENGTH_SHORT).show();
                 } else {
-                    if(alert != null) {
+                    if (alert != null) {
                         addMessageToChatRoomFromAlert();
                     } else if (chatgroup != null) {
                         addMessage();
-                    }                }
+                    }
+                }
             }
         });
-        if(alert != null) {
+        if (alert != null) {
             showMessageFromALert();
         } else if (chatgroup != null) {
             showMessageFromGroup();
         }
         setToolBar();
-
+        checkIfStaffMember();
     }
 
     private void addMessage() {
@@ -142,7 +146,7 @@ public class AlertChatActivity extends BigsisActivity {
                         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
                         Date dateTime = new Date(System.currentTimeMillis());
                         ChatEntity chat = new ChatEntity(idGroupChat, chatId, mCurrentUserId, username, chatMessage,
-                                avatar, dateTime,"", organism, false);
+                                avatar, dateTime, "", organism, false);
 
 
                         mFirestore.collection(organism)
@@ -182,7 +186,7 @@ public class AlertChatActivity extends BigsisActivity {
                         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
                         Date dateTime = new Date(System.currentTimeMillis());
                         ChatEntity chat = new ChatEntity(idGroupChat, chatId, mCurrentUserId, username, chatMessage,
-                                avatar, dateTime,"", organism, false);
+                                avatar, dateTime, "", organism, false);
 
 
                         mFirestore.collection(organism)
@@ -197,7 +201,7 @@ public class AlertChatActivity extends BigsisActivity {
     }
 
 
-    private void showMessageFromGroup(){
+    private void showMessageFromGroup() {
         Intent iin = getIntent();
         Bundle extras = iin.getExtras();
         String idGroup = extras.getString("ID_GROUP");
@@ -235,8 +239,18 @@ public class AlertChatActivity extends BigsisActivity {
                 }
             }
         });
+        transitionContainer = findViewById(R.id.toolbarLayoutChatRoom);
+        imBt_ic_validate = transitionContainer.findViewById(R.id.imBt_ic_validate);
+
+        imBt_ic_validate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteAlertFromGroup(organismAlert, idGroup);
+            }
+        });
 
     }
+
     private void showMessageFromALert() {
         Intent iin = getIntent();
         Bundle extras = iin.getExtras();
@@ -255,7 +269,7 @@ public class AlertChatActivity extends BigsisActivity {
         FirestoreRecyclerOptions<ChatEntity> options = new FirestoreRecyclerOptions.Builder<ChatEntity>()
                 .setQuery(query, ChatEntity.class)
                 .build();
-         adapter = new AlertChatAdapter(options, AlertChatActivity.this, mCurrentUserId);
+        adapter = new AlertChatAdapter(options, AlertChatActivity.this, mCurrentUserId);
         RecyclerView recyclerView = findViewById(R.id.chatAlert);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.VERTICAL, false);
@@ -274,14 +288,23 @@ public class AlertChatActivity extends BigsisActivity {
                 }
             }
         });
+        transitionContainer = findViewById(R.id.toolbarLayoutChatRoom);
+        imBt_ic_validate = transitionContainer.findViewById(R.id.imBt_ic_validate);
+
+        imBt_ic_validate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deleteAlert(organismAlert, userIdAlert);
+            }
+        });
     }
 
     private void setToolBar() {
         transitionContainer = findViewById(R.id.toolbarLayoutChatRoom);
-        transitionContainer.setBackground(getDrawable(R.drawable.gradient));
+        transitionContainer.setBackground(getDrawable(R.drawable.gradient_red));
         imgBtBack = transitionContainer.findViewById(R.id.imBt_ic_back_frag);
         tvTitleToolbar = transitionContainer.findViewById(R.id.tvTitleToolbar);
-        tvTitleToolbar.setText("Alert");
+        tvTitleToolbar.setText(R.string.Alert);
         imgBtBack.setVisibility(View.VISIBLE);
         imgBtBack.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -290,14 +313,115 @@ public class AlertChatActivity extends BigsisActivity {
             }
         });
     }
+
+    private void checkIfStaffMember() {
+        mFirestore.collection("USERS").document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String organism = documentSnapshot.getString("organism");
+                CollectionReference collectionReference = mFirestore.collection(organism).document("AllCampus").collection("AllEvents");
+                collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String eventId = document.getId();
+                                CollectionReference collectionReferenceAlert = collectionReference.document(eventId).collection("Alert");
+                                collectionReferenceAlert.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                String idALert = document.getId();
+                                                collectionReferenceAlert.document(idALert).collection("StaffOnGoing")
+                                                        .document(mCurrentUserId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        if(documentSnapshot.exists()) {
+                                                            transitionContainer = findViewById(R.id.toolbarLayoutChatRoom);
+                                                            imBt_ic_validate = transitionContainer.findViewById(R.id.imBt_ic_validate);
+                                                            imBt_ic_validate.setVisibility(View.VISIBLE);
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                            }
+                                    }
+                                });
+
+                            }
+                        }
+                    }
+
+                });
+            }
+        });
+    }
+
+    private void deleteAlert(String organism, String idUser) {
+
+                                mFirestore.collection(organism).document("AllCampus")
+                                        .collection("AllEvents").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.isSuccessful()) {
+                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idEvent = document.getId();
+                                                mFirestore.collection(organism).document("AllCampus")
+                                                        .collection("AllEvents").document(idEvent).collection("Alert").document(idUser)
+                                                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        if(documentSnapshot.exists()) {
+
+                                                mFirestore.collection(organism).document("AllCampus")
+                                                        .collection("AllEvents").document(idEvent).collection("Alert").document(idUser)
+                                                        .collection("StaffOnGoing").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                    @Override
+                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                        if (task.isSuccessful()) {
+                                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                String idDoc = document.getId();
+                                                                mFirestore.collection(organism).document("AllCampus")
+                                                                        .collection("AllEvents").document(idEvent)
+                                                                        .collection("Alert").document(idUser)
+                                                                        .collection("StaffOnGoing").document(idDoc).delete();
+                                                                mFirestore.collection(organism).document("AllCampus")
+                                                                        .collection("AllEvents").document(idEvent)
+                                                                        .collection("Alert").document(idUser).delete();
+                                                            }
+                                                        }
+                                                    }
+                                                });
+                                                        }
+                                                    }
+                                                });
+
+                                            }
+                                        }
+                                    }
+                                });
+
+
+    }
+
+    private void deleteAlertFromGroup(String organism, String groupId) {
+        mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                .document(groupId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String idUser = documentSnapshot.getString("idGroup");
+                deleteAlert(organism, idUser);
+            }
+        });
+
+    }
     private void openChatAlert() {
         Intent iin = getIntent();
         Bundle extras = iin.getExtras();
         alert = extras.getString("alert");
         organismAlert = extras.getString("organismAlert");
         userIdAlert = extras.getString("userIdAlert");
-
-
     }
 
 
@@ -335,6 +459,7 @@ public class AlertChatActivity extends BigsisActivity {
 
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == STORAGE_PERMISSION_CODE) {
@@ -351,7 +476,7 @@ public class AlertChatActivity extends BigsisActivity {
     }
 
     private void setImageUser() {
-        Intent intent = new Intent(Intent.ACTION_PICK,android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         startActivityForResult(intent, 2);
     }
 
@@ -383,7 +508,7 @@ public class AlertChatActivity extends BigsisActivity {
                                         dateFormat.setTimeZone(TimeZone.getTimeZone("Europe/Paris"));
                                         Date dateTime = new Date(System.currentTimeMillis());
                                         ChatEntity chat = new ChatEntity(idGroupChat, chatId, mCurrentUserId, username, "",
-                                                avatar, dateTime, link,organism, false);
+                                                avatar, dateTime, link, organism, false);
                                         FirestoreHelper.addChat(organism, idGroupChat, chat);
 
                                     }

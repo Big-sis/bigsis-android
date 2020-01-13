@@ -150,7 +150,7 @@
 
         <Button
             android:id="@+id/btItinerary"
-            android:layout_width="150dp"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/profile_image_three"
             android:layout_alignParentEnd="true"
@@ -166,7 +166,7 @@
 
         <Button
             android:id="@+id/btParticipate"
-            android:layout_width="150dp"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_below="@+id/btItinerary"
             android:layout_alignParentEnd="true"
@@ -180,6 +180,24 @@
             android:text="@string/participer"
             android:textAllCaps="false"
             android:textColor="@drawable/text_color_button" />
+
+        <Button
+            android:id="@+id/btUnparticipate"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btItinerary"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="80dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/custom_bt_unparticipate"
+            android:minHeight="20dp"
+            android:paddingLeft="35dp"
+            android:paddingRight="35dp"
+            android:visibility="gone"
+            android:text="@string/dont_participate"
+            android:textAllCaps="false"
+            android:textColor="@color/colorPrimary" />
 
         <View
             android:id="@+id/view"

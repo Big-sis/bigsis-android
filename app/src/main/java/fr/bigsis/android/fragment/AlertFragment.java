@@ -130,19 +130,19 @@ public class AlertFragment extends Fragment {
     }
 
     private void userParticipateToEvent () {
-        rvProgressBarALert.setVisibility(View.VISIBLE);
-
         DocumentReference documentReference = mFirestore.collection("USERS").document(mCurrentUserId);
                 documentReference.collection("ParticipateToEvents").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+                    rvProgressBarALert.setVisibility(View.VISIBLE);
                     for (QueryDocumentSnapshot document : task.getResult()) {
                         String eventId = document.getId();
                         String organism = document.getString("organism");
                         documentReference.collection("ParticipateToEvents").document(eventId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
+
                                 boolean alertAvailable = documentSnapshot.getBoolean("alertAvailable");
 
                                 String idAlertEvent = documentSnapshot.getId();
@@ -246,11 +246,13 @@ public class AlertFragment extends Fragment {
 
     private void checkIfAlertOnGoing() {
         rvProgressBarALert.setVisibility(View.VISIBLE);
+
         mFirestore.collection("USERS").document(mCurrentUserId).get()
                 .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot documentSnapshot) {
                         String organism = documentSnapshot.getString("organism");
+                        rvProgressBarALert.setVisibility(View.GONE);
 
                         mFirestore.collection(organism).document("AllCampus").collection("AllEvents")
                                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -258,6 +260,8 @@ public class AlertFragment extends Fragment {
                             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                                 if (task.isSuccessful()) {
                                     for (QueryDocumentSnapshot document : task.getResult()) {
+                                        rvProgressBarALert.setVisibility(View.VISIBLE);
+
                                         String id = document.getId();
                                         mFirestore.collection(organism).document("AllCampus")
                                                 .collection("AllEvents").document(id).collection("Alert")
@@ -265,17 +269,36 @@ public class AlertFragment extends Fragment {
                                             @Override
                                             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                                                 if (task.isSuccessful()) {
+                                                    rvProgressBarALert.setVisibility(View.GONE);
                                                     DocumentSnapshot document = task.getResult();
                                                     if(document.exists()) {
                                                         btDesableAlert.setVisibility(View.VISIBLE);
                                                         tvAlertOnGoing.setVisibility(View.VISIBLE);
                                                         viewAlert.setVisibility(View.VISIBLE);
                                                         btAlertStaff.setVisibility(View.GONE);
-                                                        rvProgressBarALert.setVisibility(View.GONE);
 
                                                         btDesableAlert.setOnClickListener(new View.OnClickListener() {
                                                             @Override
                                                             public void onClick(View v) {
+
+                                                                mFirestore.collection(organism).document("AllCampus")
+                                                                        .collection("AllEvents").document(id).collection("Alert")
+                                                                        .document(mCurrentUserId).collection("StaffOnGoing").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                        if (task.isSuccessful()) {
+                                                                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                                String idDoc = document.getId();
+                                                                                mFirestore.collection(organism).document("AllCampus")
+                                                                                        .collection("AllEvents").document(id).collection("Alert")
+                                                                                        .document(mCurrentUserId).collection("StaffOnGoing").document(idDoc).delete();
+                                                                            }
+                                                                            }
+                                                                    }
+                                                                }).addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                    @Override
+                                                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
                                                                 mFirestore.collection(organism).document("AllCampus")
                                                                         .collection("AllEvents").document(id).collection("Alert")
                                                                         .document(mCurrentUserId).delete().addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -292,6 +315,47 @@ public class AlertFragment extends Fragment {
                                                                         if (alert_fragment != null) {
                                                                             ft.remove(alert_fragment).commitAllowingStateLoss();
                                                                         }
+                                                                        String idAlerte = "Alert" + id;
+                                                                        mFirestore.collection("USERS").document(mCurrentUserId).collection("ChatGroup")
+                                                                                .document(idAlerte).delete();
+
+                                                                        mFirestore.collection("USERS").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                if (task.isSuccessful()) {
+                                                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                                        String idUsers = document.getId();
+                                                                                        mFirestore.collection("USERS").document(idUsers).collection("ChatGroup")
+                                                                                                .document(idAlerte).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                                                            @Override
+                                                                                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                                                                if(documentSnapshot.exists()){
+                                                                                                    mFirestore.collection("USERS").document(idUsers).collection("ChatGroup")
+                                                                                                            .document(idAlerte).delete();
+                                                                                                }
+                                                                                            }
+                                                                                        });
+                                                                                    }
+                                                                                    }
+                                                                            }
+                                                                        });
+                                                                        mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                                                                                .document(idAlerte).collection("Chats").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                                            @Override
+                                                                            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                                                if (task.isSuccessful()) {
+                                                                                    for (QueryDocumentSnapshot document : task.getResult()) {
+                                                                                        String idDoc = document.getId();
+                                                                                        mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                                                                                                .document(idAlerte).collection("Chats").document(idDoc).delete();
+                                                                                    }
+                                                                                    mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                                                                                            .document(idAlerte).delete();
+                                                                                    }
+                                                                            }
+                                                                        });
+                                                                    }
+                                                                });
                                                                     }
                                                                 });
                                                             }
@@ -304,8 +368,10 @@ public class AlertFragment extends Fragment {
                                     }
                             }
                         });
+
                     }
                 });
+
 
     }
 

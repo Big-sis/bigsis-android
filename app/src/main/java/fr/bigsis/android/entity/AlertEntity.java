@@ -18,7 +18,7 @@ public class AlertEntity {
     }
 
     public AlertEntity(double latitudeAlert, double longitudeAlert, String imageProfile, String lastname,
-                       String username, Date dateAlert, Date dateEndAlert) {
+                       String username, Date dateAlert, Date dateEndAlert ) {
         this.latitudeAlert = latitudeAlert;
         this.longitudeAlert = longitudeAlert;
         this.imageProfile = imageProfile;

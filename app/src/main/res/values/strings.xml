@@ -145,4 +145,5 @@
     <string name="minutes"> minutes</string>
     <string name="nobody">Personne n\'est en route</string>
     <string name="people">Personnes en route</string>
+    <string name="Alert">Situation sous contrôle?</string>
 </resources>
