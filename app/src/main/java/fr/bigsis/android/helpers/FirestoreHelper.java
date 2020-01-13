@@ -473,14 +473,18 @@ public class FirestoreHelper {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.add(Calendar.HOUR_OF_DAY, 1);
-                        Date today = calendar.getTime();
                         Date dateTrip = document.getDate("date");
-                        if (dateTrip.before(today)) {
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(dateTrip);
+                        cal.add(Calendar.HOUR_OF_DAY, 1);
+                        Date dateOfDelete = cal.getTime();
+
+                        if (dateTrip.after(dateOfDelete)) {
                             String id = document.getId();
                             DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
                                     .collection("AllTrips").document(id);
+                            DocumentReference docRefChatgroup = mFirestore.collection(organism).document("AllCampus")
+                                    .collection("AllChatGroups").document(id);
                             documentReference.collection("Participants").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -504,6 +508,30 @@ public class FirestoreHelper {
                                 }
                             });
                             documentReference.delete();
+
+                            docRefChatgroup.collection("Participants").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idParticipant = document.getId();
+                                            docRefChatgroup.collection("Participants").document(idParticipant).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.collection("Creator").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idCreator = document.getId();
+                                            docRefChatgroup.collection("Creator").document(idCreator).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.delete();
                         }
                     }
                 }
@@ -511,7 +539,7 @@ public class FirestoreHelper {
         });
     }
 
-    public static void deleteEvent(String organism) {
+    public static void deleteEvent(String organism, String mCurrentUserID) {
         FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
         mFirestore.collection(organism).document("AllCampus").collection("AllEvents")
                 .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -519,14 +547,20 @@ public class FirestoreHelper {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.add(Calendar.HOUR_OF_DAY, 1);
-                        Date today = calendar.getTime();
                         Date dateTrip = document.getDate("dateEnd");
-                        if (dateTrip.before(today)) {
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(dateTrip);
+                        cal.add(Calendar.HOUR_OF_DAY, 1);
+                        Date dateOfDelete = cal.getTime();
+
+                        if (dateTrip.after(dateOfDelete)) {
                             String id = document.getId();
                             DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
                                     .collection("AllEvents").document(id);
+                            mFirestore.collection("USERS").document(mCurrentUserID).collection("ParticipateToEvents").document(id).delete();
+                            DocumentReference docRefChatgroup = mFirestore.collection(organism).document("AllCampus")
+                                    .collection("AllChatGroups").document(id);
+
                             documentReference.collection("Participants").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -555,12 +589,71 @@ public class FirestoreHelper {
                                     if (task.isSuccessful()) {
                                         for (QueryDocumentSnapshot document : task.getResult()) {
                                             String idCreator = document.getId();
-                                            documentReference.collection("Creator").document(idCreator).delete();
+                                            documentReference.collection("StaffMembers").document(idCreator).delete();
                                         }
                                     }
                                 }
                             });
+                            documentReference.collection("Alert").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idAlert = document.getId();
+                                            documentReference.collection("Alert").document(idAlert).collection("StaffOnGoing")
+                                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.isSuccessful()) {
+                                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                                            String idStaff = document.getId();
+                                                            documentReference.collection("Alert").document(idAlert).collection("StaffOnGoing")
+                                                                    .document(idStaff).delete();
+                                                            documentReference.collection("Alert").document(idAlert).delete();
+                                                        }
+                                                        }
+                                                }
+                                            });
+                                        }
+                                        }
+                                }
+                            });
                             documentReference.delete();
+
+                            docRefChatgroup.collection("Participants").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idParticipant = document.getId();
+                                            docRefChatgroup.collection("Participants").document(idParticipant).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.collection("Creator").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idCreator = document.getId();
+                                            docRefChatgroup.collection("Creator").document(idCreator).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.collection("StaffMembers").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idCreator = document.getId();
+                                            docRefChatgroup.collection("StaffMembers").document(idCreator).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.delete();
                         }
                     }
                 }
@@ -575,15 +668,23 @@ public class FirestoreHelper {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
+
+
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.add(Calendar.HOUR_OF_DAY, 1);
-                        Date today = calendar.getTime();
+
                         Date dateTrip = document.getDate("date");
-                        if (dateTrip.before(today)) {
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(dateTrip);
+                        cal.add(Calendar.HOUR_OF_DAY, 1);
+                        Date dateOfDelete = cal.getTime();
+                        if (dateTrip.after(dateOfDelete)) {
                             String id = document.getId();
                             DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
                                     .collection("AllCampus").document(campusName).collection("Trips").document(id);
+
+                            DocumentReference docRefChatgroup = mFirestore.collection(organism).document("AllCampus")
+                                    .collection("AllCampus").document(campusName).collection("ChatGroup").document(id);
+
                             documentReference.collection("Participants").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
                                 @Override
                                 public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -607,6 +708,29 @@ public class FirestoreHelper {
                                 }
                             });
                             documentReference.delete();
+                            docRefChatgroup.collection("Participants").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idParticipant = document.getId();
+                                            docRefChatgroup.collection("Participants").document(idParticipant).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.collection("Creator").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idCreator = document.getId();
+                                            docRefChatgroup.collection("Creator").document(idCreator).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.delete();
                         }
                     }
                 }
@@ -622,11 +746,12 @@ public class FirestoreHelper {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     for (QueryDocumentSnapshot document : task.getResult()) {
-                        Calendar calendar = Calendar.getInstance();
-                        calendar.add(Calendar.HOUR_OF_DAY, 1);
-                        Date today = calendar.getTime();
                         Date dateEnd = document.getDate("dateEnd");
-                        if (dateEnd.before(today)) {
+                        Calendar cal = Calendar.getInstance();
+                        cal.setTime(dateEnd);
+                        cal.add(Calendar.HOUR_OF_DAY, 1);
+                        Date dateOfDelete = cal.getTime();
+                        if (dateEnd.after(dateOfDelete)) {
                             String id = document.getId();
                             mFirestore.collection("USERS").document(userId).collection("ParticipateToEvents").document(id).delete();
                             DocumentReference documentReference = mFirestore.collection(organism).document("AllCampus")
@@ -653,7 +778,55 @@ public class FirestoreHelper {
                                     }
                                 }
                             });
+                            documentReference.collection("StaffMembers").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idCreator = document.getId();
+                                            documentReference.collection("StaffMembers").document(idCreator).delete();
+                                        }
+                                    }
+                                }
+                            });
                             documentReference.delete();
+                            DocumentReference docRefChatgroup = mFirestore.collection(organism).document("AllCampus")
+                                    .collection("AllCampus").document(campusName).collection("ChatGroup").document(id);
+
+                            docRefChatgroup.collection("Participants").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idParticipant = document.getId();
+                                            documentReference.collection("Participants").document(idParticipant).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.collection("Creator").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idCreator = document.getId();
+                                            documentReference.collection("Creator").document(idCreator).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.collection("StaffMembers").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                    if (task.isSuccessful()) {
+                                        for (QueryDocumentSnapshot document : task.getResult()) {
+                                            String idCreator = document.getId();
+                                            docRefChatgroup.collection("StaffMembers").document(idCreator).delete();
+                                        }
+                                    }
+                                }
+                            });
+                            docRefChatgroup.delete();
                         }
                     }
                 }

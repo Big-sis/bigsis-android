@@ -23,6 +23,13 @@ public class GroupChatEntity {
         this.sharedIn = sharedIn;
     }
 
+    public GroupChatEntity(String title, String lastMessage, Date date, String organism) {
+        this.title = title;
+        this.date = date;
+        this.lastMessage = lastMessage;
+        this.organism = organism;
+    }
+
     public String getTitle() {
         return title;
     }

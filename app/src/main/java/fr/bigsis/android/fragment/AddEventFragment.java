@@ -365,10 +365,7 @@ public class AddEventFragment extends Fragment {
                         Date today = new Date();
                         long diffStart = dateStart.getTime() - today.getTime();
                         diffStart = TimeUnit.DAYS.convert(diffStart, TimeUnit.MILLISECONDS);
-                        if (dateStart == null) {
-                            Toast.makeText(getActivity(), R.string.enter_date_trip, Toast.LENGTH_LONG).show();
-                            return;
-                        }
+
                         if(diffStart < 0) {
                             Toast.makeText(getActivity(), R.string.enter_upcoming_date, Toast.LENGTH_LONG).show();
                             return;

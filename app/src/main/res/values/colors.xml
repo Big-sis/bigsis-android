@@ -9,4 +9,6 @@
     <color name="colorGreyLight">#F1F1F1</color>
     <color name="colorGreenLight">#D0EBDB</color>
     <color name="colorRedGradient">#FA36FF</color>
+    <color name="colorGreyTransparent">#806B6A6B</color>
+
 </resources>

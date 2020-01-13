@@ -71,6 +71,10 @@ public class UserEntity {
         this.organism = organism;
     }
 
+    public UserEntity(String username, String imageProfileUrl)  {
+        this.username = username;
+        this.imageProfileUrl = imageProfileUrl;
+    }
     public UserEntity() {
     }
 

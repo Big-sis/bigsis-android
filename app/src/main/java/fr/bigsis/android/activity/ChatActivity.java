@@ -76,6 +76,7 @@ public class ChatActivity extends BigsisActivity {
     private LinearLayout linearLayout;
     private String organism;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -151,6 +152,11 @@ public class ChatActivity extends BigsisActivity {
         setToolBar();
        // updateToken();
     }
+
+
+
+
+
 
     private void setToolBar() {
         transitionContainer = findViewById(R.id.toolbarLayoutChatRoom);

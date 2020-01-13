@@ -39,6 +39,7 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 import fr.bigsis.android.R;
+import fr.bigsis.android.activity.AlertChatActivity;
 import fr.bigsis.android.activity.ChatActivity;
 import fr.bigsis.android.activity.ParticipantsListActivity;
 import fr.bigsis.android.entity.GroupChatEntity;
@@ -56,6 +57,7 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
     public GroupConversationAdapter(@NonNull FirestoreRecyclerOptions<GroupChatEntity> options, Context mContext) {
         super(options);
         this.mContext = mContext;
+
     }
 
     @Override
@@ -72,105 +74,115 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                 Activity.MODE_PRIVATE);
         String language = prefs.getString("Language", "");
         current = mContext.getResources().getConfiguration().locale;
-        if (current.getLanguage().equals("fr")) {
-            SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
-            holder.textViewDate.setText(format.format(model.getDate().getTime()));
-        } else if (current.getLanguage().equals("en")) {
-            SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.ENGLISH);
-            holder.textViewDate.setText(format.format(model.getDate().getTime()));
+        if(model.getDate() != null) {
+            if (current.getLanguage().equals("fr")) {
+                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.FRENCH);
+                holder.textViewDate.setText(format.format(model.getDate().getTime()));
+            } else if (current.getLanguage().equals("en")) {
+                SimpleDateFormat format = new SimpleDateFormat("E dd MMM, HH:mm", Locale.ENGLISH);
+                holder.textViewDate.setText(format.format(model.getDate().getTime()));
+            }
         }
-
         String organism = model.getOrganism();
         String sharedId = model.getSharedIn();
 
         RequestOptions myOptions = new RequestOptions()
                 .fitCenter()
                 .override(250, 250);
-        if(model.getImageGroup() != null) {
+
             Glide.with(holder.imgViewGroupe.getContext())
                     .asBitmap()
                     .apply(myOptions)
-                    .load(model.getImageGroup())
+                    .load(R.drawable.ic_event_round)
                     .into(holder.imgViewGroupe);
+
+
+        if(!id.contains("Alert")) {
+            mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                    .document(id).collection("Creator")
+                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            String imageProfileUrl = document.getString("imageProfileUrl");
+                            if (imageProfileUrl != null) {
+                                StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+                                storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Uri downloadUrl = uri;
+                                        String urlImage = downloadUrl.toString();
+                                        Glide.with(holder.profile_image_two.getContext())
+                                                .load(urlImage)
+                                                .into(holder.profile_image_two);
+                                    }
+                                });
+                            } else {
+                                Glide.with(holder.profile_image_two.getContext())
+                                        .load(R.drawable.ic_profile)
+                                        .into(holder.profile_image_two);
+                            }
+                        }
+                    }
+                }
+            });
+            mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                    .document(id).collection("Participants")
+                    .limit(1).whereEqualTo("creator", false).get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    String imageProfileUrl = document.getString("imageProfileUrl");
+                                    if (imageProfileUrl != null) {
+                                        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
+                                        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                Uri downloadUrl = uri;
+                                                String urlImage = downloadUrl.toString();
+                                                Glide.with(holder.profile_image_two.getContext())
+                                                        .load(urlImage)
+                                                        .into(holder.profile_image_two);
+                                            }
+                                        });
+                                    } else {
+                                        Glide.with(holder.profile_image_two.getContext())
+                                                .load(R.drawable.ic_profile)
+                                                .into(holder.profile_image_two);
+                                    }
+                                }
+                            }
+                        }
+                    });
+            CollectionReference participantRef = mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                    .document(id).collection("Participants");
+            participantRef.get()
+                    .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                            if (task.isSuccessful()) {
+                                int count = 0;
+                                for (DocumentSnapshot document : task.getResult()) {
+                                    count++;
+                                }
+                                holder.textViewCount.setText("+" + (count - 2));
+                                if (count < 2) {
+                                    holder.profile_image_one.setVisibility(View.GONE);
+                                    holder.textViewCount.setText("...");
+                                }
+                            }
+                        }
+                    });
+        } else {
+            holder.profile_image_two.setVisibility(View.GONE);
+            holder.profile_image_one.setVisibility(View.GONE);
+            holder.textViewCount.setVisibility(View.GONE);
+            holder.imgButtonQuit.setVisibility(View.GONE);
         }
-        mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
-                .document(id).collection("Creator")
-                .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String imageProfileUrl = document.getString("imageProfileUrl");
-                                if(imageProfileUrl != null) {
-                                    StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
-                                    storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            Uri downloadUrl = uri;
-                                            String urlImage = downloadUrl.toString();
-                                            Glide.with(holder.profile_image_two.getContext())
-                                                    .load(urlImage)
-                                                    .into(holder.profile_image_two);
-                                        }
-                                    });
-                                } else {
-                                    Glide.with(holder.profile_image_two.getContext())
-                                            .load(R.drawable.ic_profile)
-                                            .into(holder.profile_image_two);
-                                }
-                            }
-                        }
-                    }
-                });
-        mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
-                .document(id).collection("Participants")
-                .limit(1).whereEqualTo("creator", false).get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                String imageProfileUrl = document.getString("imageProfileUrl");
-                                if(imageProfileUrl != null) {
-                                    StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageProfileUrl);
-                                    storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                                        @Override
-                                        public void onSuccess(Uri uri) {
-                                            Uri downloadUrl = uri;
-                                            String urlImage = downloadUrl.toString();
-                                            Glide.with(holder.profile_image_two.getContext())
-                                                    .load(urlImage)
-                                                    .into(holder.profile_image_two);
-                                        }
-                                    });
-                                } else {
-                                    Glide.with(holder.profile_image_two.getContext())
-                                            .load(R.drawable.ic_profile)
-                                            .into(holder.profile_image_two);
-                                }
-                            }
-                        }
-                    }
-                });
-        CollectionReference participantRef = mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
-                .document(id).collection("Participants");
-        participantRef.get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            int count = 0;
-                            for (DocumentSnapshot document : task.getResult()) {
-                                count++;
-                            }
-                            holder.textViewCount.setText("+" + (count - 2));
-                            if (count < 2) {
-                                holder.profile_image_one.setVisibility(View.GONE);
-                                holder.textViewCount.setText("...");
-                            }
-                        }
-                    }
-                });
 
         //SET BUTTONS(QUIT + NOTIFICATIONS) VISIBLE
         holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -187,43 +199,47 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
                     return true;
             }
         });
-        holder.imgButtonQuit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog dialogBuilder = new AlertDialog.Builder(mContext).create();
-                LayoutInflater inflater = LayoutInflater.from(mContext);
-                View dialogView = inflater.inflate(R.layout.style_alert_dialog, null);
-                TextView tvTitle = dialogView.findViewById(R.id.tvTitleDialog);
-                tvTitle.setText(R.string.want_to_quit);
-                Button btNo = dialogView.findViewById(R.id.btNo);
-                Button btYes = dialogView.findViewById(R.id.btDeleteFriend);
-                btYes.setText(R.string.quit);
-                btYes.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        participantRef.document(mCurrentUserId).delete();
+        if(!id.contains("Alert")) {
+            CollectionReference participantRef = mFirestore.collection(organism).document("AllCampus").collection("AllChatGroups")
+                    .document(id).collection("Participants");
 
-                        mFirestore.collection("USERS")
-                                .document(mCurrentUserId)
-                                .collection("ChatGroup")
-                                .document(id)
-                                .delete();
-                        dialogBuilder.dismiss();
-                    }
-                });
-                btNo.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialogBuilder.dismiss();
-                        holder.linearLayout.setVisibility(View.GONE);
+            holder.imgButtonQuit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog dialogBuilder = new AlertDialog.Builder(mContext).create();
+                    LayoutInflater inflater = LayoutInflater.from(mContext);
+                    View dialogView = inflater.inflate(R.layout.style_alert_dialog, null);
+                    TextView tvTitle = dialogView.findViewById(R.id.tvTitleDialog);
+                    tvTitle.setText(R.string.want_to_quit);
+                    Button btNo = dialogView.findViewById(R.id.btNo);
+                    Button btYes = dialogView.findViewById(R.id.btDeleteFriend);
+                    btYes.setText(R.string.quit);
+                    btYes.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            participantRef.document(mCurrentUserId).delete();
 
-                    }
-                });
-                dialogBuilder.setView(dialogView);
-                dialogBuilder.show();
-            }
-        });
+                            mFirestore.collection("USERS")
+                                    .document(mCurrentUserId)
+                                    .collection("ChatGroup")
+                                    .document(id)
+                                    .delete();
+                            dialogBuilder.dismiss();
+                        }
+                    });
+                    btNo.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialogBuilder.dismiss();
+                            holder.linearLayout.setVisibility(View.GONE);
 
+                        }
+                    });
+                    dialogBuilder.setView(dialogView);
+                    dialogBuilder.show();
+                }
+            });
+        }
         holder.profile_image_one.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -247,13 +263,23 @@ public class GroupConversationAdapter extends FirestoreRecyclerAdapter<GroupChat
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, ChatActivity.class);
-                intent.putExtra("chatid", model.getIdGroup());
-                intent.putExtra("ID_GROUP", id);
-                intent.putExtra("NAME_GROUP", name);
-                intent.putExtra("userID", mCurrentUserId);
-                intent.putExtra("organism", model.getOrganism());
-                mContext.startActivity(intent);
+                if(!id.contains("Alert")) {
+                    Intent intent = new Intent(mContext, ChatActivity.class);
+                    intent.putExtra("chatid", model.getIdGroup());
+                    intent.putExtra("ID_GROUP", id);
+                    intent.putExtra("NAME_GROUP", name);
+                    intent.putExtra("userID", mCurrentUserId);
+                    intent.putExtra("organism", model.getOrganism());
+                    mContext.startActivity(intent);
+                } else {
+                    Intent intent = new Intent(mContext, AlertChatActivity.class);
+                    intent.putExtra("chatid", model.getIdGroup());
+                    intent.putExtra("ID_GROUP", id);
+                    intent.putExtra("NAME_GROUP", name);
+                    intent.putExtra("userID", mCurrentUserId);
+                    intent.putExtra("organism", model.getOrganism());
+                    mContext.startActivity(intent);
+                }
             }
         });
     }

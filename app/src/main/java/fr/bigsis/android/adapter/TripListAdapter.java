@@ -361,7 +361,6 @@ public class TripListAdapter extends FirestorePagingAdapter<TripEntity, TripList
 
     }
 
-
     private void calculateRoutewalking(Point destination) {
         if (!locationEnabled()) {
             //TODO

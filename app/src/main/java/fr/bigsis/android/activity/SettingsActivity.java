@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,9 +61,9 @@ public class SettingsActivity extends BigsisActivity {
         relariveLayoutCGU = findViewById(R.id.relariveLayoutCGU);
         relativeLayoutPolicy = findViewById(R.id.relativeLayoutPolicy);
         relativeLayoutProfile = findViewById(R.id.relativeLayoutProfile);
-        tvPolicy.getPaint().setUnderlineText(true);
-        tvCGU.getPaint().setUnderlineText(true);
 
+        tvCGU.setMovementMethod(LinkMovementMethod.getInstance());
+        tvPolicy.setMovementMethod(LinkMovementMethod.getInstance());
 
         setToolBar();
 
@@ -139,7 +140,6 @@ public class SettingsActivity extends BigsisActivity {
                 TextView tvTitleDialog = dialogView.findViewById(R.id.tvTitleDialog);
                 Button btDelete = dialogView.findViewById(R.id.btDeleteFriend);
                 tvTitleDialog.setText(R.string.want_to_delete_account);
-
                 btDelete.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -148,6 +148,11 @@ public class SettingsActivity extends BigsisActivity {
                                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                             @Override
                             public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                user.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        startActivity(new Intent(SettingsActivity.this, MainActivity.class));
+
                                 String organism = documentSnapshot.getString("organism");
                                 String groupCampus = documentSnapshot.getString("groupCampus");
                                 FirestoreHelper.deleteUserFromCampus(organism, groupCampus, userId);
@@ -158,16 +163,13 @@ public class SettingsActivity extends BigsisActivity {
                                 FirestoreHelper.deleteUserFromDbUsers(userId, "StaffOf");
                                 FirestoreHelper.deleteUserFromDbUsers(userId, "TripList");
                                 FirestoreHelper.deleteUserFromDbUsers(userId, "RequestReceived");
+                                FirestoreHelper.deleteUserFromDbUsers(userId, "ParticipateToEvents");
                                 FirestoreHelper.deleteUser(userId);
                                 FirestoreHelper.deleteUserFromAll(organism, userId);
                                 deleteUserFromOrganism(organism, userId);
                                 FirestoreHelper.deleteImageFromStorage(userId);
                             }
                         });
-                        user.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                startActivity(new Intent(SettingsActivity.this, MainActivity.class));
                             }
                         });
                         dialogBuilder.dismiss();

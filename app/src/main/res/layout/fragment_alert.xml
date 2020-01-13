@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".fragment.AlertFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -51,14 +51,15 @@
         android:id="@+id/constraint_layout_menu"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="60dp"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="60dp"
         android:layout_marginEnd="20dp"
         android:background="@drawable/rounded_menu_layout"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/constraint_layout"
         app:layout_constraintStart_toStartOf="@+id/constraint_layout"
         app:layout_constraintTop_toTopOf="parent">
+
 
         <Button
             android:id="@+id/btCallPolice"
@@ -72,6 +73,7 @@
             android:text="@string/call"
             android:textAllCaps="false"
             android:textColor="@color/colorAccent"
+            android:stateListAnimator="@null"
             app:layout_constraintBottom_toTopOf="@+id/view"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -86,6 +88,7 @@
             android:minHeight="20dp"
             android:text="@string/call"
             android:textAllCaps="false"
+            android:stateListAnimator="@null"
             android:textColor="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/view" />
@@ -117,7 +120,7 @@
 
         <TextView
             android:id="@+id/tvCallFireFighter"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
@@ -148,8 +151,10 @@
             android:layout_marginTop="16dp"
             android:layout_marginBottom="16dp"
             android:text="@string/emergency"
+            app:layout_constraintBottom_toTopOf="@+id/view3"
             app:layout_constraintEnd_toStartOf="@+id/btCallEmergency"
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintTop_toBottomOf="@+id/view2" />
 
         <Button
@@ -161,30 +166,101 @@
             android:layout_marginBottom="16dp"
             android:background="@drawable/custom_button"
             android:minHeight="20dp"
+            android:stateListAnimator="@null"
             android:text="@string/call"
             android:textAllCaps="false"
             android:textColor="@color/colorAccent"
+            app:layout_constraintBottom_toTopOf="@+id/view3"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/btAlert"
             app:layout_constraintTop_toBottomOf="@+id/view2" />
 
-        <Button
-            android:id="@+id/btAlert"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <View
+            android:id="@+id/view3"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
             android:layout_marginBottom="16dp"
-            android:background="@drawable/bt_alert_design"
-            android:gravity="center"
+            android:alpha="0.5"
+            android:background="@color/colorAccent"
             android:visibility="gone"
-            android:minHeight="30dp"
-            android:paddingLeft="50dp"
-            android:paddingRight="50dp"
-            android:text="@string/alert_staff"
-            android:textColor="@color/colorWhite"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/tvAlertOnGoing"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/tvAlertOnGoing"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="16dp"
+            android:text="@string/alert_on_going"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="@+id/relativeLayoutButtons"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <RelativeLayout
+            android:id="@+id/relativeLayoutButtons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <Button
+                android:id="@+id/btAlert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bt_alert_design"
+                android:gravity="center"
+                android:minHeight="30dp"
+                android:paddingLeft="50dp"
+                android:paddingRight="50dp"
+                android:text="@string/alert_staff"
+                android:textColor="@color/colorWhite"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/btDesableAlert"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="16dp"
+                android:background="@drawable/bt_alert_design"
+                android:gravity="center"
+                android:minHeight="30dp"
+                android:paddingLeft="50dp"
+                android:paddingRight="50dp"
+                android:text="@string/desable_alert"
+                android:textColor="@color/colorWhite"
+                android:visibility="gone" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/rvProgressBarALert"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:background="@drawable/rounded_menu_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:visibility="gone"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

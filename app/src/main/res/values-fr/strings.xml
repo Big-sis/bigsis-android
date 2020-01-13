@@ -104,8 +104,10 @@
     <string name="campus">Campus</string>
     <string name="show">Voir</string>
     <string name="acccept_cgu">J\'ai lu et j\'accepte</string>
-    <string name="les_cgu">les CGU</string>
-    <string name="policy">la politique de confidentialité</string>
+    <string name="les_cgu">
+<a href="https://bigsis.fr/index.php/cgu/"> les CGU</a>
+</string>
+    <string name="policy"><a href="https://bigsis.fr/index.php/politique-de-protection-des-donnees/"> la politique de confidentialité</a></string>
     <string name="cgue">CGU</string>
     <string name="policy_conf">Politique de confidentialité</string>
     <string name="want_to_delete_account">Voulez-vous vraiment supprimer votre compte?</string>
@@ -133,4 +135,10 @@
     <string name="show_staff">Voir STAFF...</string>
     <string name="email_campus">email@campus.com*</string>
     <string name="dont_participate">Ne plus participer</string>
+    <string name="staff_alert_sent">Alerte staff envoyé</string>
+    <string name="desable_alert">Désactiver l\'alerte</string>
+    <string name="alert_on_going">Alerte en cours...</string>
+    <string name="sent_alert">a lancé une alerte</string>
+    <string name="where_are_you_going">Où allez-vous ?</string>
+    <string name="going">J\'y vais</string>
 </resources>

@@ -165,7 +165,7 @@ public class EventListActivity extends BigsisActivity implements AddEventFragmen
                         .setPageSize(20)
                         .build();
 
-                deleteEvent(organism);
+                deleteEvent(organism, mCurrentUserId);
                 deleteEventFromCampus(organism, nameCampus, mCurrentUserId);
 
                 Query query = FirebaseFirestore.getInstance().collection(organism).document("AllCampus")

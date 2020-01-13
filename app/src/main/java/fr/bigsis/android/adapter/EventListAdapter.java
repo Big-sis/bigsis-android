@@ -459,6 +459,8 @@ isParticipating = false;
         TextView tvDesctiptionEvent;
         @BindView(R.id.tvInformations)
         TextView tvInformations;
+        @BindView(R.id.adressEvent)
+        TextView adressEvent;
         @BindView(R.id.btParticipateEvent)
         Button btParticipateEvent;
         @BindView(R.id.btUnparticipateEvent)
@@ -491,6 +493,7 @@ isParticipating = false;
             textViewTitle.setText(item.getTitleEvent());
             current = mContext.getResources().getConfiguration().locale;
             Calendar calendar = Calendar.getInstance();
+            adressEvent.setText(item.getAddressEvent());
             //TODO set date in the right form at
             Date today = calendar.getTime();
             if(item.getDateStart().equals(today)) {

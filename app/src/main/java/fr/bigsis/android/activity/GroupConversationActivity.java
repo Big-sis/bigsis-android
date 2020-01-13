@@ -39,7 +39,6 @@ public class GroupConversationActivity extends BigsisActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_group_conversation);
 
-
         final CurvedBottomNavigationView curvedBottomNavigationView = findViewById(R.id.customBottomBar);
         curvedBottomNavigationView.inflateMenu(R.menu.bottom_menu);
         curvedBottomNavigationView.setSelectedItemId(R.id.action_message);
@@ -76,7 +75,6 @@ public class GroupConversationActivity extends BigsisActivity {
     }
 
     private void setUpRecyclerView() {
-//TODO REPLACE ADAPTER
         mAuth = FirebaseAuth.getInstance();
         mCurrentUserId = mAuth.getCurrentUser().getUid();
         Query query = db.collection("USERS").document(mCurrentUserId).collection("ChatGroup");

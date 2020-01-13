@@ -132,6 +132,8 @@ public class AddTripFragment extends Fragment {
         ic_car = view.findViewById(R.id.imageBtCar);
         linearLayoutNumberPlaces = view.findViewById(R.id.linearLayoutNumberPlaces);
 
+        Calendar calendar = Calendar.getInstance();
+        date = calendar.getTime();
         modeTrip = "walking";
         numberPlaces = null;
         transitionContainer = getActivity().findViewById(R.id.toolbarLayout);

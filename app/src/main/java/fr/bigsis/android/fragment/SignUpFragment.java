@@ -3,6 +3,7 @@ package fr.bigsis.android.fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -83,24 +84,9 @@ public class SignUpFragment extends Fragment {
         progressBarSign = view.findViewById(R.id.progressBarSignUp);
         textViewCgu = view.findViewById(R.id.textViewCgu);
         textViewPolicy = view.findViewById(R.id.textViewPolicy);
-        textViewPolicy.getPaint().setUnderlineText(true);
-        textViewCgu.getPaint().setUnderlineText(true);
-        textViewPolicy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), PolicyCGUActivity.class);
-                intent.putExtra("POLICY", "policy");
-                startActivity(intent);
-            }
-        });
-        textViewCgu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getActivity(), PolicyCGUActivity.class);
-                intent.putExtra("CGU", "cgu");
-                startActivity(intent);
-            }
-        });
+
+        textViewCgu.setMovementMethod(LinkMovementMethod.getInstance());
+        textViewPolicy.setMovementMethod(LinkMovementMethod.getInstance());
         mFirebaseAuth = FirebaseAuth.getInstance();
         btSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,12 +102,12 @@ public class SignUpFragment extends Fragment {
         String password = etPassword.getText().toString();
         String confirmPassword = etConfirmPassword.getText().toString();
         //TODO enlever hotmail, gmail..
-       if(!email.contains("@tbs-education") || !email.contains("@hotmail.fr")
-               || !email.contains("@gmail.com") || !email.contains("@bigsis.fr")) {
+       if(!(email.contains("@tbs-education") || email.contains("@hotmail.fr") || email.contains("@gmail.com") || email.contains("@bigsis.fr"))) {
             Snackbar.make(relativeLayoutSignUp, "Vous devez vous inscrire avec l'adresse e-mail de votre campus", Snackbar.LENGTH_LONG)
                     .show();
             return;
         }
+
         if ((!acceptCGU.isChecked()) || (!acceptPolicy.isChecked())) {
             Snackbar.make(relativeLayoutSignUp, getString(R.string.required_fields), Snackbar.LENGTH_LONG)
                     .show();

@@ -8,23 +8,35 @@ public class AlertEntity {
     double longitudeAlert;
     String imageProfile;
     String lastname;
-    String firstname;
+    String username;
+    double latReceiver;
+    double longReceiver;
     Date dateAlert;
     Date dateEndAlert;
 
     public AlertEntity() {
     }
 
-    public AlertEntity(double latitudeAlert, double longitudeAlert, String imageProfile, String lastname, String firstname, Date dateAlert, Date dateEndAlert) {
+    public AlertEntity(double latitudeAlert, double longitudeAlert, String imageProfile, String lastname,
+                       String username, Date dateAlert, Date dateEndAlert) {
         this.latitudeAlert = latitudeAlert;
         this.longitudeAlert = longitudeAlert;
         this.imageProfile = imageProfile;
         this.lastname = lastname;
-        this.firstname = firstname;
+        this.username = username;
         this.dateAlert = dateAlert;
         this.dateEndAlert = dateEndAlert;
-    }
 
+    }
+    public AlertEntity(double latitudeAlert, double longitudeAlert, String lastname,
+                       String username, double latReceiver, double longReceiver) {
+        this.latitudeAlert = latitudeAlert;
+        this.longitudeAlert = longitudeAlert;
+        this.lastname = lastname;
+        this.username = username;
+        this.latReceiver = latReceiver;
+        this.longReceiver = longReceiver;
+    }
     public double getLatitudeAlert() {
         return latitudeAlert;
     }
@@ -57,12 +69,12 @@ public class AlertEntity {
         this.lastname = lastname;
     }
 
-    public String getFirstname() {
-        return firstname;
+    public String getUsername() {
+        return username;
     }
 
-    public void setFirstname(String firstname) {
-        this.firstname = firstname;
+    public void setUsername(String firstname) {
+        this.username = firstname;
     }
 
     public Date getDateAlert() {
@@ -79,5 +91,21 @@ public class AlertEntity {
 
     public void setDateEndAlert(Date dateEndAlert) {
         this.dateEndAlert = dateEndAlert;
+    }
+
+    public double getLatReceiver() {
+        return latReceiver;
+    }
+
+    public void setLatReceiver(double latReceiver) {
+        this.latReceiver = latReceiver;
+    }
+
+    public double getLongReceiver() {
+        return longReceiver;
+    }
+
+    public void setLongReceiver(double longReceiver) {
+        this.longReceiver = longReceiver;
     }
 }

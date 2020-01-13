@@ -1,8 +1,10 @@
 package fr.bigsis.android.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,16 +14,25 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.collection.LLRBNode;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
@@ -33,9 +44,13 @@ import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.camera.CameraUpdateFactory;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 import com.mapbox.mapboxsdk.location.LocationComponent;
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions;
+import com.mapbox.mapboxsdk.location.LocationComponentOptions;
 import com.mapbox.mapboxsdk.location.modes.CameraMode;
+import com.mapbox.mapboxsdk.location.modes.RenderMode;
 import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
@@ -59,6 +74,7 @@ import fr.bigsis.android.constant.Constant;
 import fr.bigsis.android.fragment.AlertFragment;
 import fr.bigsis.android.fragment.ItineraryFragment;
 import fr.bigsis.android.fragment.MenuFilterFragment;
+import fr.bigsis.android.fragment.ReceiverAlertFragment;
 import fr.bigsis.android.helpers.MapHelper;
 import fr.bigsis.android.view.CurvedBottomNavigationView;
 import fr.bigsis.android.viewModel.AlertLocateViewModel;
@@ -76,17 +92,19 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacem
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconOffset;
 import static fr.bigsis.android.helpers.MapHelper.openItineraryFragment;
+import static fr.bigsis.android.helpers.MapHelper.showFragmentIfAlert;
 
 public class MapsActivity extends BigsisActivity implements MenuFilterFragment.OnFragmentInteractionListener,
         OnMapReadyCallback, PermissionsListener, MapboxMap.OnInfoWindowClickListener, MapboxMap.OnMapClickListener,
-        AlertFragment.OnFragmentInteractionListener, ItineraryFragment.OnFragmentInteractionListener {
+        AlertFragment.OnFragmentInteractionListener, ItineraryFragment.OnFragmentInteractionListener,
+        ReceiverAlertFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "DirectionsActivity";
     private static final String SOURCE_ID = "SOURCE_ID";
     private static final String ICON_ID = "ICON_ID";
     private static final String LAYER_ID = "LAYER_ID";
     LocationComponent locationComponent;
-    FloatingActionButton imgBtItinarary;
+    FloatingActionButton imgBtItinarary, imgBtPositionAlert;
     TextView tvOpenItinerary;
     ItineraryViewModel itineraryViewModel;
     String driving;
@@ -101,7 +119,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
     private FloatingActionButton fbAlertRed;
     private AlertLocateViewModel alertLocateViewModel;
     private String profileCriteria = DirectionsCriteria.PROFILE_DRIVING, unitsCriteria = DirectionsCriteria.METRIC;
-
+    private ConstraintLayout constraintLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -114,11 +132,15 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         imgBtRecenter = findViewById(R.id.imgBtRecenter);
         fbAlertGreen = findViewById(R.id.fbAlert);
         fbAlertRed = findViewById(R.id.fbAlertRed);
+        constraintLayout = findViewById(R.id.constraitLayoutMaps);
         AlertFragment alertFragment = AlertFragment.newInstance();
         ItineraryFragment itineraryFragment = ItineraryFragment.newInstance();
+        ReceiverAlertFragment receiverAlertFragment = ReceiverAlertFragment.newInstance();
+
         fbAlertRed.hide();
         firebaseFirestore = FirebaseFirestore.getInstance();
         imgBtItinarary = findViewById(R.id.imgBtItinarary);
+        imgBtPositionAlert = findViewById(R.id.imgBtPositionAlert);
         tvOpenItinerary = findViewById(R.id.tvOpenItinerary);
         openItineraryFragment(tvOpenItinerary, MapsActivity.this);
         MapHelper.setOnCLickButton(fbAlertGreen, fbAlertRed, MapsActivity.this, this, tvOpenItinerary);
@@ -136,7 +158,7 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 return selectItem(item, curvedBottomNavigationView);
             }
         });
-
+        MapHelper.alertReceiver(MapsActivity.this, constraintLayout, tvOpenItinerary, fbAlertGreen, fbAlertRed);
     }
 
     @Override
@@ -156,57 +178,23 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                         String titre = doc.getDocument().getString("name");
                         mapboxMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(lat, lng))
-                                .snippet("hiii")
+                                .snippet(titre)
                                 .icon(icon));
                     }
                 }
             }
         });
 
+        showPositionAlert(MapsActivity.this, mapboxMap);
+        showPositionReceiver(MapsActivity.this, mapboxMap);
+        showFragmentIfAlert(MapsActivity.this, constraintLayout, fbAlertGreen, fbAlertRed, tvOpenItinerary);
 
-        mapboxMap.setStyle(new Style.Builder().withImage("test-icon", getResources().getDrawable(R.drawable.ic_message))
-
-                .withLayer(new SymbolLayer(LAYER_ID, SOURCE_ID)
-                        .withProperties(PropertyFactory.iconImage("test-icon"),
-                                iconAllowOverlap(true),
-                                iconIgnorePlacement(true),
-                                iconOffset(new Float[]{0f, -9f}))
-                ), new Style.OnStyleLoaded() {
+        mapboxMap.setStyle(new Style.Builder().fromUri(Constant.uniqueStyleUrl), new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
 
-                // Map is set up and the style has loaded. Now you can add additional data or make other map adjustments.
-
-
-            }
-        });
-        mapboxMap.setStyle(getString(R.string.navigation_guidance_day), new Style.OnStyleLoaded() {
-            @Override
-            public void onStyleLoaded(@NonNull Style style) {
-
-                //addDestinationIconSymbolLayer(style);
-                // create symbol manager object
-                // style.addImage("SMALL_MONSTER_ICON", MapsActivity.this, R.drawable.ic_message));
+                // Custom map style has been loaded and map is now ready
                 enableLocationComponent(style);
-
-
-                style.addImageAsync("SMALL_MONSTER_ICON", BitmapUtils.getBitmapFromDrawable(
-                        getResources().getDrawable(R.drawable.ic_message)));
-                SymbolManager symbolManager = new SymbolManager(mapView, mapboxMap, style);
-
-// add click listeners if desired
-                Symbol symbol = symbolManager.create(new SymbolOptions()
-                        .withLatLng(new LatLng(43.604604, 1.445432))
-
-                        .withIconImage("SMALL_MONSTER_ICON")
-
-                        .withIconSize(2.0f));
-
-
-// set non-data-driven properties, such as:
-                symbolManager.setIconAllowOverlap(true);
-                symbolManager.setIconTranslate(new Float[]{-4f, 5f});
-                symbolManager.setIconRotationAlignment(ICON_ROTATION_ALIGNMENT_VIEWPORT);
             }
         });
 
@@ -295,6 +283,71 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         });
     }
 
+    public void showPositionAlert(Activity activity, MapboxMap mapboxMap) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+        String userId = mFirebaseAuth.getCurrentUser().getUid();
+        mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String organism = documentSnapshot.getString("organism");
+                CollectionReference collectionReference = mFirestore.collection(organism).document("AllCampus").collection("AllEvents");
+                collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String eventId = document.getId();
+                                CollectionReference collectionReferenceAlert = collectionReference.document(eventId).collection("Alert");
+                                collectionReferenceAlert.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                        if (task.getResult().size() > 0) {
+                                            for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
+                                                String idAlertUser = queryDocumentSnapshot.getId();
+                                                collectionReferenceAlert.document(idAlertUser).collection("StaffOnGoing")
+                                                        .document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                    @Override
+                                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                        if (documentSnapshot.exists()) {
+                                                            IconFactory iconFactory = IconFactory.getInstance(activity);
+                                                            com.mapbox.mapboxsdk.annotations.Icon icon = iconFactory.fromResource(R.drawable.ic_pin_map);
+
+                                                            double lat = documentSnapshot.getDouble("latitudeAlert");
+                                                            double lng = documentSnapshot.getDouble("longitudeAlert");
+
+                                                            mapboxMap.addMarker(new MarkerOptions()
+                                                                    .position(new LatLng(lat, lng))
+                                                                    .snippet("hiii")
+                                                                    .icon(icon));
+
+                                                            mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                                                    new LatLng(lat, lng), 13));
+
+                                                            imgBtPositionAlert.show();
+                                                            imgBtPositionAlert.setOnClickListener(new View.OnClickListener() {
+                                                                @Override
+                                                                public void onClick(View v) {
+                                                                    mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                                                            new LatLng(lat, lng), 13));
+                                                                }
+                                                            });
+
+                                                        }
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
+
 
     @Override
     public boolean onInfoWindowClick(@NonNull Marker marker) {
@@ -309,6 +362,77 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
                 .title(marker.getTitle()));
         Log.d(TAG, "onMarkerClick: " + snippest);*/
         return true;
+    }
+
+    public void showPositionReceiver(Activity activity, MapboxMap mapboxMap) {
+        FirebaseFirestore mFirestore = FirebaseFirestore.getInstance();
+        FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
+        String userId = mFirebaseAuth.getCurrentUser().getUid();
+        mFirestore.collection("USERS").document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                String organism = documentSnapshot.getString("organism");
+                CollectionReference collectionReference = mFirestore.collection(organism).document("AllCampus").collection("AllEvents");
+                collectionReference.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                String eventId = document.getId();
+                                CollectionReference collectionReferenceAlert = collectionReference.document(eventId).collection("Alert");
+                                collectionReferenceAlert.document(userId).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                    @Override
+                                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                        if (documentSnapshot.exists()) {
+                                            collectionReferenceAlert.document(userId).collection("StaffOnGoing")
+                                                    .get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                                                    if (task.getResult().size() > 0) {
+                                                        for (QueryDocumentSnapshot queryDocumentSnapshot : task.getResult()) {
+
+                                                            String idReceiver = queryDocumentSnapshot.getId();
+                                                            collectionReferenceAlert.document(userId).collection("StaffOnGoing")
+                                                                    .document(idReceiver).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                                                                @Override
+                                                                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                                                    double lat = documentSnapshot.getDouble("latReceiver");
+                                                                    double lng = documentSnapshot.getDouble("longReceiver");
+                                                                    IconFactory iconFactory = IconFactory.getInstance(activity);
+                                                                    com.mapbox.mapboxsdk.annotations.Icon icon = iconFactory.fromResource(R.drawable.ic_pin_map);
+
+                                                                    mapboxMap.addMarker(new MarkerOptions()
+                                                                            .position(new LatLng(lat, lng))
+                                                                            .snippet("hiii")
+                                                                            .icon(icon));
+
+                                                                    mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                                                            new LatLng(lat, lng), 13));
+
+                                                                    imgBtPositionAlert.show();
+                                                                    imgBtPositionAlert.setOnClickListener(new View.OnClickListener() {
+                                                                        @Override
+                                                                        public void onClick(View v) {
+                                                                            mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                                                                    new LatLng(lat, lng), 13));
+                                                                        }
+                                                                    });
+                                                                }
+                                                            });
+
+                                                        }
+                                                    }
+                                                }
+                                            });
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    }
+                });
+            }
+        });
     }
 
     private void addDestinationIconSymbolLayer(@NonNull Style loadedMapStyle) {
@@ -447,19 +571,32 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         // Check if permissions are enabled and if not request
         if (locationEnabled()) {
             if (PermissionsManager.areLocationPermissionsGranted(this)) {
-                Bitmap icon = BitmapFactory.decodeResource(MapsActivity.this.getResources(), R.drawable.ic_marker_position);
-                loadedMapStyle.addImage("position marker", icon);
+
+                LocationComponentOptions customLocationComponentOptions = LocationComponentOptions.builder(this)
+                        .accuracyAlpha(0.4f)
+                        .accuracyColor(R.color.colorPrimary)
+                        .foregroundDrawable(R.drawable.ic_marker_position)
+                        .build();
                 // Activate the MapboxMap LocationComponent to show user location
                 // Adding in LocationComponentOptions is also an optional parameter
                 locationComponent = mapboxMap.getLocationComponent();
-                locationComponent.activateLocationComponent(this, loadedMapStyle);
+                LocationComponentActivationOptions locationComponentActivationOptions =
+                        LocationComponentActivationOptions.builder(this, loadedMapStyle)
+                                .locationComponentOptions(customLocationComponentOptions)
+                                .build();
+
+                locationComponent.activateLocationComponent(locationComponentActivationOptions);
+
                 locationComponent.setLocationComponentEnabled(true);
                 // Set the component's camera mode
+
                 locationComponent.setCameraMode(CameraMode.TRACKING);
                 alertLocateViewModel = ViewModelProviders.of(MapsActivity.this).get(AlertLocateViewModel.class);
 
                 double latitudeAlert = locationComponent.getLastKnownLocation().getLatitude();
                 double longitudeAlert = locationComponent.getLastKnownLocation().getLongitude();
+                mapboxMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(latitudeAlert, longitudeAlert), 16));
                 alertLocateViewModel.setLatitudeAlert(latitudeAlert);
                 alertLocateViewModel.setLongitudeAlert(longitudeAlert);
 
@@ -555,5 +692,6 @@ public class MapsActivity extends BigsisActivity implements MenuFilterFragment.O
         fbAlertGreen.show();
         fbAlertRed.hide();
         tvOpenItinerary.setVisibility(View.VISIBLE);
+        constraintLayout.setVisibility(View.GONE);
     }
 }
